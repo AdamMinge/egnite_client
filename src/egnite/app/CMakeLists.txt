@@ -18,6 +18,7 @@ set(includes)
 set(uis)
 
 set(resources
+        ${resources_root}/conf.qrc
         ${resources_root}/qml.qrc)
 # -------------------------------------------------------------------------------------------------- #
 # ---------------------------------- Qt libraries configuration ------------------------------------ #

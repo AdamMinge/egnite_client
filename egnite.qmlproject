@@ -1,7 +1,7 @@
 import QmlProject
 
 Project {
-    mainFile: "resources/qml/main.qml"
+    mainFile: "resources/qml/Main.qml"
 
     /* Include .qml, .js, and image files from current directory and subdirectories */
     QmlFiles {
@@ -18,7 +18,7 @@ Project {
 
     Files {
         filter: "*.conf"
-        files: ["qtquickcontrols2.conf"]
+        files: ["resources/conf/qtquickcontrols2.conf"]
     }
 
     Files {
@@ -48,7 +48,7 @@ Project {
     }
 
     Environment {
-        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
+        QT_QUICK_CONTROLS_CONF: "resources/conf/qtquickcontrols2.conf"
         QT_AUTO_SCREEN_SCALE_FACTOR: "1"
         QT_LOGGING_RULES: "qt.qml.connections=false"
         QT_ENABLE_HIGHDPI_SCALING: "0"
@@ -83,4 +83,6 @@ Project {
     supportedLanguages: ["en"]
     primaryLanguage: "en"
 
+
+    mainUiFile: "resources/qml/ScreenT.qml"
 }
