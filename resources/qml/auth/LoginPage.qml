@@ -4,8 +4,6 @@ import QtQuick.Layouts 6.1
 
 Page {
     id: login_page
-    width: parent.width
-    height: parent.height
 
     Rectangle {
         id: icon
@@ -23,7 +21,6 @@ Page {
     }
 
     ColumnLayout {
-        x: 0
         width: parent.width
         anchors.top: icon.bottom
         spacing: 10
@@ -69,21 +66,13 @@ Page {
                 show_sign_up()
             }
         }
-
-        Label {
-            id: forgot_password_link
-            text: '<html><style type="text/css"></style><a href="http://google.com">Forgot password?</a></html>'
-            horizontalAlignment: Text.AlignHCenter
-            Layout.margins: 10
-            Layout.alignment: Qt.AlignHCenter
-
-            MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onClicked: show_reset_password()
-            }
-        }
     }
 }
 
 
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;height:480;width:640}
+}
+##^##*/

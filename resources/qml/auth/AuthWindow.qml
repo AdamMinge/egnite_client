@@ -26,8 +26,4 @@ Window {
     function show_sign_up(){
         stack_view.replace("SignUpPage.qml")
     }
-
-    function show_reset_password(){
-        stack_view.replace("ResetPasswordPage.qml")
-    }
 }
