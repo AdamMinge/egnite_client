@@ -1,9 +1,5 @@
 <RCC>
     <qresource>
-        <file>conf/qtquickcontrols2.conf</file>
-    </qresource>
-
-    <qresource>
         <file>font/FontAwesome.ttf</file>
     </qresource>
 

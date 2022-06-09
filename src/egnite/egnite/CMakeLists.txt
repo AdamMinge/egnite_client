@@ -9,10 +9,14 @@ set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/egnite)
 set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/egnite)
 set(resources_root ${EGNITE_SOURCE_DIR}/resources/egnite)
 
-set(sources)
+set(sources
+        ${source_root}/quick_egnite.cpp
+        ${source_root}/quick_plugin.cpp)
 
 set(includes
-        ${include_root}/export.h)
+        ${include_root}/export.h
+        ${include_root}/quick_egnite.h
+        ${include_root}/quick_plugin.h)
 
 set(resources
         ${resources_root}/egnite.qrc)

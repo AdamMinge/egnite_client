@@ -5,41 +5,29 @@ cmake_minimum_required(VERSION 3.11)
 # -------------------------------------------------------------------------------------------------- #
 # -------------------------------------- Set files variable ---------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/viewer)
-set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/viewer)
-set(uis_root ${EGNITE_SOURCE_DIR}/uis/egnite/viewer)
-set(resources_root ${EGNITE_SOURCE_DIR}/resources/viewer)
+set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/utils/command_line)
+set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/utils/command_line)
 
 set(sources
-        ${source_root}/main.cpp)
+        ${source_root}/command_line_parser.cpp)
 
-set(includes)
-
-set(uis)
-
-set(resources
-        ${resources_root}/viewer.qrc)
+set(includes
+        ${include_root}/export.h
+        ${include_root}/command_line_parser.h)
 # -------------------------------------------------------------------------------------------------- #
 # ---------------------------------- Qt libraries configuration ------------------------------------ #
 # -------------------------------------------------------------------------------------------------- #
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-
-set(CMAKE_AUTOUIC_SEARCH_PATHS ${uis_root})
 # -------------------------------------------------------------------------------------------------- #
 # ----------------------------------- Find external libraries -------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-find_package(Qt6 REQUIRED COMPONENTS Widgets Qml QuickControls2)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
 # -------------------------------------------------------------------------------------------------- #
-# ------------------------------------ create engine editor ---------------------------------------- #
+# ------------------------------------ Create utils shared lib ------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-egnite_add_application(viewer
-        SOURCES ${sources} ${includes} ${uis} ${resources}
-        DEPENDS
-        Qt::Widgets
-        Qt::Qml
-        Qt::QuickControls2
-        utils::command_line
-        egnite::egnite)
+egnite_add_utils(command_line
+        SOURCES ${sources} ${includes}
+        DEPENDS_PRIVATE Qt6::Widgets)
 # -------------------------------------------------------------------------------------------------- #
