@@ -2,25 +2,16 @@
 #include "egnite/config.h"
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QApplication>
+#include <QFontDatabase>
 #include <QQmlApplicationEngine>
 /* -------------------------------------------------------------------------- */
 
-void setQtEnvironment()
-{
-  qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
-  qputenv("QT_ENABLE_HIGHDPI_SCALING", "0");
-  qputenv("QT_LOGGING_RULES", "qt.qml.connections=false");
-  qputenv("QT_QUICK_CONTROLS_CONF", ":/conf/qtquickcontrols2.conf");
-}
-
 int main(int argc, char **argv)
 {
-  setQtEnvironment();
-
   QApplication app(argc, argv);
-  QApplication::setApplicationName(QStringLiteral("Egnite-Editor"));
+  QApplication::setApplicationName(QStringLiteral("Egnite-Viewer"));
   QApplication::setApplicationVersion(QLatin1String(EGNITE_VERSION_STR));
-  QApplication::setApplicationDisplayName(QStringLiteral("Egnite-Editor"));
+  QApplication::setApplicationDisplayName(QStringLiteral("Egnite-Viewer"));
   QApplication::setOrganizationName(QStringLiteral("Egnite"));
 
   QQmlApplicationEngine engine;
@@ -32,8 +23,9 @@ int main(int argc, char **argv)
     },
     Qt::QueuedConnection);
 
+  engine.addImportPath("qrc:/");
   engine.load(url);
-  if (engine.rootObjects().isEmpty()) { return -1; }
+  if (engine.rootObjects().isEmpty()) { QCoreApplication::exit(-1); }
 
   return QApplication::exec();
 }

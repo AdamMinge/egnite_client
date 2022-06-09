@@ -1,27 +1,30 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick.Layouts 6.1
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 Page {
-    id: sign_up_page
+    id: login_page
 
-    Label {
-        id: sign_up_label
+    Rectangle {
+        id: icon
         x: 0
         y: 0
-        topPadding: 20
         width: parent.width
         height: parent.height / 3
-        text: qsTr("Sign Up")
-        font.pointSize: 30
-        horizontalAlignment: Qt.AlignHCenter
+        color: "transparent"
+
+        Text {
+            text: qsTr("\uf169")
+            anchors.centerIn: parent
+            font.pointSize: 112
+            font.family: "FontAwesome"
+        }
     }
 
     ColumnLayout {
         width: parent.width
-        anchors.top: sign_up_label.bottom
+        anchors.top: icon.bottom
         spacing: 10
-
 
         TextField {
             id: username_field
@@ -29,6 +32,15 @@ Page {
             leftPadding: 30
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
+
+            Text {
+                text: "\uf007"
+                font.pointSize: 14
+                font.family: "FontAwesome"
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                leftPadding: 10
+            }
         }
 
         TextField {
@@ -37,14 +49,15 @@ Page {
             leftPadding: 30
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
-        }
 
-        TextField {
-            id: confirm_password_field
-            placeholderText: qsTr("Confirm Password")
-            leftPadding: 30
-            Layout.preferredWidth: parent.width - 20
-            Layout.alignment: Qt.AlignHCenter
+            Text {
+                text: "\uf023"
+                font.pointSize: 14
+                font.family: "FontAwesome"
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                leftPadding: 10
+            }
         }
 
         Item {
@@ -52,8 +65,8 @@ Page {
         }
 
         Button {
-            id: sign_up_button
-            text: "Sign Up"
+            id: login_button
+            text: "Log In"
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
 
@@ -63,17 +76,19 @@ Page {
         }
 
         Button {
-            id: cancel
-            text: "Cancel"
+            id: signup_button
+            text: "Sign Up"
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
 
             onClicked: {
-                show_login()
+                show_sign_up()
             }
         }
     }
 }
+
+
 
 /*##^##
 Designer {

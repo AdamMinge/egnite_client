@@ -5,10 +5,10 @@ cmake_minimum_required(VERSION 3.11)
 # -------------------------------------------------------------------------------------------------- #
 # -------------------------------------- Set files variable ---------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/app)
-set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/app)
-set(uis_root ${EGNITE_SOURCE_DIR}/uis/egnite/app)
-set(resources_root ${EGNITE_SOURCE_DIR}/resources)
+set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/viewer)
+set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/viewer)
+set(uis_root ${EGNITE_SOURCE_DIR}/uis/egnite/viewer)
+set(resources_root ${EGNITE_SOURCE_DIR}/resources/viewer)
 
 set(sources
         ${source_root}/main.cpp)
@@ -18,8 +18,7 @@ set(includes)
 set(uis)
 
 set(resources
-        ${resources_root}/conf.qrc
-        ${resources_root}/qml.qrc)
+        ${resources_root}/viewer.qrc)
 # -------------------------------------------------------------------------------------------------- #
 # ---------------------------------- Qt libraries configuration ------------------------------------ #
 # -------------------------------------------------------------------------------------------------- #
@@ -35,7 +34,7 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets Qml)
 # -------------------------------------------------------------------------------------------------- #
 # ------------------------------------ create engine editor ---------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-egnite_add_application(app
+egnite_add_application(viewer
         SOURCES ${sources} ${includes} ${uis} ${resources}
         DEPENDS
         Qt::Widgets

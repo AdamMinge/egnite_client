@@ -1,9 +1,0 @@
-<RCC>
-    <qresource prefix="">
-        <file>qml/Main.qml</file>
-
-        <file>qml/auth/AuthWindow.qml</file>
-        <file>qml/auth/LoginPage.qml</file>
-        <file>qml/auth/SignUpPage.qml</file>
-    </qresource>
-</RCC>

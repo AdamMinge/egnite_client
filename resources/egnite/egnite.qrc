@@ -1,0 +1,15 @@
+<RCC>
+    <qresource>
+        <file>conf/qtquickcontrols2.conf</file>
+    </qresource>
+
+    <qresource>
+        <file>font/FontAwesome.ttf</file>
+    </qresource>
+
+    <qresource>
+        <file>qml/auth/AuthWindow.qml</file>
+        <file>qml/auth/LoginPage.qml</file>
+        <file>qml/auth/SignUpPage.qml</file>
+    </qresource>
+</RCC>

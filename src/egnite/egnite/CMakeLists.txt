@@ -5,16 +5,17 @@ cmake_minimum_required(VERSION 3.11)
 # -------------------------------------------------------------------------------------------------- #
 # -------------------------------------- Set files variable ---------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/lib)
-set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/lib)
-set(resources_root ${EGNITE_SOURCE_DIR}/resources)
+set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/egnite)
+set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/egnite)
+set(resources_root ${EGNITE_SOURCE_DIR}/resources/egnite)
 
 set(sources)
 
 set(includes
         ${include_root}/export.h)
 
-set(resources)
+set(resources
+        ${resources_root}/egnite.qrc)
 # -------------------------------------------------------------------------------------------------- #
 # ---------------------------------- Qt libraries configuration ------------------------------------ #
 # -------------------------------------------------------------------------------------------------- #

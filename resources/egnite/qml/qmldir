@@ -1,0 +1,5 @@
+module egnite
+
+AuthWindow 1.0 auth/AuthWindow.qml
+LoginPage 1.0 auth/LoginPage.qml
+SignUpPage 1.0 auth/SignUpPage.qml
