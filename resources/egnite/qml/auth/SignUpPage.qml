@@ -37,6 +37,7 @@ Page {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 leftPadding: 10
+                color: Material.foreground
             }
         }
 
@@ -54,6 +55,7 @@ Page {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 leftPadding: 10
+                color: Material.foreground
             }
         }
 
@@ -71,6 +73,7 @@ Page {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 leftPadding: 10
+                color: Material.foreground
             }
         }
 

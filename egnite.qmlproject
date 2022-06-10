@@ -1,24 +1,24 @@
 import QmlProject
 
 Project {
-    mainFile: "resources/qml/Main.qml"
+    mainFile: "resources/egnite/qml/auth/AuthWindow.qml"
 
     /* Include .qml, .js, and image files from current directory and subdirectories */
     QmlFiles {
-        directory: "resources/qml"
+        directory: "resources/egnite/qml"
     }
 
     JavaScriptFiles {
-        directory: "resources/js"
+        directory: "resources/egnite/js"
     }
 
     ImageFiles {
-        directory: "resources/image"
+        directory: "resources/egnite/image"
     }
 
     Files {
         filter: "*.conf"
-        files: ["resources/conf/qtquickcontrols2.conf"]
+        files: ["resources/viewer/conf/qtquickcontrols2.conf"]
     }
 
     Files {
@@ -48,7 +48,7 @@ Project {
     }
 
     Environment {
-        QT_QUICK_CONTROLS_CONF: "resources/conf/qtquickcontrols2.conf"
+        QT_QUICK_CONTROLS_CONF: "resources/viewer/conf/qtquickcontrols2.conf"
         QT_AUTO_SCREEN_SCALE_FACTOR: "1"
         QT_LOGGING_RULES: "qt.qml.connections=false"
         QT_ENABLE_HIGHDPI_SCALING: "0"
