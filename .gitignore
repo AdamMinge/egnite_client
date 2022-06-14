@@ -1,3 +1,5 @@
 /build/
-/dependencies/gtest/
 /.idea/
+/dependencies/gtest/
+/dependencies/di/
+

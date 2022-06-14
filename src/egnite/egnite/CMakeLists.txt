@@ -37,5 +37,6 @@ egnite_add_module(egnite
         SOURCES ${sources} ${includes} ${resources}
         DEPENDS_PRIVATE
         Qt6::Widgets
-        Qt6::Qml)
+        Qt6::Qml
+        Boost.DI)
 # -------------------------------------------------------------------------------------------------- #

@@ -19,8 +19,10 @@ function(initialize_submodule DIRECTORY)
 endfunction(initialize_submodule)
 
 initialize_submodule(gtest)
+initialize_submodule(di)
 # -------------------------------------------------------------------------------------------------- #
 # -------------------------------------- Add subdirectories ---------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
 add_subdirectory(gtest EXCLUDE_FROM_ALL)
+add_subdirectory(di EXCLUDE_FROM_ALL)
 # -------------------------------------------------------------------------------------------------- #
