@@ -43,7 +43,6 @@ namespace utils
     }
   }
 
-
   void CommandLineParser::registerOption(
     const QStringList &names, const QString &description,
     const std::function<void()> &callback)
