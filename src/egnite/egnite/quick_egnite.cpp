@@ -1,37 +1,36 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/quick_egnite.h"
-/* ------------------------------------ Qt ---------------------------------- */
-#include <QFontDatabase>
+#include "egnite/egnite/web/web_client.h"
 /* -------------------------------------------------------------------------- */
 
-QScopedPointer<QuickEgnite> QuickEgnite::m_instance =
-  QScopedPointer<QuickEgnite>(nullptr);
+void initResources() { Q_INIT_RESOURCE(egnite); }
 
-QuickEgnite &QuickEgnite::getInstance()
+namespace egnite
 {
-  if (m_instance.isNull()) m_instance.reset(new QuickEgnite);
 
-  return *m_instance;
-}
+  QScopedPointer<QuickEgnite> QuickEgnite::m_instance =
+    QScopedPointer<QuickEgnite>(nullptr);
 
-void QuickEgnite::deleteInstance() { m_instance.reset(nullptr); }
+  QuickEgnite &QuickEgnite::getInstance()
+  {
+    if (m_instance.isNull()) m_instance.reset(new QuickEgnite);
 
-QuickEgnite::QuickEgnite() = default;
+    return *m_instance;
+  }
 
-QuickEgnite::~QuickEgnite() = default;
+  void QuickEgnite::deleteInstance() { m_instance.reset(nullptr); }
 
-void QuickEgnite::registerTypes()
-{
-  Q_INIT_RESOURCE(egnite);
+  QuickEgnite::QuickEgnite() = default;
 
-  qmlRegisterType(
-    QUrl("qrc:/qml/auth/AuthWindow.qml"), "egnite", 1, 0, "AuthWindow");
-  qmlRegisterType(
-    QUrl("qrc:/qml/auth/LoginPage.qml"), "egnite", 1, 0, "LoginPage");
-  qmlRegisterType(
-    QUrl("qrc:/qml/auth/SignUpPage.qml"), "egnite", 1, 0, "SignUpPage");
+  QuickEgnite::~QuickEgnite() = default;
 
-  QFontDatabase::addApplicationFont(":/font/FontAwesome.ttf");
-}
+  void QuickEgnite::registerTypes()
+  {
+    initResources();// Q_INIT_RESOURCE must be outside the namespace
 
-void QuickEgnite::initializeEngine(QQmlEngine *engine) {}
+    qmlRegisterType<web::WebClient>("egnite", 1, 0, "WebClient");
+  }
+
+  void QuickEgnite::initializeEngine(QQmlEngine *engine) {}
+
+}// namespace egnite

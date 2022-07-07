@@ -7,23 +7,29 @@
 #include "egnite/egnite/export.h"
 /* -------------------------------------------------------------------------- */
 
-class EGNITE_API QuickEgnite : public QObject
+namespace egnite
 {
-public:
-  [[nodiscard]] static QuickEgnite &getInstance();
-  static void deleteInstance();
 
-public:
-  ~QuickEgnite() override;
+  class EGNITE_API QuickEgnite : public QObject
+  {
+  public:
+    [[nodiscard]] static QuickEgnite &getInstance();
+    static void deleteInstance();
 
-  void registerTypes();
-  void initializeEngine(QQmlEngine *engine);
+  public:
+    ~QuickEgnite() override;
 
-protected:
-  explicit QuickEgnite();
+    void registerTypes();
+    void initializeEngine(QQmlEngine *engine);
 
-private:
-  static QScopedPointer<QuickEgnite> m_instance;
-};
+  protected:
+    explicit QuickEgnite();
+
+  private:
+    static QScopedPointer<QuickEgnite> m_instance;
+  };
+
+}// namespace egnite
+
 
 #endif// EGNITE_QUICK_EGNITE_H

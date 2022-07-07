@@ -11,12 +11,16 @@ set(resources_root ${EGNITE_SOURCE_DIR}/resources/egnite)
 
 set(sources
         ${source_root}/quick_egnite.cpp
-        ${source_root}/quick_plugin.cpp)
+        ${source_root}/quick_plugin.cpp
+
+        ${source_root}/web/web_client.cpp)
 
 set(includes
         ${include_root}/export.h
         ${include_root}/quick_egnite.h
-        ${include_root}/quick_plugin.h)
+        ${include_root}/quick_plugin.h
+
+        ${include_root}/web/web_client.h)
 
 set(resources
         ${resources_root}/egnite.qrc)

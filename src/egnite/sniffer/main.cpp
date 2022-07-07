@@ -54,8 +54,8 @@ int main(int argc, char **argv)
   parseCommandLine(app);
 
   QQmlApplicationEngine engine;
-  QuickEgnite::getInstance().registerTypes();
-  QuickEgnite::getInstance().initializeEngine(&engine);
+  egnite::QuickEgnite::getInstance().registerTypes();
+  egnite::QuickEgnite::getInstance().initializeEngine(&engine);
 
   const auto url = QUrl("qrc:/qml/Main.qml");
   QObject::connect(
