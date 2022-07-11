@@ -1,6 +1,8 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/quick_egnite.h"
 #include "egnite/egnite/web/web_client.h"
+#include "egnite/egnite/web/web_authenticator.h"
+#include "egnite/egnite/web/web_authorizator.h"
 /* -------------------------------------------------------------------------- */
 
 void initResources() { Q_INIT_RESOURCE(egnite); }
@@ -29,6 +31,10 @@ namespace egnite
     initResources();// Q_INIT_RESOURCE must be outside the namespace
 
     qmlRegisterType<web::WebClient>("egnite", 1, 0, "WebClient");
+    qmlRegisterType<web::WebAuthorizator>("egnite", 1, 0, "WebAuthorizator");
+    qmlRegisterType<web::WebAuthenticator>("egnite", 1, 0, "WebAuthenticator");
+    qmlRegisterType<web::SimpleJWTAuthenticator>("egnite", 1, 0, "SimpleJWTAuthenticator");
+    qmlRegisterType<web::ApiKeyAuthorizator>("egnite", 1, 0, "ApiKeyAuthorizator");
   }
 
   void QuickEgnite::initializeEngine(QQmlEngine *engine) {}
