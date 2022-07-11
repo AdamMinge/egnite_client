@@ -6,19 +6,16 @@
 #include <QQmlEngine>
 /* -------------------------------------------------------------------------- */
 
-namespace egnite
-{
+namespace egnite {
 
-  void QuickEgnitePlugin::registerTypes(const char *uri)
-  {
-    Q_UNUSED(uri);
-    QuickEgnite::getInstance().registerTypes();
-  }
+void QuickEgnitePlugin::registerTypes(const char *uri) {
+  Q_UNUSED(uri);
+  QuickEgnite::getInstance().registerTypes();
+}
 
-  void QuickEgnitePlugin::initializeEngine(QQmlEngine *engine, const char *uri)
-  {
-    Q_UNUSED(uri);
-    QuickEgnite::getInstance().initializeEngine(engine);
-  }
+void QuickEgnitePlugin::initializeEngine(QQmlEngine *engine, const char *uri) {
+  Q_UNUSED(uri);
+  QuickEgnite::getInstance().initializeEngine(engine);
+}
 
-}// namespace egnite
+} // namespace egnite
