@@ -82,7 +82,4 @@ Project {
     multilanguageSupport: true
     supportedLanguages: ["en"]
     primaryLanguage: "en"
-
-
-    mainUiFile: "resources/qml/ScreenT.qml"
 }
