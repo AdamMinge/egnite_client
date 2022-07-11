@@ -12,8 +12,7 @@ WebAuthorizator::~WebAuthorizator() = default;
 
 /* --------------------------- ApiKeyAuthorizator ------------------------- */
 
-ApiKeyAuthorizator::ApiKeyAuthorizator(QObject *parent)
-    : WebAuthorizator(parent) {}
+ApiKeyAuthorizator::ApiKeyAuthorizator(QObject *parent) : WebAuthorizator(parent) {}
 
 ApiKeyAuthorizator::~ApiKeyAuthorizator() = default;
 

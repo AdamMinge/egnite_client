@@ -13,8 +13,7 @@ namespace utils {
 class CommandLineParser {
 private:
   struct Option {
-    explicit Option(const QCommandLineOption &cmd_option,
-                    std::function<void(const QString &)> callback = {});
+    explicit Option(const QCommandLineOption &cmd_option, std::function<void(const QString &)> callback = {});
 
     QCommandLineOption cmd_option;
     std::function<void(const QString &)> callback;
@@ -27,52 +26,36 @@ public:
   void process(const QCoreApplication &app);
 
 protected:
-  void registerOption(const QStringList &names, const QString &description,
-                      const std::function<void()> &callback);
+  void registerOption(const QStringList &names, const QString &description, const std::function<void()> &callback);
 
   template <typename TYPE>
   void registerOption(const QStringList &names, const QString &description,
-                      const std::function<void(const TYPE &)> &callback,
-                      const QString &valueName);
+                      const std::function<void(const TYPE &)> &callback, const QString &valueName);
 
-  template <typename TYPE>
-  [[nodiscard]] TYPE convertValue(const QString &value);
+  template <typename TYPE> [[nodiscard]] TYPE convertValue(const QString &value);
 
 private:
   void registerOptionImpl(const QStringList &names, const QString &description,
-                          const std::function<void(const QString &)> &callback,
-                          const QString &valueName = QString{});
+                          const std::function<void(const QString &)> &callback, const QString &valueName = QString{});
 
 private:
   std::list<Option> m_options;
 };
 
 template <typename TYPE>
-void CommandLineParser::registerOption(
-    const QStringList &names, const QString &description,
-    const std::function<void(const TYPE &)> &callback,
-    const QString &valueName) {
+void CommandLineParser::registerOption(const QStringList &names, const QString &description,
+                                       const std::function<void(const TYPE &)> &callback, const QString &valueName) {
   registerOptionImpl(
-      names, description,
-      [callback, this](const QString &value) {
-        callback(convertValue<TYPE>(value));
-      },
-      valueName);
+      names, description, [callback, this](const QString &value) { callback(convertValue<TYPE>(value)); }, valueName);
 }
 
 /* -------------------------- Convert specializations  ----------------------
  */
 
-template <typename TYPE>
-TYPE CommandLineParser::convertValue(const QString &value) {
-  return static_cast<TYPE>(value);
-}
+template <typename TYPE> TYPE CommandLineParser::convertValue(const QString &value) { return static_cast<TYPE>(value); }
 
-#define CONVERTER_VALUE_SPEC(TYPE, METHOD)                                     \
-  template <>                                                                  \
-  inline TYPE CommandLineParser::convertValue<TYPE>(const QString &value) {    \
-    return (METHOD);                                                           \
-  }
+#define CONVERTER_VALUE_SPEC(TYPE, METHOD)                                                                             \
+  template <> inline TYPE CommandLineParser::convertValue<TYPE>(const QString &value) { return (METHOD); }
 
 CONVERTER_VALUE_SPEC(QString, value)
 CONVERTER_VALUE_SPEC(short, value.toShort())

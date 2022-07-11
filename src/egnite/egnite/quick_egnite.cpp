@@ -9,8 +9,7 @@ void initResources() { Q_INIT_RESOURCE(egnite); }
 
 namespace egnite {
 
-QScopedPointer<QuickEgnite> QuickEgnite::m_instance =
-    QScopedPointer<QuickEgnite>(nullptr);
+QScopedPointer<QuickEgnite> QuickEgnite::m_instance = QScopedPointer<QuickEgnite>(nullptr);
 
 QuickEgnite &QuickEgnite::getInstance() {
   if (m_instance.isNull())
@@ -31,10 +30,8 @@ void QuickEgnite::registerTypes() {
   qmlRegisterType<web::WebClient>("egnite", 1, 0, "WebClient");
   qmlRegisterType<web::WebAuthorizator>("egnite", 1, 0, "WebAuthorizator");
   qmlRegisterType<web::WebAuthenticator>("egnite", 1, 0, "WebAuthenticator");
-  qmlRegisterType<web::SimpleJWTAuthenticator>("egnite", 1, 0,
-                                               "SimpleJWTAuthenticator");
-  qmlRegisterType<web::ApiKeyAuthorizator>("egnite", 1, 0,
-                                           "ApiKeyAuthorizator");
+  qmlRegisterType<web::SimpleJWTAuthenticator>("egnite", 1, 0, "SimpleJWTAuthenticator");
+  qmlRegisterType<web::ApiKeyAuthorizator>("egnite", 1, 0, "ApiKeyAuthorizator");
 }
 
 void QuickEgnite::initializeEngine(QQmlEngine *engine) {}

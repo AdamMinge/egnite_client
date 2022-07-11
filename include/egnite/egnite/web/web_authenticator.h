@@ -21,10 +21,10 @@ class EGNITE_API SimpleJWTAuthenticator : public WebAuthenticator {
   Q_OBJECT
 
 public:
-  Q_PROPERTY(unsigned accessTokenLifetime READ getAccessTokenLifetime WRITE
-                 setAccessTokenLifetime NOTIFY accessTokenLifetimeChanged)
-  Q_PROPERTY(unsigned refreshTokenLifetime READ getRefreshTokenLifetime WRITE
-                 setRefreshTokenLifetime NOTIFY refreshTokenLifetimeChanged)
+  Q_PROPERTY(unsigned accessTokenLifetime READ getAccessTokenLifetime WRITE setAccessTokenLifetime NOTIFY
+                 accessTokenLifetimeChanged)
+  Q_PROPERTY(unsigned refreshTokenLifetime READ getRefreshTokenLifetime WRITE setRefreshTokenLifetime NOTIFY
+                 refreshTokenLifetimeChanged)
 
 public:
   explicit SimpleJWTAuthenticator(QObject *parent = nullptr);

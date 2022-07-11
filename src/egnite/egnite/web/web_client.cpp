@@ -6,8 +6,7 @@
 
 namespace egnite::web {
 
-WebClient::WebClient(QObject *parent)
-    : QObject(parent), m_authenticator(nullptr), m_authorizator(nullptr) {}
+WebClient::WebClient(QObject *parent) : QObject(parent), m_authenticator(nullptr), m_authorizator(nullptr) {}
 
 WebClient::~WebClient() = default;
 
@@ -32,9 +31,7 @@ void WebClient::setBaseUrl(const QUrl &base_url) {
   Q_EMIT baseUrlChanged(m_base_url);
 }
 
-WebAuthenticator *WebClient::getAuthenticator() const {
-  return m_authenticator;
-}
+WebAuthenticator *WebClient::getAuthenticator() const { return m_authenticator; }
 
 void WebClient::setAuthenticator(WebAuthenticator *authenticator) {
   if (m_authenticator == authenticator)

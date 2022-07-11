@@ -13,17 +13,13 @@ WebAuthenticator::~WebAuthenticator() = default;
 /* -------------------------- SimpleJWTAuthenticator ---------------------- */
 
 SimpleJWTAuthenticator::SimpleJWTAuthenticator(QObject *parent)
-    : WebAuthenticator(parent), m_accessTokenLifetime(),
-      m_refreshTokenLifetime() {}
+    : WebAuthenticator(parent), m_accessTokenLifetime(), m_refreshTokenLifetime() {}
 
 SimpleJWTAuthenticator::~SimpleJWTAuthenticator() = default;
 
-unsigned SimpleJWTAuthenticator::getAccessTokenLifetime() const {
-  return m_accessTokenLifetime;
-}
+unsigned SimpleJWTAuthenticator::getAccessTokenLifetime() const { return m_accessTokenLifetime; }
 
-void SimpleJWTAuthenticator::setAccessTokenLifetime(
-    unsigned accessTokenLifetime) {
+void SimpleJWTAuthenticator::setAccessTokenLifetime(unsigned accessTokenLifetime) {
   if (m_accessTokenLifetime == accessTokenLifetime)
     return;
 
@@ -31,12 +27,9 @@ void SimpleJWTAuthenticator::setAccessTokenLifetime(
   Q_EMIT accessTokenLifetimeChanged(m_accessTokenLifetime);
 }
 
-unsigned SimpleJWTAuthenticator::getRefreshTokenLifetime() const {
-  return m_accessTokenLifetime;
-}
+unsigned SimpleJWTAuthenticator::getRefreshTokenLifetime() const { return m_accessTokenLifetime; }
 
-void SimpleJWTAuthenticator::setRefreshTokenLifetime(
-    unsigned refreshTokenLifetime) {
+void SimpleJWTAuthenticator::setRefreshTokenLifetime(unsigned refreshTokenLifetime) {
   if (m_refreshTokenLifetime == refreshTokenLifetime)
     return;
 

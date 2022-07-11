@@ -19,12 +19,9 @@ class EGNITE_API WebClient : public QObject {
   Q_OBJECT
 
 public:
-  Q_PROPERTY(
-      QUrl baseUrl READ getBaseUrl WRITE setBaseUrl NOTIFY baseUrlChanged)
-  Q_PROPERTY(WebAuthenticator *authenticator READ getAuthenticator WRITE
-                 setAuthenticator NOTIFY authenticatorChanged)
-  Q_PROPERTY(WebAuthorizator *authorizator READ getAuthorizator WRITE
-                 setAuthorizator NOTIFY authorizatorChanged)
+  Q_PROPERTY(QUrl baseUrl READ getBaseUrl WRITE setBaseUrl NOTIFY baseUrlChanged)
+  Q_PROPERTY(WebAuthenticator *authenticator READ getAuthenticator WRITE setAuthenticator NOTIFY authenticatorChanged)
+  Q_PROPERTY(WebAuthorizator *authorizator READ getAuthorizator WRITE setAuthorizator NOTIFY authorizatorChanged)
 
 public:
   explicit WebClient(QObject *parent = nullptr);

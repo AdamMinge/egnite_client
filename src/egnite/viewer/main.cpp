@@ -13,9 +13,7 @@
 
 /* ------------------------- initEnvironmentVariables ----------------------- */
 
-void initEnvironmentVariables() {
-  qputenv("QT_QUICK_CONTROLS_CONF", ":/conf/qtquickcontrols2.conf");
-}
+void initEnvironmentVariables() { qputenv("QT_QUICK_CONTROLS_CONF", ":/conf/qtquickcontrols2.conf"); }
 
 /* ----------------------------- CommandLineParser -------------------------- */
 
