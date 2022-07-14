@@ -14,17 +14,18 @@ set(sources
         ${source_root}/quick_plugin.cpp
 
         ${source_root}/web/web_client.cpp
-        ${source_root}/web/web_authenticator.cpp
-        ${source_root}/web/web_authorizator.cpp)
+        ${source_root}/web/web_authenticator.cpp)
 
 set(includes
         ${include_root}/export.h
         ${include_root}/quick_egnite.h
         ${include_root}/quick_plugin.h
 
+        ${include_root}/macros/map.h
+
         ${include_root}/web/web_client.h
         ${include_root}/web/web_authenticator.h
-        ${include_root}/web/web_authorizator.h)
+        ${include_root}/web/web_routing.h)
 
 set(resources
         ${resources_root}/egnite.qrc)

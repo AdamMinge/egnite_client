@@ -8,16 +8,21 @@ QtObject {
 
     readonly property FontLoader font_awesome: FontLoader { id: font_awesome; source: "qrc:/font/FontAwesome.ttf" }
 
-    property var rest_client: Egnite.WebClient{
+    property var web_client: Egnite.WebClient{
         baseUrl: "127.0.0.1/"
+    }
 
-        authenticator: Egnite.SimpleJWTAuthenticator {
-            accessTokenLifetime: 60*60
-            refreshTokenLifetime: 60*60*12
-        }
+    property var web_client_authenticator: Egnite.SimpleJWTAuthenticator{
+        webClient: web_client
 
-        authorizator: Egnite.ApiKeyAuthorizator {
-            apiKey: "99744f7e-b4e5-48d9-9d5e-fb4cc46c53a9"
+        apiKey: "99744f7e-b4e5-48d9-9d5e-fb4cc46c53a9"
+        accessTokenLifetime: 60*60
+        refreshTokenLifetime: 60*60*12
+
+        routing {
+            tokenCreate: "/token"
+            tokenRefresh: "/token/refresh"
+            tokenVerify: "/token/verify"
         }
     }
 

@@ -1,54 +1,136 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/web/web_client.h"
-#include "egnite/egnite/web/web_authenticator.h"
-#include "egnite/egnite/web/web_authorizator.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::web {
 
-WebClient::WebClient(QObject *parent) : QObject(parent), m_authenticator(nullptr), m_authorizator(nullptr) {}
+/* -------------------------------- WebHeaders ---------------------------- */
+
+WebHeaders::WebHeaders() = default;
+
+WebHeaders::~WebHeaders() = default;
+
+QNetworkRequest WebHeaders::createRequest(const QUrl &url) const {
+  auto request = m_request;
+  request.setUrl(url);
+  return request;
+}
+
+void WebHeaders::setHeader(QNetworkRequest::KnownHeaders header, const QVariant &value) {
+  m_request.setHeader(header, value);
+}
+
+void WebHeaders::setRawHeader(const QByteArray &headerName, const QByteArray &headerValue) {
+  m_request.setRawHeader(headerName, headerValue);
+}
+
+QVariant WebHeaders::header(QNetworkRequest::KnownHeaders header) const {
+  return m_request.header(header);
+}
+
+QByteArray WebHeaders::rawHeader(const QByteArray &headerName) const {
+  return m_request.rawHeader(headerName);
+}
+
+QList<QByteArray> WebHeaders::rawHeaderList() const { return m_request.rawHeaderList(); }
+
+bool WebHeaders::hasRawHeader(const QByteArray &headerName) const {
+  return m_request.hasRawHeader(headerName);
+}
+
+bool WebHeaders::operator==(const WebHeaders &other) { return m_request == other.m_request; }
+
+bool WebHeaders::operator!=(const WebHeaders &other) { return m_request != other.m_request; }
+
+/* --------------------------------- WebClient ---------------------------- */
+
+WebClient::WebClient(QObject *parent) : QObject(parent) {}
 
 WebClient::~WebClient() = default;
 
-void WebClient::login(const QString &username, const QString &password) {
-  QNetworkRequest login_request;
-
-  m_authorizator->setRequestHeaders(login_request);
-  // m_authenticator->setRequestHeaders(login_request);
-
-  m_network_access_manager.post(login_request, QByteArray{});
-}
-
-void WebClient::logout() {}
-
-QUrl WebClient::getBaseUrl() const { return m_base_url; }
+const QUrl &WebClient::getBaseUrl() const { return m_base_url; }
 
 void WebClient::setBaseUrl(const QUrl &base_url) {
   if (m_base_url == base_url)
     return;
 
   m_base_url = base_url;
-  Q_EMIT baseUrlChanged(m_base_url);
+  Q_EMIT onBaseUrlChanged(m_base_url);
 }
 
-WebAuthenticator *WebClient::getAuthenticator() const { return m_authenticator; }
+const WebHeaders &WebClient::getHeaders() const { return m_headers; }
 
-void WebClient::setAuthenticator(WebAuthenticator *authenticator) {
-  if (m_authenticator == authenticator)
+void WebClient::setHeaders(const WebHeaders &headers) {
+  if (m_headers == headers)
     return;
 
-  m_authenticator = authenticator;
-  Q_EMIT authenticatorChanged(m_authenticator);
+  m_headers = headers;
+  Q_EMIT onHeadersChanged(m_headers);
 }
 
-WebAuthorizator *WebClient::getAuthorizator() const { return m_authorizator; }
+QNetworkReply *WebClient::get(const QUrl &url) {
+  return m_network_access_manager.get(m_headers.createRequest(url));
+}
 
-void WebClient::setAuthorizator(WebAuthorizator *authorizator) {
-  if (m_authorizator == authorizator)
-    return;
+QNetworkReply *WebClient::post(const QUrl &url) {
+  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "POST");
+}
 
-  m_authorizator = authorizator;
-  Q_EMIT authorizatorChanged(m_authorizator);
+QNetworkReply *WebClient::post(const QUrl &url, QIODevice *data) {
+  return m_network_access_manager.post(m_headers.createRequest(url), data);
+}
+
+QNetworkReply *WebClient::post(const QUrl &url, const QByteArray &data) {
+  return m_network_access_manager.post(m_headers.createRequest(url), data);
+}
+
+QNetworkReply *WebClient::post(const QUrl &url, QHttpMultiPart *multiPart) {
+  return m_network_access_manager.post(m_headers.createRequest(url), multiPart);
+}
+
+QNetworkReply *WebClient::put(const QUrl &url) {
+  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PUT");
+}
+
+QNetworkReply *WebClient::put(const QUrl &url, QIODevice *data) {
+  return m_network_access_manager.put(m_headers.createRequest(url), data);
+}
+
+QNetworkReply *WebClient::put(const QUrl &url, const QByteArray &data) {
+  return m_network_access_manager.put(m_headers.createRequest(url), data);
+}
+
+QNetworkReply *WebClient::put(const QUrl &url, QHttpMultiPart *multiPart) {
+  return m_network_access_manager.put(m_headers.createRequest(url), multiPart);
+}
+
+QNetworkReply *WebClient::patch(const QUrl &url) {
+  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH");
+}
+
+QNetworkReply *WebClient::patch(const QUrl &url, QIODevice *data) {
+  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH", data);
+}
+
+QNetworkReply *WebClient::patch(const QUrl &url, const QByteArray &data) {
+  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH", data);
+}
+
+QNetworkReply *WebClient::patch(const QUrl &url, QHttpMultiPart *multiPart) {
+  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH",
+                                                    multiPart);
+}
+
+QNetworkReply *WebClient::deleteResource(const QUrl &url) {
+  return m_network_access_manager.deleteResource(m_headers.createRequest(url));
+}
+
+QNetworkReply *WebClient::head(const QUrl &url) {
+  return m_network_access_manager.head(m_headers.createRequest(url));
+}
+
+QNetworkReply *WebClient::options(const QUrl &url) {
+  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "OPTIONS");
 }
 
 } // namespace egnite::web
