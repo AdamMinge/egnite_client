@@ -36,7 +36,27 @@ Page {
                 font.family: "FontAwesome"
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                leftPadding: 10
+                anchors.horizontalCenter: parent.horizontalCenter
+                leftPadding: 5
+                color: Material.foreground
+            }
+        }
+
+        TextField {
+            id: email_field
+            placeholderText: qsTr("Email")
+            leftPadding: 30
+            Layout.preferredWidth: parent.width - 20
+            Layout.alignment: Qt.AlignHCenter
+
+            Text {
+                text: "\uf0e0"
+                font.pointSize: 14
+                font.family: "FontAwesome"
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                leftPadding: 5
                 color: Material.foreground
             }
         }
@@ -54,7 +74,8 @@ Page {
                 font.family: "FontAwesome"
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                leftPadding: 10
+                anchors.horizontalCenter: parent.horizontalCenter
+                leftPadding: 5
                 color: Material.foreground
             }
         }
@@ -72,7 +93,8 @@ Page {
                 font.family: "FontAwesome"
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                leftPadding: 10
+                anchors.horizontalCenter: parent.horizontalCenter
+                leftPadding: 5
                 color: Material.foreground
             }
         }
@@ -86,6 +108,12 @@ Page {
             text: "Sign Up"
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
+            enabled: {
+                var fields_not_empty = username_field.text && email_field.text && password_field.text && confirm_password_field.text
+                var confirm_password_correct = password_field.text == confirm_password_field.text
+
+                return fields_not_empty && confirm_password_correct
+            }
 
             onClicked: {
 
@@ -99,7 +127,7 @@ Page {
             Layout.alignment: Qt.AlignHCenter
 
             onClicked: {
-                show_login()
+                auth_window.show_login()
             }
         }
     }

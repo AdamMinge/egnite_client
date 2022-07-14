@@ -40,7 +40,8 @@ Page {
                 font.family: "FontAwesome"
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                leftPadding: 10
+                anchors.horizontalCenter: parent.horizontalCenter
+                leftPadding: 5
                 color: Material.foreground
             }
         }
@@ -58,7 +59,8 @@ Page {
                 font.family: "FontAwesome"
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                leftPadding: 10
+                anchors.horizontalCenter: parent.horizontalCenter
+                leftPadding: 5
                 color: Material.foreground
             }
         }
@@ -72,9 +74,13 @@ Page {
             text: "Log In"
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
+            enabled: {
+                var fields_not_empty = username_field.text && password_field.text
+                return fields_not_empty
+            }
 
             onClicked: {
-
+                web_client_authenticator.login(username_field.text, password_field.text)
             }
         }
 
@@ -85,7 +91,7 @@ Page {
             Layout.alignment: Qt.AlignHCenter
 
             onClicked: {
-                show_sign_up()
+                auth_window.show_sign_up()
             }
         }
     }

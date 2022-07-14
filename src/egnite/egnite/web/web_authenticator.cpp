@@ -25,8 +25,39 @@ void WebAuthenticator::setWebClient(WebClient *webClient) {
 /* -------------------------- SimpleJWTAuthenticator ---------------------- */
 
 SimpleJWTAuthenticator::SimpleJWTAuthenticator(QObject *parent)
-    : WebAuthenticator(parent), m_api_key(), m_accessTokenLifetime(), m_refreshTokenLifetime(),
-      m_routing(new SimpleJWTAuthenticatorRouting(this)) {}
+    : WebAuthenticator(parent), m_api_key(), m_access_token_lifetime(60 * 60),
+      m_refresh_token_lifetime(60 * 60 * 12), m_routing(new SimpleJWTAuthenticatorRouting(this)) {
+
+  connect(this, &SimpleJWTAuthenticator::onWebClientChanged, [this]() {
+    if (auto web_client = getWebClient(); web_client) {
+
+      connect(&m_renew_access_token, &QTimer::timeout, this,
+              &SimpleJWTAuthenticator::renewAccessToken);
+      connect(&m_renew_refresh_token, &QTimer::timeout, this,
+              &SimpleJWTAuthenticator::renewRefreshToken);
+
+      connect(this, &SimpleJWTAuthenticator::onWebClientChanged, this,
+              &SimpleJWTAuthenticator::updateHeaders);
+      connect(this, &SimpleJWTAuthenticator::onApiKeyChanged, this,
+              &SimpleJWTAuthenticator::updateHeaders);
+      connect(this, &SimpleJWTAuthenticator::onAccessTokenChanged, this,
+              &SimpleJWTAuthenticator::updateHeaders);
+
+      updateHeaders();
+
+    } else {
+      disconnect(&m_renew_access_token, &QTimer::timeout, this,
+                 &SimpleJWTAuthenticator::renewAccessToken);
+      disconnect(&m_renew_refresh_token, &QTimer::timeout, this,
+                 &SimpleJWTAuthenticator::renewRefreshToken);
+
+      disconnect(this, &SimpleJWTAuthenticator::onApiKeyChanged, this,
+                 &SimpleJWTAuthenticator::updateHeaders);
+      disconnect(this, &SimpleJWTAuthenticator::onAccessTokenChanged, this,
+                 &SimpleJWTAuthenticator::updateHeaders);
+    }
+  });
+}
 
 SimpleJWTAuthenticator::~SimpleJWTAuthenticator() = default;
 
@@ -40,24 +71,46 @@ void SimpleJWTAuthenticator::setApiKey(const QByteArray &api_key) {
   Q_EMIT onApiKeyChanged(m_api_key);
 }
 
-unsigned SimpleJWTAuthenticator::getAccessTokenLifetime() const { return m_accessTokenLifetime; }
+const QByteArray &SimpleJWTAuthenticator::getAccessToken() const { return m_access_token; }
 
-void SimpleJWTAuthenticator::setAccessTokenLifetime(unsigned accessTokenLifetime) {
-  if (m_accessTokenLifetime == accessTokenLifetime)
+void SimpleJWTAuthenticator::setAccessToken(const QByteArray &access_token) {
+  if (m_access_token == access_token)
     return;
 
-  m_accessTokenLifetime = accessTokenLifetime;
-  Q_EMIT onAccessTokenLifetimeChanged(m_accessTokenLifetime);
+  m_access_token = access_token;
+  Q_EMIT onAccessTokenChanged(m_access_token);
 }
 
-unsigned SimpleJWTAuthenticator::getRefreshTokenLifetime() const { return m_accessTokenLifetime; }
+const QByteArray &SimpleJWTAuthenticator::getRefreshToken() const { return m_refresh_token; }
 
-void SimpleJWTAuthenticator::setRefreshTokenLifetime(unsigned refreshTokenLifetime) {
-  if (m_refreshTokenLifetime == refreshTokenLifetime)
+void SimpleJWTAuthenticator::setRefreshToken(const QByteArray &refresh_token) {
+  if (m_refresh_token == refresh_token)
     return;
 
-  m_refreshTokenLifetime = refreshTokenLifetime;
-  Q_EMIT onRefreshTokenLifetimeChanged(m_refreshTokenLifetime);
+  m_refresh_token = refresh_token;
+  Q_EMIT onRefreshTokenChanged(m_refresh_token);
+}
+
+unsigned SimpleJWTAuthenticator::getAccessTokenLifetime() const { return m_access_token_lifetime; }
+
+void SimpleJWTAuthenticator::setAccessTokenLifetime(unsigned access_token_lifetime) {
+  if (m_access_token_lifetime == access_token_lifetime)
+    return;
+
+  m_access_token_lifetime = access_token_lifetime;
+  Q_EMIT onAccessTokenLifetimeChanged(m_access_token_lifetime);
+}
+
+unsigned SimpleJWTAuthenticator::getRefreshTokenLifetime() const {
+  return m_refresh_token_lifetime;
+}
+
+void SimpleJWTAuthenticator::setRefreshTokenLifetime(unsigned refresh_token_lifetime) {
+  if (m_refresh_token_lifetime == refresh_token_lifetime)
+    return;
+
+  m_refresh_token_lifetime = refresh_token_lifetime;
+  Q_EMIT onRefreshTokenLifetimeChanged(m_refresh_token_lifetime);
 }
 
 SimpleJWTAuthenticatorRouting *SimpleJWTAuthenticator::getRouting() const { return m_routing; }
@@ -75,17 +128,38 @@ void SimpleJWTAuthenticator::login(const QString &username, const QString &passw
   login_data.addQueryItem(QLatin1String("username"), username);
   login_data.addQueryItem(QLatin1String("password"), password);
 
-  auto reply = getWebClient()->post(
-      getWebClient()->getBaseUrl().resolved(QUrl("/login")),
+  auto web_client = getWebClient();
+  Q_ASSERT(web_client);
+
+  auto reply = web_client->post(
+      web_client->getBaseUrl().resolved(QUrl("/login")),
       login_data.toString(QUrl::ComponentFormattingOption::FullyDecoded).toLocal8Bit());
 }
 
 void SimpleJWTAuthenticator::logout() {
-  auto reply = getWebClient()->post(getWebClient()->getBaseUrl().resolved(QUrl("/logout")));
+  auto web_client = getWebClient();
+  Q_ASSERT(web_client);
+
+  auto reply = web_client->post(web_client->getBaseUrl().resolved(QUrl("/logout")));
 }
 
-bool SimpleJWTAuthenticator::isLoggedIn() const { return false; }
+void SimpleJWTAuthenticator::renewAccessToken() {}
 
-bool SimpleJWTAuthenticator::isLoggedOut() const { return true; }
+void SimpleJWTAuthenticator::renewRefreshToken() {}
+
+void SimpleJWTAuthenticator::updateHeaders() {
+
+  auto web_client = getWebClient();
+  Q_ASSERT(web_client);
+
+  auto headers = web_client->getHeaders();
+
+  if (!m_api_key.isEmpty())
+    headers.setRawHeader("X-Api-Key", m_api_key);
+  if (!m_access_token.isEmpty())
+    headers.setRawHeader("Authorization", "Bearer " + m_access_token);
+
+  web_client->setHeaders(headers);
+}
 
 } // namespace egnite::web

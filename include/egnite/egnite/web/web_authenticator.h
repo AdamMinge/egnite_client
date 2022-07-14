@@ -3,6 +3,7 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QObject>
+#include <QTimer>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/export.h"
 #include "egnite/egnite/web/web_client.h"
@@ -40,15 +41,16 @@ class EGNITE_API SimpleJWTAuthenticator : public WebAuthenticator {
 
 public:
   Q_PROPERTY(QByteArray apiKey READ getApiKey WRITE setApiKey NOTIFY onApiKeyChanged)
+  Q_PROPERTY(QByteArray accessToken READ getAccessToken NOTIFY onAccessTokenChanged)
+  Q_PROPERTY(QByteArray refreshToken READ getRefreshToken NOTIFY onRefreshTokenChanged)
+
   Q_PROPERTY(unsigned accessTokenLifetime READ getAccessTokenLifetime WRITE setAccessTokenLifetime
                  NOTIFY onAccessTokenLifetimeChanged)
   Q_PROPERTY(unsigned refreshTokenLifetime READ getRefreshTokenLifetime WRITE
                  setRefreshTokenLifetime NOTIFY onRefreshTokenLifetimeChanged)
+
   Q_PROPERTY(SimpleJWTAuthenticatorRouting *routing READ getRouting WRITE setRouting NOTIFY
                  onRoutingChanged)
-
-  Q_PROPERTY(bool isLoggedIn READ isLoggedIn NOTIFY onLoggedIn)
-  Q_PROPERTY(bool isLoggedOut READ isLoggedOut NOTIFY onLoggedOut)
 
 public:
   explicit SimpleJWTAuthenticator(QObject *parent = nullptr);
@@ -56,6 +58,9 @@ public:
 
   [[nodiscard]] const QByteArray &getApiKey() const;
   void setApiKey(const QByteArray &api_key);
+
+  [[nodiscard]] const QByteArray &getAccessToken() const;
+  [[nodiscard]] const QByteArray &getRefreshToken() const;
 
   [[nodiscard]] unsigned getAccessTokenLifetime() const;
   void setAccessTokenLifetime(unsigned accessTokenLifetime);
@@ -69,22 +74,37 @@ public:
   Q_INVOKABLE void login(const QString &username, const QString &password);
   Q_INVOKABLE void logout();
 
-  [[nodiscard]] bool isLoggedIn() const;
-  [[nodiscard]] bool isLoggedOut() const;
-
 Q_SIGNALS:
   void onApiKeyChanged(const QByteArray &api_key);
-  void onAccessTokenLifetimeChanged(unsigned accessTokenLifetime);
-  void onRefreshTokenLifetimeChanged(unsigned refreshTokenLifetime);
-  void onRoutingChanged(SimpleJWTAuthenticatorRouting *routing);
+  void onAccessTokenChanged(const QByteArray &access_token);
+  void onRefreshTokenChanged(const QByteArray &refresh_token);
 
-  void onLoggedIn();
-  void onLoggedOut();
+  void onAccessTokenLifetimeChanged(unsigned access_token_lifetime);
+  void onRefreshTokenLifetimeChanged(unsigned refresh_token_lifetime);
+
+  void onRoutingChanged(egnite::web::SimpleJWTAuthenticatorRouting *routing);
+
+private:
+  void setAccessToken(const QByteArray &access_token);
+  void setRefreshToken(const QByteArray &refresh_token);
+
+  void renewAccessToken();
+  void renewRefreshToken();
+
+private Q_SLOTS:
+  void updateHeaders();
 
 private:
   QByteArray m_api_key;
-  unsigned m_accessTokenLifetime;
-  unsigned m_refreshTokenLifetime;
+  QByteArray m_access_token;
+  QByteArray m_refresh_token;
+
+  unsigned m_access_token_lifetime;
+  unsigned m_refresh_token_lifetime;
+
+  QTimer m_renew_access_token;
+  QTimer m_renew_refresh_token;
+
   SimpleJWTAuthenticatorRouting *m_routing;
 };
 
