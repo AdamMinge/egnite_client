@@ -124,16 +124,12 @@ void SimpleJWTAuthenticator::setRouting(SimpleJWTAuthenticatorRouting *routing) 
 }
 
 void SimpleJWTAuthenticator::login(const QString &username, const QString &password) {
-  QJsonObject login_data;
-  login_data[QLatin1String("username")] = username;
-  login_data[QLatin1String("password")] = password;
-
   auto web_client = getWebClient();
   Q_ASSERT(web_client);
 
-  auto reply = web_client->post(web_client->getUrl(m_routing->gettokenCreate()), login_data);
+  auto reply = web_client->post(web_client->getUrl(m_routing->gettokenCreate()));
 
-  // TODO action on login reply
+  // TODO add data and action on login reply
 }
 
 void SimpleJWTAuthenticator::logout() {

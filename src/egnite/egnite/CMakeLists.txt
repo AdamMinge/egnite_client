@@ -13,6 +13,8 @@ set(sources
         ${source_root}/quick_egnite.cpp
         ${source_root}/quick_plugin.cpp
 
+        ${source_root}/web/web_headers.cpp
+        ${source_root}/web/web_serializer.cpp
         ${source_root}/web/web_client.cpp
         ${source_root}/web/web_authenticator.cpp)
 
@@ -23,6 +25,8 @@ set(includes
 
         ${include_root}/macros/map.h
 
+        ${include_root}/web/web_headers.h
+        ${include_root}/web/web_serializer.h
         ${include_root}/web/web_client.h
         ${include_root}/web/web_authenticator.h
         ${include_root}/web/web_routing.h)

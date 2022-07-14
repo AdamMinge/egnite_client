@@ -10,6 +10,7 @@ QtObject {
 
     property var web_client: Egnite.WebClient{
         baseUrl: "http://localhost/api/v1/"
+        serializer: Egnite.JsonSerializer{}
     }
 
     property var web_client_authenticator: Egnite.SimpleJWTAuthenticator{

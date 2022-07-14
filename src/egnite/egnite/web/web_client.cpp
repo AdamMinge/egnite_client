@@ -1,50 +1,8 @@
-/* ------------------------------------ Qt ---------------------------------- */
-#include <QJsonDocument>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/web/web_client.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::web {
-
-/* -------------------------------- WebHeaders ---------------------------- */
-
-WebHeaders::WebHeaders() = default;
-
-WebHeaders::~WebHeaders() = default;
-
-QNetworkRequest WebHeaders::createRequest(const QUrl &url) const {
-  auto request = m_request;
-  request.setUrl(url);
-  return request;
-}
-
-void WebHeaders::setHeader(QNetworkRequest::KnownHeaders header, const QVariant &value) {
-  m_request.setHeader(header, value);
-}
-
-void WebHeaders::setRawHeader(const QByteArray &headerName, const QByteArray &headerValue) {
-  m_request.setRawHeader(headerName, headerValue);
-}
-
-QVariant WebHeaders::header(QNetworkRequest::KnownHeaders header) const {
-  return m_request.header(header);
-}
-
-QByteArray WebHeaders::rawHeader(const QByteArray &headerName) const {
-  return m_request.rawHeader(headerName);
-}
-
-QList<QByteArray> WebHeaders::rawHeaderList() const { return m_request.rawHeaderList(); }
-
-bool WebHeaders::hasRawHeader(const QByteArray &headerName) const {
-  return m_request.hasRawHeader(headerName);
-}
-
-bool WebHeaders::operator==(const WebHeaders &other) { return m_request == other.m_request; }
-
-bool WebHeaders::operator!=(const WebHeaders &other) { return m_request != other.m_request; }
-
-/* --------------------------------- WebClient ---------------------------- */
 
 WebClient::WebClient(QObject *parent) : QObject(parent) {
   m_headers.setRawHeader("Content-Type", "application/json");
@@ -76,6 +34,16 @@ void WebClient::setHeaders(const WebHeaders &headers) {
   Q_EMIT onHeadersChanged(m_headers);
 }
 
+WebSerializer *WebClient::getSerializer() const { return m_serializer; }
+
+void WebClient::setSerializer(WebSerializer *serializer) {
+  if (m_serializer == serializer)
+    return;
+
+  m_serializer = serializer;
+  Q_EMIT onSerializerChanged(m_serializer);
+}
+
 QNetworkReply *WebClient::get(const QUrl &url) {
   return m_network_access_manager.get(m_headers.createRequest(url));
 }
@@ -84,26 +52,25 @@ QNetworkReply *WebClient::post(const QUrl &url) {
   return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "POST");
 }
 
-QNetworkReply *WebClient::post(const QUrl &url, const QJsonObject &data) {
+QNetworkReply *WebClient::post(const QUrl &url, const QByteArray &data) {
 
-  return m_network_access_manager.post(m_headers.createRequest(url), QJsonDocument(data).toJson());
+  return m_network_access_manager.post(m_headers.createRequest(url), data);
 }
 
 QNetworkReply *WebClient::put(const QUrl &url) {
   return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PUT");
 }
 
-QNetworkReply *WebClient::put(const QUrl &url, const QJsonObject &data) {
-  return m_network_access_manager.put(m_headers.createRequest(url), QJsonDocument(data).toJson());
+QNetworkReply *WebClient::put(const QUrl &url, const QByteArray &data) {
+  return m_network_access_manager.put(m_headers.createRequest(url), data);
 }
 
 QNetworkReply *WebClient::patch(const QUrl &url) {
   return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH");
 }
 
-QNetworkReply *WebClient::patch(const QUrl &url, const QJsonObject &data) {
-  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH",
-                                                    QJsonDocument(data).toJson());
+QNetworkReply *WebClient::patch(const QUrl &url, const QByteArray &data) {
+  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH", data);
 }
 
 QNetworkReply *WebClient::deleteResource(const QUrl &url) {
