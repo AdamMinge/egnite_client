@@ -2,6 +2,7 @@
 #define EGNITE_WEB_CLIENT_H
 
 /* ------------------------------------ Qt ---------------------------------- */
+#include <QJsonObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -48,6 +49,8 @@ public:
   ~WebClient() override;
 
   [[nodiscard]] const QUrl &getBaseUrl() const;
+  [[nodiscard]] QUrl getUrl(const QUrl &url) const;
+
   void setBaseUrl(const QUrl &base_url);
 
   [[nodiscard]] const WebHeaders &getHeaders() const;
@@ -55,17 +58,11 @@ public:
 
   Q_INVOKABLE QNetworkReply *get(const QUrl &url);
   Q_INVOKABLE QNetworkReply *post(const QUrl &url);
-  Q_INVOKABLE QNetworkReply *post(const QUrl &url, QIODevice *data);
-  Q_INVOKABLE QNetworkReply *post(const QUrl &url, const QByteArray &data);
-  Q_INVOKABLE QNetworkReply *post(const QUrl &url, QHttpMultiPart *multiPart);
+  Q_INVOKABLE QNetworkReply *post(const QUrl &url, const QJsonObject &data);
   Q_INVOKABLE QNetworkReply *put(const QUrl &url);
-  Q_INVOKABLE QNetworkReply *put(const QUrl &url, QIODevice *data);
-  Q_INVOKABLE QNetworkReply *put(const QUrl &url, const QByteArray &data);
-  Q_INVOKABLE QNetworkReply *put(const QUrl &url, QHttpMultiPart *multiPart);
+  Q_INVOKABLE QNetworkReply *put(const QUrl &url, const QJsonObject &data);
   Q_INVOKABLE QNetworkReply *patch(const QUrl &url);
-  Q_INVOKABLE QNetworkReply *patch(const QUrl &url, QIODevice *data);
-  Q_INVOKABLE QNetworkReply *patch(const QUrl &url, const QByteArray &data);
-  Q_INVOKABLE QNetworkReply *patch(const QUrl &url, QHttpMultiPart *multiPart);
+  Q_INVOKABLE QNetworkReply *patch(const QUrl &url, const QJsonObject &data);
   Q_INVOKABLE QNetworkReply *deleteResource(const QUrl &url);
   Q_INVOKABLE QNetworkReply *head(const QUrl &url);
   Q_INVOKABLE QNetworkReply *options(const QUrl &url);

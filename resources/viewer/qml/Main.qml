@@ -9,20 +9,20 @@ QtObject {
     readonly property FontLoader font_awesome: FontLoader { id: font_awesome; source: "qrc:/font/FontAwesome.ttf" }
 
     property var web_client: Egnite.WebClient{
-        baseUrl: "127.0.0.1/"
+        baseUrl: "http://localhost/api/v1/"
     }
 
     property var web_client_authenticator: Egnite.SimpleJWTAuthenticator{
         webClient: web_client
 
-        apiKey: "99744f7e-b4e5-48d9-9d5e-fb4cc46c53a9"
+        apiKey: "9RcIrfMn.yq1Ipn8L0mdTaqX7Ta6VFH2mIF5I5lvB"
         accessTokenLifetime: 60*60
         refreshTokenLifetime: 60*60*12
 
         routing {
-            tokenCreate: "/token"
-            tokenRefresh: "/token/refresh"
-            tokenVerify: "/token/verify"
+            tokenCreate: "/token/"
+            tokenRefresh: "/token/refresh/"
+            tokenVerify: "/token/verify/"
         }
     }
 

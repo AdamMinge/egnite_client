@@ -1,5 +1,5 @@
 /* ------------------------------------- Qt --------------------------------- */
-#include <QUrlQuery>
+#include <QJsonObject>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/web/web_authenticator.h"
 /* -------------------------------------------------------------------------- */
@@ -124,28 +124,40 @@ void SimpleJWTAuthenticator::setRouting(SimpleJWTAuthenticatorRouting *routing) 
 }
 
 void SimpleJWTAuthenticator::login(const QString &username, const QString &password) {
-  QUrlQuery login_data;
-  login_data.addQueryItem(QLatin1String("username"), username);
-  login_data.addQueryItem(QLatin1String("password"), password);
+  QJsonObject login_data;
+  login_data[QLatin1String("username")] = username;
+  login_data[QLatin1String("password")] = password;
 
   auto web_client = getWebClient();
   Q_ASSERT(web_client);
 
-  auto reply = web_client->post(
-      web_client->getBaseUrl().resolved(QUrl("/login")),
-      login_data.toString(QUrl::ComponentFormattingOption::FullyDecoded).toLocal8Bit());
+  auto reply = web_client->post(web_client->getUrl(m_routing->gettokenCreate()), login_data);
+
+  // TODO action on login reply
 }
 
 void SimpleJWTAuthenticator::logout() {
   auto web_client = getWebClient();
   Q_ASSERT(web_client);
 
-  auto reply = web_client->post(web_client->getBaseUrl().resolved(QUrl("/logout")));
+  // TODO implement renew refresh token
 }
 
-void SimpleJWTAuthenticator::renewAccessToken() {}
+void SimpleJWTAuthenticator::renewAccessToken() {
+  auto web_client = getWebClient();
+  Q_ASSERT(web_client);
 
-void SimpleJWTAuthenticator::renewRefreshToken() {}
+  auto reply = web_client->post(web_client->getUrl(m_routing->gettokenRefresh()));
+
+  // TODO action on reply renew access token
+}
+
+void SimpleJWTAuthenticator::renewRefreshToken() {
+  auto web_client = getWebClient();
+  Q_ASSERT(web_client);
+
+  // TODO implement renew refresh token
+}
 
 void SimpleJWTAuthenticator::updateHeaders() {
 
@@ -155,7 +167,7 @@ void SimpleJWTAuthenticator::updateHeaders() {
   auto headers = web_client->getHeaders();
 
   if (!m_api_key.isEmpty())
-    headers.setRawHeader("X-Api-Key", m_api_key);
+    headers.setRawHeader("Api-Key", m_api_key);
   if (!m_access_token.isEmpty())
     headers.setRawHeader("Authorization", "Bearer " + m_access_token);
 

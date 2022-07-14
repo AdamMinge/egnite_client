@@ -1,3 +1,5 @@
+/* ------------------------------------ Qt ---------------------------------- */
+#include <QJsonDocument>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/web/web_client.h"
 /* -------------------------------------------------------------------------- */
@@ -44,11 +46,17 @@ bool WebHeaders::operator!=(const WebHeaders &other) { return m_request != other
 
 /* --------------------------------- WebClient ---------------------------- */
 
-WebClient::WebClient(QObject *parent) : QObject(parent) {}
+WebClient::WebClient(QObject *parent) : QObject(parent) {
+  m_headers.setRawHeader("Content-Type", "application/json");
+}
 
 WebClient::~WebClient() = default;
 
 const QUrl &WebClient::getBaseUrl() const { return m_base_url; }
+
+QUrl WebClient::getUrl(const QUrl &url) const {
+  return m_base_url.resolved(QLatin1String(".") + url.toString());
+}
 
 void WebClient::setBaseUrl(const QUrl &base_url) {
   if (m_base_url == base_url)
@@ -76,49 +84,26 @@ QNetworkReply *WebClient::post(const QUrl &url) {
   return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "POST");
 }
 
-QNetworkReply *WebClient::post(const QUrl &url, QIODevice *data) {
-  return m_network_access_manager.post(m_headers.createRequest(url), data);
-}
+QNetworkReply *WebClient::post(const QUrl &url, const QJsonObject &data) {
 
-QNetworkReply *WebClient::post(const QUrl &url, const QByteArray &data) {
-  return m_network_access_manager.post(m_headers.createRequest(url), data);
-}
-
-QNetworkReply *WebClient::post(const QUrl &url, QHttpMultiPart *multiPart) {
-  return m_network_access_manager.post(m_headers.createRequest(url), multiPart);
+  return m_network_access_manager.post(m_headers.createRequest(url), QJsonDocument(data).toJson());
 }
 
 QNetworkReply *WebClient::put(const QUrl &url) {
   return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PUT");
 }
 
-QNetworkReply *WebClient::put(const QUrl &url, QIODevice *data) {
-  return m_network_access_manager.put(m_headers.createRequest(url), data);
-}
-
-QNetworkReply *WebClient::put(const QUrl &url, const QByteArray &data) {
-  return m_network_access_manager.put(m_headers.createRequest(url), data);
-}
-
-QNetworkReply *WebClient::put(const QUrl &url, QHttpMultiPart *multiPart) {
-  return m_network_access_manager.put(m_headers.createRequest(url), multiPart);
+QNetworkReply *WebClient::put(const QUrl &url, const QJsonObject &data) {
+  return m_network_access_manager.put(m_headers.createRequest(url), QJsonDocument(data).toJson());
 }
 
 QNetworkReply *WebClient::patch(const QUrl &url) {
   return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH");
 }
 
-QNetworkReply *WebClient::patch(const QUrl &url, QIODevice *data) {
-  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH", data);
-}
-
-QNetworkReply *WebClient::patch(const QUrl &url, const QByteArray &data) {
-  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH", data);
-}
-
-QNetworkReply *WebClient::patch(const QUrl &url, QHttpMultiPart *multiPart) {
+QNetworkReply *WebClient::patch(const QUrl &url, const QJsonObject &data) {
   return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH",
-                                                    multiPart);
+                                                    QJsonDocument(data).toJson());
 }
 
 QNetworkReply *WebClient::deleteResource(const QUrl &url) {

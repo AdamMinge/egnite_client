@@ -9,13 +9,13 @@
 /* -------------------------------------------------------------------------- */
 
 #define EGNITE_ROUTING_PROPERTY(path)                                                              \
-  Q_PROPERTY(QString path READ get##path WRITE set##path NOTIFY on##path##Changed)
+  Q_PROPERTY(QUrl path READ get##path WRITE set##path NOTIFY on##path##Changed)
 
 #define EGNITE_ROUTING_PROPERTY_READ(path)                                                         \
-  const QString& get##path() const { return m_##path; }
+  const QUrl& get##path() const { return m_##path; }
 
 #define EGNITE_ROUTING_PROPERTY_WRITE(path)                                                        \
-  void set##path(const QString& value) {                                                           \
+  void set##path(const QUrl& value) {                                                              \
     if (m_##path == value)                                                                         \
       return;                                                                                      \
                                                                                                    \
@@ -23,9 +23,9 @@
     Q_EMIT on##path##Changed(m_##path);                                                            \
   }
 
-#define EGNITE_ROUTING_PROPERTY_NOTIFY(path) Q_SIGNAL void on##path##Changed(const QString& value);
+#define EGNITE_ROUTING_PROPERTY_NOTIFY(path) Q_SIGNAL void on##path##Changed(const QUrl& value);
 
-#define EGNITE_ROUTING_PROPERTY_VARIABLE(path) QString m_##path = QLatin1String("");
+#define EGNITE_ROUTING_PROPERTY_VARIABLE(path) QUrl m_##path = QUrl{};
 
 #define EGNITE_ROUTING(name, ...)                                                                  \
   class EGNITE_API name : public QObject {                                                         \
