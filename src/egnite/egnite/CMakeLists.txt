@@ -25,6 +25,7 @@ set(includes
 
         ${include_root}/macros/map.h
 
+        ${include_root}/web/web_messages.h
         ${include_root}/web/web_headers.h
         ${include_root}/web/web_serializer.h
         ${include_root}/web/web_client.h
@@ -43,13 +44,16 @@ set(CMAKE_AUTORCC ON)
 # ----------------------------------- Find external libraries -------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
 find_package(Qt6 REQUIRED COMPONENTS Widgets Qml)
+find_package(Boost REQUIRED COMPONENTS serialization)
 # -------------------------------------------------------------------------------------------------- #
 # ------------------------------------ Create utils shared lib ------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
 egnite_add_module(egnite
         SOURCES ${sources} ${includes} ${resources}
-        DEPENDS_PRIVATE
+        DEPENDS
         Qt6::Widgets
         Qt6::Qml
-        Boost.DI)
+        Boost::serialization
+        utils::json_archive
+        utils::qt_boost_serializer)
 # -------------------------------------------------------------------------------------------------- #

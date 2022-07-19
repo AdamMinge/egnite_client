@@ -4,7 +4,7 @@
 
 namespace egnite::web {
 
-WebClient::WebClient(QObject *parent) : QObject(parent) {
+WebClient::WebClient(QObject *parent) : QObject(parent), m_serializer(nullptr) {
   m_headers.setRawHeader("Content-Type", "application/json");
 }
 

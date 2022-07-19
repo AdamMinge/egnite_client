@@ -6,14 +6,15 @@ namespace egnite::web {
 
 /* ------------------------------- WebSerializer -------------------------- */
 
-WebSerializer::WebSerializer() = default;
+WebSerializer::WebSerializer(Format format) : m_format(format) {}
 
 WebSerializer::~WebSerializer() = default;
 
+WebSerializer::Format WebSerializer::getFormat() const { return m_format; }
+
 /* ------------------------------ JsonSerializer -------------------------- */
 
-JsonSerializer::JsonSerializer() = default;
+JsonSerializer::JsonSerializer() : WebSerializer(Format::Json) {}
 
 JsonSerializer::~JsonSerializer() = default;
-
 } // namespace egnite::web

@@ -3,7 +3,7 @@
 # -------------------------------------------------------------------------------------------------- #
 macro(egnite_add_module target)
 
-    cmake_parse_arguments(THIS "" "" "SOURCES;DEPENDS;DEPENDS_PRIVATE;PRECOMPILE_HEADERS;PRECOMPILE_PRIVATE_HEADERS" ${ARGN})
+    cmake_parse_arguments(THIS "" "" "SOURCES;DEPENDS;DEPENDS_PRIVATE;PRECOMPILE_HEADERS;PRECOMPILE_PRIVATE_HEADERS;EXPORT" ${ARGN})
     if (NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
         message(FATAL_ERROR "Extra unparsed arguments when calling egnite_add_module: ${THIS_UNPARSED_ARGUMENTS}")
     endif()
@@ -27,8 +27,8 @@ macro(egnite_add_module target)
         target_precompile_headers(${target} PRIVATE ${THIS_PRECOMPILE_PRIVATE_HEADERS})
     endif()
 
-    foreach(target_depends ${THIS_DEPENDS})
-        install(TARGETS ${target_depends} EXPORT egniteConfigExport)
+    foreach(target_export ${THIS_EXPORT})
+        install(TARGETS ${target_export} EXPORT egniteConfigExport)
     endforeach()
 
     string(REPLACE "-" "_" NAME_UPPER "${target}")
@@ -210,7 +210,7 @@ endmacro()
 # -------------------------------------------------------------------------------------------------- #
 macro(egnite_add_utils target)
 
-    cmake_parse_arguments(THIS "" "" "SOURCES;DEPENDS;DEPENDS_PRIVATE;PRECOMPILE_HEADERS;PRECOMPILE_PRIVATE_HEADERS" ${ARGN})
+    cmake_parse_arguments(THIS "" "" "SOURCES;DEPENDS;DEPENDS_PRIVATE;PRECOMPILE_HEADERS;PRECOMPILE_PRIVATE_HEADERS;EXPORT" ${ARGN})
     if (NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
         message(FATAL_ERROR "Extra unparsed arguments when calling egnite_add_utils: ${THIS_UNPARSED_ARGUMENTS}")
     endif()
@@ -234,8 +234,8 @@ macro(egnite_add_utils target)
         target_precompile_headers(${target} PRIVATE ${THIS_PRECOMPILE_PRIVATE_HEADERS})
     endif()
 
-    foreach(target_depends ${THIS_DEPENDS})
-        install(TARGETS ${target_depends} EXPORT egniteConfigExport)
+    foreach(target_export ${THIS_EXPORT})
+        install(TARGETS ${target_export} EXPORT egniteConfigExport)
     endforeach()
 
     string(REPLACE "-" "_" NAME_UPPER "${target}")

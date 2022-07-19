@@ -7,10 +7,12 @@
 #include <QCommandLineParser>
 /* ---------------------------------- Standard ------------------------------ */
 #include <list>
+/* ----------------------------------- Local -------------------------------- */
+#include "egnite/utils/command_line/export.h"
 /* -------------------------------------------------------------------------- */
 
-namespace utils {
-class CommandLineParser {
+namespace cmd {
+class COMMAND_LINE_API CommandLineParser {
 private:
   struct Option {
     explicit Option(const QCommandLineOption &cmd_option, std::function<void(const QString &)> callback = {});
@@ -70,6 +72,6 @@ CONVERTER_VALUE_SPEC(float, value.toFloat())
 CONVERTER_VALUE_SPEC(double, value.toDouble())
 #undef CONVERTER_VALUE_SPEC
 
-} // namespace utils
+} // namespace cmd
 
 #endif // EGNITE_COMMAND_LINE_PARSER_H

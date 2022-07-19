@@ -41,11 +41,8 @@ public:
 
   Q_INVOKABLE QNetworkReply *get(const QUrl &url);
   Q_INVOKABLE QNetworkReply *post(const QUrl &url);
-  Q_INVOKABLE QNetworkReply *post(const QUrl &url, const QByteArray &data);
   Q_INVOKABLE QNetworkReply *put(const QUrl &url);
-  Q_INVOKABLE QNetworkReply *put(const QUrl &url, const QByteArray &data);
   Q_INVOKABLE QNetworkReply *patch(const QUrl &url);
-  Q_INVOKABLE QNetworkReply *patch(const QUrl &url, const QByteArray &data);
   Q_INVOKABLE QNetworkReply *deleteResource(const QUrl &url);
   Q_INVOKABLE QNetworkReply *head(const QUrl &url);
   Q_INVOKABLE QNetworkReply *options(const QUrl &url);
@@ -57,7 +54,12 @@ public:
 Q_SIGNALS:
   void onBaseUrlChanged(const QUrl &base_url);
   void onHeadersChanged(const egnite::web::WebHeaders &headers);
-  void onSerializerChanged(egnite::web::WebSerializer *serializer);
+  void onSerializerChanged(WebSerializer *serializer);
+
+protected:
+  Q_INVOKABLE QNetworkReply *post(const QUrl &url, const QByteArray &data);
+  Q_INVOKABLE QNetworkReply *put(const QUrl &url, const QByteArray &data);
+  Q_INVOKABLE QNetworkReply *patch(const QUrl &url, const QByteArray &data);
 
 private:
   QUrl m_base_url;
@@ -66,11 +68,17 @@ private:
   QNetworkAccessManager m_network_access_manager;
 };
 
-template <typename TYPE> QNetworkReply *WebClient::post(const QUrl &url, const TYPE &data) {}
+template <typename TYPE> QNetworkReply *WebClient::post(const QUrl &url, const TYPE &data) {
+  return post(url, m_serializer->serialize(data));
+}
 
-template <typename TYPE> QNetworkReply *WebClient::put(const QUrl &url, const TYPE &data) {}
+template <typename TYPE> QNetworkReply *WebClient::put(const QUrl &url, const TYPE &data) {
+  return put(url, m_serializer->serialize(data));
+}
 
-template <typename TYPE> QNetworkReply *WebClient::patch(const QUrl &url, const TYPE &data) {}
+template <typename TYPE> QNetworkReply *WebClient::patch(const QUrl &url, const TYPE &data) {
+  return patch(url, m_serializer->serialize(data));
+}
 
 } // namespace egnite::web
 

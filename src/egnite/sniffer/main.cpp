@@ -17,7 +17,7 @@ void initEnvironmentVariables() { qputenv("QT_QUICK_CONTROLS_CONF", ":/conf/qtqu
 
 /* ----------------------------- CommandLineParser -------------------------- */
 
-class SnifferCommandLineParser : public utils::CommandLineParser {
+class SnifferCommandLineParser : public cmd::CommandLineParser {
 public:
   explicit SnifferCommandLineParser();
   ~SnifferCommandLineParser() override;

@@ -2,6 +2,7 @@
 #include <QJsonObject>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/web/web_authenticator.h"
+#include "egnite/egnite/web/web_messages.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::web {
@@ -28,7 +29,7 @@ SimpleJWTAuthenticator::SimpleJWTAuthenticator(QObject *parent)
     : WebAuthenticator(parent), m_api_key(), m_access_token_lifetime(60 * 60),
       m_refresh_token_lifetime(60 * 60 * 12), m_routing(new SimpleJWTAuthenticatorRouting(this)) {
 
-  connect(this, &SimpleJWTAuthenticator::onWebClientChanged, [this]() {
+  connect(this, &SimpleJWTAuthenticator::onWebClientChanged, this, [this]() {
     if (auto web_client = getWebClient(); web_client) {
 
       connect(&m_renew_access_token, &QTimer::timeout, this,
@@ -127,7 +128,8 @@ void SimpleJWTAuthenticator::login(const QString &username, const QString &passw
   auto web_client = getWebClient();
   Q_ASSERT(web_client);
 
-  auto reply = web_client->post(web_client->getUrl(m_routing->gettokenCreate()));
+  auto reply = web_client->post(web_client->getUrl(m_routing->gettokenCreate()),
+                                LoginRequest{.username = username, .password = password});
 
   // TODO add data and action on login reply
 }

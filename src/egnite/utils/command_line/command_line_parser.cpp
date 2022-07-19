@@ -2,7 +2,7 @@
 #include "egnite/utils/command_line/command_line_parser.h"
 /* -------------------------------------------------------------------------- */
 
-namespace utils {
+namespace cmd {
 
 /* ---------------------------------- Option ------------------------------ */
 
@@ -59,4 +59,4 @@ void CommandLineParser::registerOptionImpl(
   m_options.emplace_back(Option(cmd_option, callback));
 }
 
-} // namespace utils
+} // namespace cmd
