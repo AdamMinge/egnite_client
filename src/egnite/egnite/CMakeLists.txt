@@ -26,11 +26,11 @@ set(includes
         ${include_root}/macros/map.h
 
         ${include_root}/web/web_messages.h
+        ${include_root}/web/web_routers.h
         ${include_root}/web/web_headers.h
         ${include_root}/web/web_serializer.h
         ${include_root}/web/web_client.h
-        ${include_root}/web/web_authenticator.h
-        ${include_root}/web/web_routing.h)
+        ${include_root}/web/web_authenticator.h)
 
 set(resources
         ${resources_root}/egnite.qrc)

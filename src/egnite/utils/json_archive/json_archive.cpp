@@ -91,12 +91,12 @@ void JsonOArchive::nvp_end(const std::string& name) {
   m_array_stack.resize(m_array_level + 1);
 }
 
-void JsonOArchive::array_start(int number) {
+void JsonOArchive::array_item_start(int number) {
   m_archive.push(number);
   m_array_stack.resize(m_array_level);
 }
 
-void JsonOArchive::array_end() {}
+void JsonOArchive::array_item_end() {}
 
 /* ------------------------------ JsonIArchive ---------------------------- */
 

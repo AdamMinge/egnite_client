@@ -17,4 +17,5 @@ WebSerializer::Format WebSerializer::getFormat() const { return m_format; }
 JsonSerializer::JsonSerializer() : WebSerializer(Format::Json) {}
 
 JsonSerializer::~JsonSerializer() = default;
+
 } // namespace egnite::web

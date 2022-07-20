@@ -7,7 +7,7 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/export.h"
 #include "egnite/egnite/web/web_client.h"
-#include "egnite/egnite/web/web_routing.h"
+#include "egnite/egnite/web/web_routers.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::web {
@@ -18,7 +18,7 @@ class EGNITE_API WebAuthenticator : public QObject {
   Q_OBJECT
 
 public:
-  Q_PROPERTY(WebClient *webClient READ getWebClient WRITE setWebClient NOTIFY onWebClientChanged)
+  Q_PROPERTY(WebClient *webClient READ getWebClient WRITE setWebClient NOTIFY webClientChanged)
 
 public:
   explicit WebAuthenticator(QObject *parent = nullptr);
@@ -28,29 +28,29 @@ public:
   void setWebClient(WebClient *webClient);
 
 Q_SIGNALS:
-  void onWebClientChanged(egnite::web::WebClient *webClient);
+  void webClientChanged(egnite::web::WebClient *webClient);
 
 private:
   WebClient *m_web_client;
 };
 
-EGNITE_ROUTING(SimpleJWTAuthenticatorRouting, tokenCreate, tokenRefresh, tokenVerify)
-
 class EGNITE_API SimpleJWTAuthenticator : public WebAuthenticator {
   Q_OBJECT
 
+  using replySucceedListener = std::function<void(QNetworkReply *)>;
+  using replyFailedListener = std::function<void(QNetworkReply *)>;
+
 public:
-  Q_PROPERTY(QByteArray apiKey READ getApiKey WRITE setApiKey NOTIFY onApiKeyChanged)
-  Q_PROPERTY(QByteArray accessToken READ getAccessToken NOTIFY onAccessTokenChanged)
-  Q_PROPERTY(QByteArray refreshToken READ getRefreshToken NOTIFY onRefreshTokenChanged)
+  Q_PROPERTY(QByteArray apiKey READ getApiKey WRITE setApiKey NOTIFY apiKeyChanged)
+  Q_PROPERTY(QByteArray accessToken READ getAccessToken NOTIFY accessTokenChanged)
+  Q_PROPERTY(QByteArray refreshToken READ getRefreshToken NOTIFY refreshTokenChanged)
 
   Q_PROPERTY(unsigned accessTokenLifetime READ getAccessTokenLifetime WRITE setAccessTokenLifetime
-                 NOTIFY onAccessTokenLifetimeChanged)
+                 NOTIFY accessTokenLifetimeChanged)
   Q_PROPERTY(unsigned refreshTokenLifetime READ getRefreshTokenLifetime WRITE
-                 setRefreshTokenLifetime NOTIFY onRefreshTokenLifetimeChanged)
+                 setRefreshTokenLifetime NOTIFY refreshTokenLifetimeChanged)
 
-  Q_PROPERTY(SimpleJWTAuthenticatorRouting *routing READ getRouting WRITE setRouting NOTIFY
-                 onRoutingChanged)
+  EGNITE_ROUTING(egnite::web::SimpleJWTAuthenticatorRouting);
 
 public:
   explicit SimpleJWTAuthenticator(QObject *parent = nullptr);
@@ -68,21 +68,16 @@ public:
   [[nodiscard]] unsigned getRefreshTokenLifetime() const;
   void setRefreshTokenLifetime(unsigned refreshTokenLifetime);
 
-  [[nodiscard]] SimpleJWTAuthenticatorRouting *getRouting() const;
-  void setRouting(SimpleJWTAuthenticatorRouting *routing);
-
   Q_INVOKABLE void login(const QString &username, const QString &password);
   Q_INVOKABLE void logout();
 
 Q_SIGNALS:
-  void onApiKeyChanged(const QByteArray &api_key);
-  void onAccessTokenChanged(const QByteArray &access_token);
-  void onRefreshTokenChanged(const QByteArray &refresh_token);
+  void apiKeyChanged(const QByteArray &api_key);
+  void accessTokenChanged(const QByteArray &access_token);
+  void refreshTokenChanged(const QByteArray &refresh_token);
 
-  void onAccessTokenLifetimeChanged(unsigned access_token_lifetime);
-  void onRefreshTokenLifetimeChanged(unsigned refresh_token_lifetime);
-
-  void onRoutingChanged(egnite::web::SimpleJWTAuthenticatorRouting *routing);
+  void accessTokenLifetimeChanged(unsigned access_token_lifetime);
+  void refreshTokenLifetimeChanged(unsigned refresh_token_lifetime);
 
 private:
   void setAccessToken(const QByteArray &access_token);
@@ -90,6 +85,9 @@ private:
 
   void renewAccessToken();
   void renewRefreshToken();
+
+  void connectReply(QNetworkReply *reply, replySucceedListener succeed,
+                    replyFailedListener failed = nullptr);
 
 private Q_SLOTS:
   void updateHeaders();
@@ -104,8 +102,6 @@ private:
 
   QTimer m_renew_access_token;
   QTimer m_renew_refresh_token;
-
-  SimpleJWTAuthenticatorRouting *m_routing;
 };
 
 } // namespace egnite::web

@@ -80,18 +80,18 @@ private:
   }
   template <typename TYPE>
   void save_override(const boost::serialization::array_wrapper<TYPE>& array) {
-    array_start(array.count());
     for (auto i = 0; i < array.count(); ++i) {
+      array_item_start(array.count());
       BaseClass::save_override(array.address()[i]);
+      array_item_end(array.name());
     }
-    array_end(array.name());
   }
 
   void nvp_start(const std::string& name);
   void nvp_end(const std::string& name);
 
-  void array_start(int number);
-  void array_end();
+  void array_item_start(int number);
+  void array_item_end();
 
 private:
   detail::JsonArchive m_archive;

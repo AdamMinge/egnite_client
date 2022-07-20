@@ -19,10 +19,10 @@ class EGNITE_API WebClient : public QObject {
   Q_OBJECT
 
 public:
-  Q_PROPERTY(QUrl baseUrl READ getBaseUrl WRITE setBaseUrl NOTIFY onBaseUrlChanged)
-  Q_PROPERTY(WebHeaders headers READ getHeaders WRITE setHeaders NOTIFY onHeadersChanged)
+  Q_PROPERTY(QUrl baseUrl READ getBaseUrl WRITE setBaseUrl NOTIFY baseUrlChanged)
+  Q_PROPERTY(WebHeaders headers READ getHeaders WRITE setHeaders NOTIFY headersChanged)
   Q_PROPERTY(
-      WebSerializer *serializer READ getSerializer WRITE setSerializer NOTIFY onSerializerChanged)
+      WebSerializer *serializer READ getSerializer WRITE setSerializer NOTIFY serializerChanged)
 
 public:
   explicit WebClient(QObject *parent = nullptr);
@@ -52,14 +52,20 @@ public:
   template <typename TYPE> QNetworkReply *patch(const QUrl &url, const TYPE &data);
 
 Q_SIGNALS:
-  void onBaseUrlChanged(const QUrl &base_url);
-  void onHeadersChanged(const egnite::web::WebHeaders &headers);
-  void onSerializerChanged(WebSerializer *serializer);
+  void baseUrlChanged(const QUrl &base_url);
+  void headersChanged(const egnite::web::WebHeaders &headers);
+  void serializerChanged(egnite::web::WebSerializer *serializer);
+
+  void errorOccured(QNetworkReply::NetworkError code);
+  void sslErrorOccured(const QList<QSslError> &errors);
 
 protected:
   Q_INVOKABLE QNetworkReply *post(const QUrl &url, const QByteArray &data);
   Q_INVOKABLE QNetworkReply *put(const QUrl &url, const QByteArray &data);
   Q_INVOKABLE QNetworkReply *patch(const QUrl &url, const QByteArray &data);
+
+private:
+  void connectErrorListeners(QNetworkReply *reply);
 
 private:
   QUrl m_base_url;

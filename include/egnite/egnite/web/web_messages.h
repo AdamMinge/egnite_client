@@ -15,6 +15,8 @@
 
 namespace egnite::web {
 
+/* ----------------------------------- Login ------------------------------ */
+
 struct LoginRequest {
   QString username;
   QString password;
@@ -25,21 +27,59 @@ struct LoginResponse {
   QByteArray refresh_token;
 };
 
+/* ----------------------------------- Logout ----------------------------- */
+
+struct LogoutRequest {
+  QByteArray refresh_token;
+};
+
+/* ----------------------------- Renew Access Token ----------------------- */
+
+struct RenewAccessTokenRequest {
+  QByteArray refresh_token;
+};
+
+struct RenewAccessTokenResponse {
+  QByteArray access_token;
+};
+
 } // namespace egnite::web
 
 namespace boost::serialization {
 
+/* ----------------------------------- Login ------------------------------ */
+
 template <class Archive>
-void serialize(Archive& ar, egnite::web::LoginRequest& login_request, const unsigned int version) {
-  ar& boost::serialization::make_nvp("username", login_request.username);
-  ar& boost::serialization::make_nvp("password", login_request.password);
+void serialize(Archive& ar, egnite::web::LoginRequest& request, const unsigned int version) {
+  ar& boost::serialization::make_nvp("username", request.username);
+  ar& boost::serialization::make_nvp("password", request.password);
 }
 
 template <class Archive>
-void serialize(Archive& ar, egnite::web::LoginResponse& login_response,
+void serialize(Archive& ar, egnite::web::LoginResponse& request, const unsigned int version) {
+  ar& boost::serialization::make_nvp("access_token", request.access_token);
+  ar& boost::serialization::make_nvp("refresh_token", request.refresh_token);
+}
+
+/* ----------------------------------- Logout ----------------------------- */
+
+template <class Archive>
+void serialize(Archive& ar, egnite::web::LogoutRequest& request, const unsigned int version) {
+  ar& boost::serialization::make_nvp("refresh_token", request.refresh_token);
+}
+
+/* ----------------------------- Renew Access Token ----------------------- */
+
+template <class Archive>
+void serialize(Archive& ar, egnite::web::RenewAccessTokenRequest& request,
                const unsigned int version) {
-  ar& boost::serialization::make_nvp("access_token", login_response.access_token);
-  ar& boost::serialization::make_nvp("refresh_token", login_response.refresh_token);
+  ar& boost::serialization::make_nvp("refresh_token", request.refresh_token);
+}
+
+template <class Archive>
+void serialize(Archive& ar, egnite::web::RenewAccessTokenResponse& request,
+               const unsigned int version) {
+  ar& boost::serialization::make_nvp("access_token", request.access_token);
 }
 
 } // namespace boost::serialization

@@ -11,6 +11,14 @@ QtObject {
     property var web_client: Egnite.WebClient{
         baseUrl: "http://localhost/api/v1/"
         serializer: Egnite.JsonSerializer{}
+
+        onErrorOccured: {
+
+        }
+
+        onSslErrorOccured: {
+
+        }
     }
 
     property var web_client_authenticator: Egnite.SimpleJWTAuthenticator{
@@ -23,7 +31,7 @@ QtObject {
         routing {
             tokenCreate: "/token/"
             tokenRefresh: "/token/refresh/"
-            tokenVerify: "/token/verify/"
+            tokenBlacklist: "/token/blacklist/"
         }
     }
 

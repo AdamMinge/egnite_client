@@ -21,7 +21,7 @@ void WebClient::setBaseUrl(const QUrl &base_url) {
     return;
 
   m_base_url = base_url;
-  Q_EMIT onBaseUrlChanged(m_base_url);
+  Q_EMIT baseUrlChanged(m_base_url);
 }
 
 const WebHeaders &WebClient::getHeaders() const { return m_headers; }
@@ -31,7 +31,7 @@ void WebClient::setHeaders(const WebHeaders &headers) {
     return;
 
   m_headers = headers;
-  Q_EMIT onHeadersChanged(m_headers);
+  Q_EMIT headersChanged(m_headers);
 }
 
 WebSerializer *WebClient::getSerializer() const { return m_serializer; }
@@ -41,48 +41,73 @@ void WebClient::setSerializer(WebSerializer *serializer) {
     return;
 
   m_serializer = serializer;
-  Q_EMIT onSerializerChanged(m_serializer);
+  Q_EMIT serializerChanged(m_serializer);
 }
 
 QNetworkReply *WebClient::get(const QUrl &url) {
-  return m_network_access_manager.get(m_headers.createRequest(url));
+  auto reply = m_network_access_manager.get(m_headers.createRequest(url));
+  connectErrorListeners(reply);
+  return reply;
 }
 
 QNetworkReply *WebClient::post(const QUrl &url) {
-  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "POST");
+  auto reply = m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "POST");
+  connectErrorListeners(reply);
+  return reply;
 }
 
 QNetworkReply *WebClient::post(const QUrl &url, const QByteArray &data) {
-
-  return m_network_access_manager.post(m_headers.createRequest(url), data);
+  auto reply = m_network_access_manager.post(m_headers.createRequest(url), data);
+  connectErrorListeners(reply);
+  return reply;
 }
 
 QNetworkReply *WebClient::put(const QUrl &url) {
-  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PUT");
+  auto reply = m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PUT");
+  connectErrorListeners(reply);
+  return reply;
 }
 
 QNetworkReply *WebClient::put(const QUrl &url, const QByteArray &data) {
-  return m_network_access_manager.put(m_headers.createRequest(url), data);
+  auto reply = m_network_access_manager.put(m_headers.createRequest(url), data);
+  connectErrorListeners(reply);
+  return reply;
 }
 
 QNetworkReply *WebClient::patch(const QUrl &url) {
-  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH");
+  auto reply = m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH");
+  connectErrorListeners(reply);
+  return reply;
 }
 
 QNetworkReply *WebClient::patch(const QUrl &url, const QByteArray &data) {
-  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH", data);
+  auto reply
+      = m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH", data);
+  connectErrorListeners(reply);
+  return reply;
 }
 
 QNetworkReply *WebClient::deleteResource(const QUrl &url) {
-  return m_network_access_manager.deleteResource(m_headers.createRequest(url));
+  auto reply = m_network_access_manager.deleteResource(m_headers.createRequest(url));
+  connectErrorListeners(reply);
+  return reply;
 }
 
 QNetworkReply *WebClient::head(const QUrl &url) {
-  return m_network_access_manager.head(m_headers.createRequest(url));
+  auto reply = m_network_access_manager.head(m_headers.createRequest(url));
+  connectErrorListeners(reply);
+  return reply;
 }
 
 QNetworkReply *WebClient::options(const QUrl &url) {
-  return m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "OPTIONS");
+  auto reply = m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "OPTIONS");
+  connectErrorListeners(reply);
+  return reply;
+}
+
+void WebClient::connectErrorListeners(QNetworkReply *reply) {
+  connect(reply, &QNetworkReply::errorOccurred, this, &WebClient::errorOccured);
+  connect(reply, &QNetworkReply::sslErrors, this, &WebClient::sslErrorOccured);
 }
 
 } // namespace egnite::web
