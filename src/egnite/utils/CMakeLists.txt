@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.11)
 # -------------------------------------------------------------------------------------------------- #
 # -------------------------------------- Add subdirectories ---------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-add_subdirectory(command_line)
-add_subdirectory(json_archive)
-add_subdirectory(qt_boost_serializer)
+add_subdirectory(cmd)
+add_subdirectory(boost_archive)
+add_subdirectory(boost_serializer)
 # -------------------------------------------------------------------------------------------------- #

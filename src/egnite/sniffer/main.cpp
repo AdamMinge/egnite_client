@@ -3,7 +3,7 @@
 /* ---------------------------------- Egnite -------------------------------- */
 #include <egnite/egnite/quick_egnite.h>
 /* ---------------------------------- Utils --------------------------------- */
-#include <egnite/utils/command_line/command_line_parser.h>
+#include <egnite/utils/cmd/parser.h>
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QApplication>
 #include <QFontDatabase>
@@ -17,7 +17,7 @@ void initEnvironmentVariables() { qputenv("QT_QUICK_CONTROLS_CONF", ":/conf/qtqu
 
 /* ----------------------------- CommandLineParser -------------------------- */
 
-class SnifferCommandLineParser : public cmd::CommandLineParser {
+class SnifferCommandLineParser : public cmd::Parser {
 public:
   explicit SnifferCommandLineParser();
   ~SnifferCommandLineParser() override;

@@ -5,14 +5,15 @@ cmake_minimum_required(VERSION 3.11)
 # -------------------------------------------------------------------------------------------------- #
 # -------------------------------------- Set files variable ---------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/utils/qt_boost_serializer)
-set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/utils/qt_boost_serializer)
+set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/utils/cmd)
+set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/utils/cmd)
 
-set(sources)
+set(sources
+        ${source_root}/parser.cpp)
 
 set(includes
         ${include_root}/export.h
-        ${include_root}/qt_boost_serializer.h)
+        ${include_root}/parser.h)
 # -------------------------------------------------------------------------------------------------- #
 # ---------------------------------- Qt libraries configuration ------------------------------------ #
 # -------------------------------------------------------------------------------------------------- #
@@ -23,13 +24,10 @@ set(CMAKE_AUTORCC ON)
 # ----------------------------------- Find external libraries -------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
-find_package(Boost REQUIRED COMPONENTS serialization)
 # -------------------------------------------------------------------------------------------------- #
 # ------------------------------------ Create utils shared lib ------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-egnite_add_utils(qt_boost_serializer
+egnite_add_utils(cmd
         SOURCES ${sources} ${includes}
-        DEPENDS
-        Qt6::Widgets
-        Boost::serialization)
+        DEPENDS Qt6::Widgets)
 # -------------------------------------------------------------------------------------------------- #

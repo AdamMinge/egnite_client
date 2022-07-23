@@ -5,15 +5,15 @@ cmake_minimum_required(VERSION 3.11)
 # -------------------------------------------------------------------------------------------------- #
 # -------------------------------------- Set files variable ---------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/utils/command_line)
-set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/utils/command_line)
+set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/utils/boost_archive)
+set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/utils/boost_archive)
 
 set(sources
-        ${source_root}/command_line_parser.cpp)
+        ${source_root}/json_archive.cpp)
 
 set(includes
         ${include_root}/export.h
-        ${include_root}/command_line_parser.h)
+        ${include_root}/json_archive.h)
 # -------------------------------------------------------------------------------------------------- #
 # ---------------------------------- Qt libraries configuration ------------------------------------ #
 # -------------------------------------------------------------------------------------------------- #
@@ -24,10 +24,16 @@ set(CMAKE_AUTORCC ON)
 # ----------------------------------- Find external libraries -------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Boost REQUIRED COMPONENTS serialization)
+find_package(nlohmann_json REQUIRED)
 # -------------------------------------------------------------------------------------------------- #
 # ------------------------------------ Create utils shared lib ------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-egnite_add_utils(command_line
+egnite_add_utils(boost_archive
         SOURCES ${sources} ${includes}
-        DEPENDS Qt6::Widgets)
+        DEPENDS
+        Qt6::Widgets
+        Boost::serialization
+        nlohmann_json::nlohmann_json
+        utils::boost_serializer)
 # -------------------------------------------------------------------------------------------------- #

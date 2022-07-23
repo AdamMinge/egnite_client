@@ -40,6 +40,6 @@ egnite_add_application(viewer
         Qt::Widgets
         Qt::Qml
         Qt::QuickControls2
-        utils::command_line
+        utils::cmd
         egnite::egnite)
 # -------------------------------------------------------------------------------------------------- #

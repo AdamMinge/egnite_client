@@ -1,14 +1,14 @@
-#ifndef EGNITE_EXPORT_H
-#define EGNITE_EXPORT_H
+#ifndef EGNITE_CMD_EXPORT_H
+#define EGNITE_CMD_EXPORT_H
 
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/config.h"
 /* -------------------------------------------------------------------------- */
 
-#if defined(EGNITE_EXPORTS)
-#define EGNITE_API EGNITE_API_EXPORT
+#if defined(CMD_EXPORTS)
+#define CMD_API EGNITE_API_EXPORT
 #else
-#define EGNITE_API EGNITE_API_IMPORT
+#define CMD_API EGNITE_API_IMPORT
 #endif
 
-#endif // EGNITE_EXPORT_H
+#endif // EGNITE_CMD_EXPORT_H

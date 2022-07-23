@@ -9,35 +9,34 @@
 #include <QUrl>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/export.h"
-#include "egnite/egnite/web/web_headers.h"
-#include "egnite/egnite/web/web_serializer.h"
+#include "egnite/egnite/web/headers.h"
+#include "egnite/egnite/web/serializer.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::web {
 
-class EGNITE_API WebClient : public QObject {
+class EGNITE_API Client : public QObject {
   Q_OBJECT
 
 public:
   Q_PROPERTY(QUrl baseUrl READ getBaseUrl WRITE setBaseUrl NOTIFY baseUrlChanged)
-  Q_PROPERTY(WebHeaders headers READ getHeaders WRITE setHeaders NOTIFY headersChanged)
-  Q_PROPERTY(
-      WebSerializer *serializer READ getSerializer WRITE setSerializer NOTIFY serializerChanged)
+  Q_PROPERTY(Headers headers READ getHeaders WRITE setHeaders NOTIFY headersChanged)
+  Q_PROPERTY(Serializer *serializer READ getSerializer WRITE setSerializer NOTIFY serializerChanged)
 
 public:
-  explicit WebClient(QObject *parent = nullptr);
-  ~WebClient() override;
+  explicit Client(QObject *parent = nullptr);
+  ~Client() override;
 
   [[nodiscard]] const QUrl &getBaseUrl() const;
   [[nodiscard]] QUrl getUrl(const QUrl &url) const;
 
   void setBaseUrl(const QUrl &base_url);
 
-  [[nodiscard]] const WebHeaders &getHeaders() const;
-  void setHeaders(const WebHeaders &headers);
+  [[nodiscard]] const Headers &getHeaders() const;
+  void setHeaders(const Headers &headers);
 
-  [[nodiscard]] WebSerializer *getSerializer() const;
-  void setSerializer(WebSerializer *serializer);
+  [[nodiscard]] Serializer *getSerializer() const;
+  void setSerializer(Serializer *serializer);
 
   Q_INVOKABLE QNetworkReply *get(const QUrl &url);
   Q_INVOKABLE QNetworkReply *post(const QUrl &url);
@@ -53,8 +52,8 @@ public:
 
 Q_SIGNALS:
   void baseUrlChanged(const QUrl &base_url);
-  void headersChanged(const egnite::web::WebHeaders &headers);
-  void serializerChanged(egnite::web::WebSerializer *serializer);
+  void headersChanged(const egnite::web::Headers &headers);
+  void serializerChanged(egnite::web::Serializer *serializer);
 
   void errorOccured(QNetworkReply::NetworkError code);
   void sslErrorOccured(const QList<QSslError> &errors);
@@ -69,20 +68,20 @@ private:
 
 private:
   QUrl m_base_url;
-  WebHeaders m_headers;
-  WebSerializer *m_serializer;
+  Headers m_headers;
+  Serializer *m_serializer;
   QNetworkAccessManager m_network_access_manager;
 };
 
-template <typename TYPE> QNetworkReply *WebClient::post(const QUrl &url, const TYPE &data) {
+template <typename TYPE> QNetworkReply *Client::post(const QUrl &url, const TYPE &data) {
   return post(url, m_serializer->serialize(data));
 }
 
-template <typename TYPE> QNetworkReply *WebClient::put(const QUrl &url, const TYPE &data) {
+template <typename TYPE> QNetworkReply *Client::put(const QUrl &url, const TYPE &data) {
   return put(url, m_serializer->serialize(data));
 }
 
-template <typename TYPE> QNetworkReply *WebClient::patch(const QUrl &url, const TYPE &data) {
+template <typename TYPE> QNetworkReply *Client::patch(const QUrl &url, const TYPE &data) {
   return patch(url, m_serializer->serialize(data));
 }
 

@@ -1,5 +1,5 @@
-#ifndef EGNITE_COMMAND_LINE_PARSER_H
-#define EGNITE_COMMAND_LINE_PARSER_H
+#ifndef EGNITE_CMD_PARSER_H
+#define EGNITE_CMD_PARSER_H
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QApplication>
@@ -8,11 +8,11 @@
 /* ---------------------------------- Standard ------------------------------ */
 #include <list>
 /* ----------------------------------- Local -------------------------------- */
-#include "egnite/utils/command_line/export.h"
+#include "egnite/utils/cmd/export.h"
 /* -------------------------------------------------------------------------- */
 
 namespace cmd {
-class COMMAND_LINE_API CommandLineParser {
+class CMD_API Parser {
 private:
   struct Option {
     explicit Option(const QCommandLineOption &cmd_option, std::function<void(const QString &)> callback = {});
@@ -22,8 +22,8 @@ private:
   };
 
 public:
-  explicit CommandLineParser();
-  virtual ~CommandLineParser();
+  explicit Parser();
+  virtual ~Parser();
 
   void process(const QCoreApplication &app);
 
@@ -45,8 +45,9 @@ private:
 };
 
 template <typename TYPE>
-void CommandLineParser::registerOption(const QStringList &names, const QString &description,
-                                       const std::function<void(const TYPE &)> &callback, const QString &valueName) {
+void Parser::registerOption(const QStringList &names, const QString &description,
+                            const std::function<void(const TYPE &)> &callback,
+                            const QString &valueName) {
   registerOptionImpl(
       names, description, [callback, this](const QString &value) { callback(convertValue<TYPE>(value)); }, valueName);
 }
@@ -54,10 +55,12 @@ void CommandLineParser::registerOption(const QStringList &names, const QString &
 /* -------------------------- Convert specializations  ----------------------
  */
 
-template <typename TYPE> TYPE CommandLineParser::convertValue(const QString &value) { return static_cast<TYPE>(value); }
+template <typename TYPE> TYPE Parser::convertValue(const QString &value) {
+  return static_cast<TYPE>(value);
+}
 
-#define CONVERTER_VALUE_SPEC(TYPE, METHOD)                                                                             \
-  template <> inline TYPE CommandLineParser::convertValue<TYPE>(const QString &value) { return (METHOD); }
+#define CONVERTER_VALUE_SPEC(TYPE, METHOD)                                                         \
+  template <> inline TYPE Parser::convertValue<TYPE>(const QString &value) { return (METHOD); }
 
 CONVERTER_VALUE_SPEC(QString, value)
 CONVERTER_VALUE_SPEC(short, value.toShort())
@@ -74,4 +77,4 @@ CONVERTER_VALUE_SPEC(double, value.toDouble())
 
 } // namespace cmd
 
-#endif // EGNITE_COMMAND_LINE_PARSER_H
+#endif // EGNITE_CMD_PARSER_H

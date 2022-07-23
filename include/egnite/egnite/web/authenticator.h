@@ -6,35 +6,35 @@
 #include <QTimer>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/export.h"
-#include "egnite/egnite/web/web_client.h"
-#include "egnite/egnite/web/web_routers.h"
+#include "egnite/egnite/web/client.h"
+#include "egnite/egnite/web/routers.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::web {
 
-class WebClient;
+class Client;
 
-class EGNITE_API WebAuthenticator : public QObject {
+class EGNITE_API Authenticator : public QObject {
   Q_OBJECT
 
 public:
-  Q_PROPERTY(WebClient *webClient READ getWebClient WRITE setWebClient NOTIFY webClientChanged)
+  Q_PROPERTY(Client *client READ getClient WRITE setClient NOTIFY clientChanged)
 
 public:
-  explicit WebAuthenticator(QObject *parent = nullptr);
-  ~WebAuthenticator() override;
+  explicit Authenticator(QObject *parent = nullptr);
+  ~Authenticator() override;
 
-  [[nodiscard]] WebClient *getWebClient() const;
-  void setWebClient(WebClient *webClient);
+  [[nodiscard]] Client *getClient() const;
+  void setClient(Client *webClient);
 
 Q_SIGNALS:
-  void webClientChanged(egnite::web::WebClient *webClient);
+  void clientChanged(egnite::web::Client *Client);
 
 private:
-  WebClient *m_web_client;
+  Client *m_client;
 };
 
-class EGNITE_API SimpleJWTAuthenticator : public WebAuthenticator {
+class EGNITE_API SimpleJWTAuthenticator : public Authenticator {
   Q_OBJECT
 
   using replySucceedListener = std::function<void(QNetworkReply *)>;

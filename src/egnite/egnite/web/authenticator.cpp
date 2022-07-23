@@ -1,44 +1,42 @@
 /* ------------------------------------- Qt --------------------------------- */
 #include <QJsonObject>
 /* ----------------------------------- Local -------------------------------- */
-#include "egnite/egnite/web/web_authenticator.h"
-#include "egnite/egnite/web/web_messages.h"
+#include "egnite/egnite/web/authenticator.h"
+#include "egnite/egnite/web/messages.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::web {
 
-/* ----------------------------- WebAuthenticator ------------------------- */
+/* ------------------------------- Authenticator -------------------------- */
 
-WebAuthenticator::WebAuthenticator(QObject *parent) : QObject(parent), m_web_client(nullptr) {}
+Authenticator::Authenticator(QObject *parent) : QObject(parent), m_client(nullptr) {}
 
-WebAuthenticator::~WebAuthenticator() = default;
+Authenticator::~Authenticator() = default;
 
-WebClient *WebAuthenticator::getWebClient() const { return m_web_client; }
+Client *Authenticator::getClient() const { return m_client; }
 
-void WebAuthenticator::setWebClient(WebClient *webClient) {
-  if (m_web_client == webClient)
+void Authenticator::setClient(Client *client) {
+  if (m_client == client)
     return;
 
-  m_web_client = webClient;
-  Q_EMIT webClientChanged(m_web_client);
+  m_client = client;
+  Q_EMIT clientChanged(m_client);
 }
 
 /* -------------------------- SimpleJWTAuthenticator ---------------------- */
 
 SimpleJWTAuthenticator::SimpleJWTAuthenticator(QObject *parent)
-    : WebAuthenticator(parent), m_api_key(), m_access_token_lifetime(60 * 60),
+    : Authenticator(parent), m_api_key(), m_access_token_lifetime(60 * 60),
       m_refresh_token_lifetime(60 * 60 * 12), m_routing(new SimpleJWTAuthenticatorRouting(this)) {
 
-  connect(this, &SimpleJWTAuthenticator::webClientChanged, this, [this]() {
-    if (auto web_client = getWebClient(); web_client) {
+  connect(this, &SimpleJWTAuthenticator::clientChanged, this, [this]() {
+    if (auto client = getClient(); client) {
 
       connect(&m_renew_access_token, &QTimer::timeout, this,
               &SimpleJWTAuthenticator::renewAccessToken);
       connect(&m_renew_refresh_token, &QTimer::timeout, this,
               &SimpleJWTAuthenticator::renewRefreshToken);
 
-      connect(this, &SimpleJWTAuthenticator::webClientChanged, this,
-              &SimpleJWTAuthenticator::updateHeaders);
       connect(this, &SimpleJWTAuthenticator::apiKeyChanged, this,
               &SimpleJWTAuthenticator::updateHeaders);
       connect(this, &SimpleJWTAuthenticator::accessTokenChanged, this,
@@ -115,11 +113,11 @@ void SimpleJWTAuthenticator::setRefreshTokenLifetime(unsigned refresh_token_life
 }
 
 void SimpleJWTAuthenticator::login(const QString &username, const QString &password) {
-  auto web_client = getWebClient();
-  Q_ASSERT(web_client);
+  auto client = getClient();
+  Q_ASSERT(client);
 
-  auto reply = web_client->post(web_client->getUrl(m_routing->gettokenCreate()),
-                                LoginRequest{.username = username, .password = password});
+  auto reply = client->post(client->getUrl(m_routing->gettokenCreate()),
+                            LoginRequest{.username = username, .password = password});
 
   connectReply( // TODO - Implement scenario for success and fail
       reply, [](auto reply) { qDebug() << "login succeed"; },
@@ -127,11 +125,11 @@ void SimpleJWTAuthenticator::login(const QString &username, const QString &passw
 }
 
 void SimpleJWTAuthenticator::logout() {
-  auto web_client = getWebClient();
-  Q_ASSERT(web_client);
+  auto client = getClient();
+  Q_ASSERT(client);
 
-  auto reply = web_client->post(web_client->getUrl(m_routing->gettokenBlacklist()),
-                                LogoutRequest{.refresh_token = m_refresh_token});
+  auto reply = client->post(client->getUrl(m_routing->gettokenBlacklist()),
+                            LogoutRequest{.refresh_token = m_refresh_token});
 
   connectReply( // TODO - Implement scenario for success and fail
       reply, [](auto reply) { qDebug() << "logout succeed"; },
@@ -139,11 +137,11 @@ void SimpleJWTAuthenticator::logout() {
 }
 
 void SimpleJWTAuthenticator::renewAccessToken() {
-  auto web_client = getWebClient();
-  Q_ASSERT(web_client);
+  auto client = getClient();
+  Q_ASSERT(client);
 
-  auto reply = web_client->post(web_client->getUrl(m_routing->gettokenRefresh()),
-                                RenewAccessTokenRequest{.refresh_token = m_refresh_token});
+  auto reply = client->post(client->getUrl(m_routing->gettokenRefresh()),
+                            RenewAccessTokenRequest{.refresh_token = m_refresh_token});
 
   connectReply( // TODO - Implement scenario for success and fail
       reply, [](auto reply) { qDebug() << "renewAccessToken succeed"; },
@@ -151,8 +149,8 @@ void SimpleJWTAuthenticator::renewAccessToken() {
 }
 
 void SimpleJWTAuthenticator::renewRefreshToken() {
-  auto web_client = getWebClient();
-  Q_ASSERT(web_client);
+  auto client = getClient();
+  Q_ASSERT(client);
 
   // TODO - Research about refreshing refresh token ( maybe stay login and sens login request? )
 }
@@ -173,17 +171,17 @@ void SimpleJWTAuthenticator::connectReply(QNetworkReply *reply, replySucceedList
 
 void SimpleJWTAuthenticator::updateHeaders() {
 
-  auto web_client = getWebClient();
-  Q_ASSERT(web_client);
+  auto client = getClient();
+  Q_ASSERT(client);
 
-  auto headers = web_client->getHeaders();
+  auto headers = client->getHeaders();
 
   if (!m_api_key.isEmpty())
     headers.setRawHeader("Api-Key", m_api_key);
   if (!m_access_token.isEmpty())
     headers.setRawHeader("Authorization", "Bearer " + m_access_token);
 
-  web_client->setHeaders(headers);
+  client->setHeaders(headers);
 }
 
 } // namespace egnite::web

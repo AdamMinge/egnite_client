@@ -1,5 +1,5 @@
-#ifndef EGNITE_MAP_H
-#define EGNITE_MAP_H
+#ifndef EGNITE_MACROS_MAP_H
+#define EGNITE_MACROS_MAP_H
 
 #define EGNITE_EVAL0(...) __VA_ARGS__
 #define EGNITE_EVAL1(...) EGNITE_EVAL0(EGNITE_EVAL0(EGNITE_EVAL0(__VA_ARGS__)))
@@ -34,4 +34,4 @@
 #define EGNITE_MAP_LIST(f, ...)                                                                    \
   EGNITE_EVAL(EGNITE_MAP_LIST1(f, __VA_ARGS__, ()()(), ()()(), ()()(), 0))
 
-#endif // EGNITE_MAP_H
+#endif // EGNITE_MACROS_MAP_H

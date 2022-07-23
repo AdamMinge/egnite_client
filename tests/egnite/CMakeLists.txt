@@ -9,9 +9,11 @@ set(source_root ${EGNITE_SOURCE_DIR}/tests/egnite)
 set(include_root ${EGNITE_SOURCE_DIR}/tests/egnite)
 
 set(sources
-    ${source_root}/main.cpp)
+    ${source_root}/main.cpp
+    ${source_root}/test_web_serializer.cpp)
 
-set(includes)
+set(includes
+    ${include_root}/test_web_serializer.h)
 # -------------------------------------------------------------------------------------------------- #
 # ----------------------------------- Find external libraries -------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
@@ -21,5 +23,8 @@ find_package(GTest REQUIRED)
 # -------------------------------------------------------------------------------------------------- #
 egnite_add_test(egnite_test
         SOURCES ${sources} ${includes}
-        DEPENDS GTest::gtest GTest::gmock)
+        DEPENDS
+        GTest::gtest
+        GTest::gmock
+        egnite::egnite)
 # -------------------------------------------------------------------------------------------------- #

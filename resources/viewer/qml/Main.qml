@@ -2,15 +2,15 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
 
-import egnite as Egnite
+import Egnite.Web 1.0
 
 QtObject {
 
     readonly property FontLoader font_awesome: FontLoader { id: font_awesome; source: "qrc:/font/FontAwesome.ttf" }
 
-    property var web_client: Egnite.WebClient{
+    property var client: Client{
         baseUrl: "http://localhost/api/v1/"
-        serializer: Egnite.JsonSerializer{}
+        serializer: JsonSerializer{}
 
         onErrorOccured: {
 
@@ -21,8 +21,8 @@ QtObject {
         }
     }
 
-    property var web_client_authenticator: Egnite.SimpleJWTAuthenticator{
-        webClient: web_client
+    property var web_client_authenticator: SimpleJWTAuthenticator{
+        client: client
 
         apiKey: "9RcIrfMn.yq1Ipn8L0mdTaqX7Ta6VFH2mIF5I5lvB"
         accessTokenLifetime: 60*60

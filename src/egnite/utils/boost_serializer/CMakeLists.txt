@@ -5,15 +5,16 @@ cmake_minimum_required(VERSION 3.11)
 # -------------------------------------------------------------------------------------------------- #
 # -------------------------------------- Set files variable ---------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/utils/json_archive)
-set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/utils/json_archive)
+set(source_root ${EGNITE_SOURCE_DIR}/src/egnite/utils/boost_serializer)
+set(include_root ${EGNITE_SOURCE_DIR}/include/egnite/utils/boost_serializer)
 
-set(sources
-        ${source_root}/json_archive.cpp)
+set(sources)
 
 set(includes
         ${include_root}/export.h
-        ${include_root}/json_archive.h)
+        ${include_root}/wrappers.h
+        ${include_root}/qt.h
+        ${include_root}/stl.h)
 # -------------------------------------------------------------------------------------------------- #
 # ---------------------------------- Qt libraries configuration ------------------------------------ #
 # -------------------------------------------------------------------------------------------------- #
@@ -25,14 +26,12 @@ set(CMAKE_AUTORCC ON)
 # -------------------------------------------------------------------------------------------------- #
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 find_package(Boost REQUIRED COMPONENTS serialization)
-find_package(nlohmann_json REQUIRED)
 # -------------------------------------------------------------------------------------------------- #
 # ------------------------------------ Create utils shared lib ------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #
-egnite_add_utils(json_archive
+egnite_add_utils(boost_serializer
         SOURCES ${sources} ${includes}
         DEPENDS
         Qt6::Widgets
-        Boost::serialization
-        nlohmann_json::nlohmann_json)
+        Boost::serialization)
 # -------------------------------------------------------------------------------------------------- #

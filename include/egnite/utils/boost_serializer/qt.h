@@ -1,11 +1,11 @@
-#ifndef EGNITE_QT_BOOST_SERIALIZER_H
-#define EGNITE_QT_BOOST_SERIALIZER_H
+#ifndef EGNITE_BOOST_SERIALIZER_QT_H
+#define EGNITE_BOOST_SERIALIZER_QT_H
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QByteArray>
 #include <QString>
 /* ----------------------------------- Local -------------------------------- */
-#include "egnite/utils/qt_boost_serializer/export.h"
+#include "egnite/utils/boost_serializer/export.h"
 /* -------------------------------------------------------------------------- */
 
 namespace boost::serialization {
@@ -46,4 +46,4 @@ void serialize(Archive& ar, QByteArray& array, const unsigned int file_version) 
 
 } // namespace boost::serialization
 
-#endif // EGNITE_QT_BOOST_SERIALIZER_H
+#endif // EGNITE_BOOST_SERIALIZER_QT_H

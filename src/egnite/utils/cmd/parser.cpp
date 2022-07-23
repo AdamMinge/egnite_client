@@ -1,22 +1,22 @@
 /* ----------------------------------- Local -------------------------------- */
-#include "egnite/utils/command_line/command_line_parser.h"
+#include "egnite/utils/cmd/parser.h"
 /* -------------------------------------------------------------------------- */
 
 namespace cmd {
 
 /* ---------------------------------- Option ------------------------------ */
 
-CommandLineParser::Option::Option(const QCommandLineOption &cmd_option,
-                                  std::function<void(const QString &)> callback)
+Parser::Option::Option(const QCommandLineOption &cmd_option,
+                       std::function<void(const QString &)> callback)
     : cmd_option(cmd_option), callback(std::move(callback)) {}
 
-/* ---------------------------- CommandLineParser ------------------------- */
+/* ---------------------------- Parser ------------------------- */
 
-CommandLineParser::CommandLineParser() = default;
+Parser::Parser() = default;
 
-CommandLineParser::~CommandLineParser() = default;
+Parser::~Parser() = default;
 
-void CommandLineParser::process(const QCoreApplication &app) {
+void Parser::process(const QCoreApplication &app) {
   QCommandLineParser parser;
   parser.setApplicationDescription(app.applicationName());
   parser.addHelpOption();
@@ -38,19 +38,17 @@ void CommandLineParser::process(const QCoreApplication &app) {
   }
 }
 
-void CommandLineParser::registerOption(const QStringList &names,
-                                       const QString &description,
-                                       const std::function<void()> &callback) {
+void Parser::registerOption(const QStringList &names, const QString &description,
+                            const std::function<void()> &callback) {
   registerOptionImpl(names, description, [callback](const QString &value) {
     Q_UNUSED(value);
     callback();
   });
 }
 
-void CommandLineParser::registerOptionImpl(
-    const QStringList &names, const QString &description,
-    const std::function<void(const QString &)> &callback,
-    const QString &valueName) {
+void Parser::registerOptionImpl(const QStringList &names, const QString &description,
+                                const std::function<void(const QString &)> &callback,
+                                const QString &valueName) {
   Q_ASSERT(!names.isEmpty());
   Q_ASSERT(!description.isEmpty());
 

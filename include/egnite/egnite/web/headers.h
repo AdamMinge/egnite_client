@@ -9,10 +9,10 @@
 
 namespace egnite::web {
 
-class EGNITE_API WebHeaders {
+class EGNITE_API Headers {
 public:
-  explicit WebHeaders();
-  ~WebHeaders();
+  explicit Headers();
+  ~Headers();
 
   [[nodiscard]] QNetworkRequest createRequest(const QUrl &url) const;
 
@@ -25,8 +25,8 @@ public:
 
   Q_INVOKABLE [[nodiscard]] bool hasRawHeader(const QByteArray &headerName) const;
 
-  [[nodiscard]] bool operator==(const WebHeaders &other);
-  [[nodiscard]] bool operator!=(const WebHeaders &other);
+  [[nodiscard]] bool operator==(const Headers &other);
+  [[nodiscard]] bool operator!=(const Headers &other);
 
 private:
   QNetworkRequest m_request;

@@ -13,10 +13,11 @@ set(sources
         ${source_root}/quick_egnite.cpp
         ${source_root}/quick_plugin.cpp
 
-        ${source_root}/web/web_headers.cpp
-        ${source_root}/web/web_serializer.cpp
-        ${source_root}/web/web_client.cpp
-        ${source_root}/web/web_authenticator.cpp)
+        ${source_root}/web/messages.cpp
+        ${source_root}/web/headers.cpp
+        ${source_root}/web/serializer.cpp
+        ${source_root}/web/client.cpp
+        ${source_root}/web/authenticator.cpp)
 
 set(includes
         ${include_root}/export.h
@@ -25,12 +26,12 @@ set(includes
 
         ${include_root}/macros/map.h
 
-        ${include_root}/web/web_messages.h
-        ${include_root}/web/web_routers.h
-        ${include_root}/web/web_headers.h
-        ${include_root}/web/web_serializer.h
-        ${include_root}/web/web_client.h
-        ${include_root}/web/web_authenticator.h)
+        ${include_root}/web/messages.h
+        ${include_root}/web/routers.h
+        ${include_root}/web/headers.h
+        ${include_root}/web/serializer.h
+        ${include_root}/web/client.h
+        ${include_root}/web/authenticator.h)
 
 set(resources
         ${resources_root}/egnite.qrc)
@@ -54,6 +55,5 @@ egnite_add_module(egnite
         Qt6::Widgets
         Qt6::Qml
         Boost::serialization
-        utils::json_archive
-        utils::qt_boost_serializer)
+        utils::boost_archive)
 # -------------------------------------------------------------------------------------------------- #

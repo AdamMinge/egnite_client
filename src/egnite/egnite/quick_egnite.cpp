@@ -1,9 +1,9 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/quick_egnite.h"
-#include "egnite/egnite/web/web_authenticator.h"
-#include "egnite/egnite/web/web_client.h"
-#include "egnite/egnite/web/web_headers.h"
-#include "egnite/egnite/web/web_serializer.h"
+#include "egnite/egnite/web/authenticator.h"
+#include "egnite/egnite/web/client.h"
+#include "egnite/egnite/web/headers.h"
+#include "egnite/egnite/web/serializer.h"
 /* -------------------------------------------------------------------------- */
 
 void initResources() { Q_INIT_RESOURCE(egnite); }
@@ -28,15 +28,16 @@ QuickEgnite::~QuickEgnite() = default;
 void QuickEgnite::registerTypes() {
   initResources(); // Q_INIT_RESOURCE must be outside the namespace
 
-  qmlRegisterType<web::WebClient>("egnite", 1, 0, "WebClient");
-  qmlRegisterType<web::WebHeaders>("egnite", 1, 0, "WebHeaders");
+  // register web submodule
+  qmlRegisterType<web::Client>("Egnite.Web", 1, 0, "Client");
+  qmlRegisterType<web::Headers>("Egnite.Web", 1, 0, "Headers");
 
-  qmlRegisterType<web::WebSerializer>("egnite", 1, 0, "WebSerializer");
-  qmlRegisterType<web::JsonSerializer>("egnite", 1, 0, "JsonSerializer");
+  qmlRegisterType<web::Serializer>("Egnite.Web", 1, 0, "Serializer");
+  qmlRegisterType<web::JsonSerializer>("Egnite.Web", 1, 0, "JsonSerializer");
 
-  qmlRegisterType<web::WebAuthenticator>("egnite", 1, 0, "WebAuthenticator");
-  qmlRegisterType<web::SimpleJWTAuthenticator>("egnite", 1, 0, "SimpleJWTAuthenticator");
-  qmlRegisterType<web::SimpleJWTAuthenticatorRouting>("egnite", 1, 0,
+  qmlRegisterType<web::Authenticator>("Egnite.Web", 1, 0, "Authenticator");
+  qmlRegisterType<web::SimpleJWTAuthenticator>("Egnite.Web", 1, 0, "SimpleJWTAuthenticator");
+  qmlRegisterType<web::SimpleJWTAuthenticatorRouting>("Egnite.Web", 1, 0,
                                                       "SimpleJWTAuthenticatorRouting");
 }
 
