@@ -6,23 +6,13 @@
 #include <list>
 #include <vector>
 /* ----------------------------------- Boost -------------------------------- */
+#include <boost/serialization/array_wrapper.hpp>
 #include <boost/serialization/wrapper.hpp>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/utils/boost_serializer/export.h"
 /* -------------------------------------------------------------------------- */
 
 namespace boost::serialization {
-
-namespace detail {
-
-template <typename TYPE>
-concept IsResizable = requires(TYPE& value) {
-  {value.resize(size_t{})};
-};
-
-} // namespace detail
-
-/* ---------------------------- dynamic_array_wrapper --------------------- */
 
 template <typename ARRAY>
 class dynamic_array_wrapper
@@ -32,13 +22,12 @@ public:
 
   size_t size() const { return m_array.size(); }
   auto& value(size_t index) const {
-    resize(m_array, index + 1);
-    return *std::next(m_array.begin(), index);
-  }
+    if constexpr (!std::is_const_v<ARRAY>) {
+      if (m_array.size() <= index)
+        m_array.resize(index + 1);
+    }
 
-  template <typename TYPE> void resize(TYPE& array, size_t size) const {}
-  template <detail::IsResizable TYPE> void resize(TYPE& array, size_t size) const {
-    array.resize(size);
+    return *std::next(m_array.begin(), index);
   }
 
 private:

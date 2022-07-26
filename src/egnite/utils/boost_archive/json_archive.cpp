@@ -28,10 +28,6 @@ const nlohmann::json& JsonArchive::value() const { return *m_stack.back(); }
 
 nlohmann::json& JsonArchive::value() { return *m_stack.back(); }
 
-const nlohmann::json& JsonArchive::parent() const { return *(*++m_stack.rbegin()); }
-
-nlohmann::json& JsonArchive::parent() { return *(*++m_stack.rbegin()); }
-
 } // namespace detail
 
 /* ------------------------------ JsonOArchive ---------------------------- */
@@ -53,23 +49,21 @@ void JsonOArchive::write_data(nlohmann::json& data, const nlohmann::json& input)
   }
 }
 
-void JsonOArchive::nvp_start(const std::string& name) {
+void JsonOArchive::save_start(const std::string& name) {
   if (name.empty())
     return;
 
   m_archive.push(name);
 }
 
-void JsonOArchive::nvp_end(const std::string& name) {
+void JsonOArchive::save_end(const std::string& name) {
   if (name.empty())
     return;
 
   m_archive.pop();
 }
 
-void JsonOArchive::array_start(int number) {
-  m_archive.push(number);
-}
+void JsonOArchive::array_item(int number) { m_archive.push(number); }
 
 void JsonOArchive::array_end() { m_archive.pop(); }
 
@@ -81,23 +75,21 @@ JsonIArchive::~JsonIArchive() = default;
 
 nlohmann::json& JsonIArchive::read_data() { return m_archive.value(); }
 
-void JsonIArchive::nvp_start(const std::string& name) {
+void JsonIArchive::load_start(const std::string& name) {
   if (name.empty())
     return;
 
   m_archive.push(name);
 }
 
-void JsonIArchive::nvp_end(const std::string& name) {
+void JsonIArchive::load_end(const std::string& name) {
   if (name.empty())
     return;
 
   m_archive.pop();
 }
 
-void JsonIArchive::array_start(int number) {
-  m_archive.push(number);
-}
+void JsonIArchive::array_item(int number) { m_archive.push(number); }
 
 void JsonIArchive::array_end() { m_archive.pop(); }
 

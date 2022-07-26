@@ -54,12 +54,12 @@ inline void serialize(Archive& ar, std::list<U, Allocator>& t, const unsigned in
 
 template <class Archive, class U, size_t Size>
 inline void save(Archive& ar, const std::array<U, Size>& t, const unsigned int /* file_version */) {
-  ar << make_dynamic_array(t);
+  ar << make_array(t.data(), t.size());
 }
 
 template <class Archive, class U, size_t Size>
 inline void load(Archive& ar, std::array<U, Size>& t, const unsigned int /* file_version */) {
-  ar >> make_dynamic_array(t);
+  ar >> make_array(t.data(), t.size());
 }
 
 template <class Archive, class U, size_t Size>

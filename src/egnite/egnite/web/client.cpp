@@ -1,12 +1,12 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/egnite/web/client.h"
+/* --------------------------------- Standard ------------------------------- */
+#include <functional>
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::web {
 
-Client::Client(QObject *parent) : QObject(parent), m_serializer(nullptr) {
-  m_headers.setRawHeader("Content-Type", "application/json");
-}
+Client::Client(QObject *parent) : QObject(parent), m_headers(nullptr), m_serializer(nullptr) {}
 
 Client::~Client() = default;
 
@@ -24,9 +24,9 @@ void Client::setBaseUrl(const QUrl &base_url) {
   Q_EMIT baseUrlChanged(m_base_url);
 }
 
-const Headers &Client::getHeaders() const { return m_headers; }
+Headers *Client::getHeaders() const { return m_headers; }
 
-void Client::setHeaders(const Headers &headers) {
+void Client::setHeaders(Headers *headers) {
   if (m_headers == headers)
     return;
 
@@ -44,70 +44,71 @@ void Client::setSerializer(Serializer *serializer) {
   Q_EMIT serializerChanged(m_serializer);
 }
 
-QNetworkReply *Client::get(const QUrl &url) {
-  auto reply = m_network_access_manager.get(m_headers.createRequest(url));
-  connectErrorListeners(reply);
+Reply Client::get(const QUrl &url) {
+  auto reply = createReply(m_network_access_manager.get(m_headers->createRequest(url)));
   return reply;
 }
 
-QNetworkReply *Client::post(const QUrl &url) {
-  auto reply = m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "POST");
-  connectErrorListeners(reply);
+Reply Client::post(const QUrl &url) {
+  auto reply = createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "POST"));
   return reply;
 }
 
-QNetworkReply *Client::post(const QUrl &url, const QByteArray &data) {
-  auto reply = m_network_access_manager.post(m_headers.createRequest(url), data);
-  connectErrorListeners(reply);
+Reply Client::post(const QUrl &url, const QByteArray &data) {
+  auto reply = createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "POST", data));
   return reply;
 }
 
-QNetworkReply *Client::put(const QUrl &url) {
-  auto reply = m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PUT");
-  connectErrorListeners(reply);
+Reply Client::put(const QUrl &url) {
+  auto reply = createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PUT"));
   return reply;
 }
 
-QNetworkReply *Client::put(const QUrl &url, const QByteArray &data) {
-  auto reply = m_network_access_manager.put(m_headers.createRequest(url), data);
-  connectErrorListeners(reply);
+Reply Client::put(const QUrl &url, const QByteArray &data) {
+  auto reply = createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PUT", data));
   return reply;
 }
 
-QNetworkReply *Client::patch(const QUrl &url) {
-  auto reply = m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH");
-  connectErrorListeners(reply);
+Reply Client::patch(const QUrl &url) {
+  auto reply = createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PATCH"));
   return reply;
 }
 
-QNetworkReply *Client::patch(const QUrl &url, const QByteArray &data) {
-  auto reply
-      = m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "PATCH", data);
-  connectErrorListeners(reply);
+Reply Client::patch(const QUrl &url, const QByteArray &data) {
+  auto reply = createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PATCH", data));
   return reply;
 }
 
-QNetworkReply *Client::deleteResource(const QUrl &url) {
-  auto reply = m_network_access_manager.deleteResource(m_headers.createRequest(url));
-  connectErrorListeners(reply);
+Reply Client::deleteResource(const QUrl &url) {
+  auto reply = createReply(m_network_access_manager.deleteResource(m_headers->createRequest(url)));
   return reply;
 }
 
-QNetworkReply *Client::head(const QUrl &url) {
-  auto reply = m_network_access_manager.head(m_headers.createRequest(url));
-  connectErrorListeners(reply);
+Reply Client::head(const QUrl &url) {
+  auto reply = createReply(m_network_access_manager.head(m_headers->createRequest(url)));
   return reply;
 }
 
-QNetworkReply *Client::options(const QUrl &url) {
-  auto reply = m_network_access_manager.sendCustomRequest(m_headers.createRequest(url), "OPTIONS");
-  connectErrorListeners(reply);
+Reply Client::options(const QUrl &url) {
+  auto reply = createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "OPTIONS"));
   return reply;
 }
 
-void Client::connectErrorListeners(QNetworkReply *reply) {
-  connect(reply, &QNetworkReply::errorOccurred, this, &Client::errorOccured);
-  connect(reply, &QNetworkReply::sslErrors, this, &Client::sslErrorOccured);
+Reply Client::createReply(QNetworkReply *reply) {
+  auto client_reply = Reply{reply, m_serializer};
+
+  client_reply.onError(std::bind(&Client::errorOccured, this, std::placeholders::_1))
+      .onSslError(std::bind(&Client::sslErrorOccured, this, std::placeholders::_1))
+      .onSuccess([reply]() { reply->deleteLater(); });
+
+  return client_reply;
 }
 
 } // namespace egnite::web

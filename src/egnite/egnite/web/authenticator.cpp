@@ -26,7 +26,7 @@ void Authenticator::setClient(Client *client) {
 /* -------------------------- SimpleJWTAuthenticator ---------------------- */
 
 SimpleJWTAuthenticator::SimpleJWTAuthenticator(QObject *parent)
-    : Authenticator(parent), m_api_key(), m_access_token_lifetime(60 * 60),
+    : Authenticator(parent), m_access_token_lifetime(60 * 60),
       m_refresh_token_lifetime(60 * 60 * 12), m_routing(new SimpleJWTAuthenticatorRouting(this)) {
 
   connect(this, &SimpleJWTAuthenticator::clientChanged, this, [this]() {
@@ -37,8 +37,6 @@ SimpleJWTAuthenticator::SimpleJWTAuthenticator(QObject *parent)
       connect(&m_renew_refresh_token, &QTimer::timeout, this,
               &SimpleJWTAuthenticator::renewRefreshToken);
 
-      connect(this, &SimpleJWTAuthenticator::apiKeyChanged, this,
-              &SimpleJWTAuthenticator::updateHeaders);
       connect(this, &SimpleJWTAuthenticator::accessTokenChanged, this,
               &SimpleJWTAuthenticator::updateHeaders);
 
@@ -49,9 +47,7 @@ SimpleJWTAuthenticator::SimpleJWTAuthenticator(QObject *parent)
                  &SimpleJWTAuthenticator::renewAccessToken);
       disconnect(&m_renew_refresh_token, &QTimer::timeout, this,
                  &SimpleJWTAuthenticator::renewRefreshToken);
-
-      disconnect(this, &SimpleJWTAuthenticator::apiKeyChanged, this,
-                 &SimpleJWTAuthenticator::updateHeaders);
+ 
       disconnect(this, &SimpleJWTAuthenticator::accessTokenChanged, this,
                  &SimpleJWTAuthenticator::updateHeaders);
     }
@@ -59,16 +55,6 @@ SimpleJWTAuthenticator::SimpleJWTAuthenticator(QObject *parent)
 }
 
 SimpleJWTAuthenticator::~SimpleJWTAuthenticator() = default;
-
-const QByteArray &SimpleJWTAuthenticator::getApiKey() const { return m_api_key; }
-
-void SimpleJWTAuthenticator::setApiKey(const QByteArray &api_key) {
-  if (m_api_key == api_key)
-    return;
-
-  m_api_key = api_key;
-  Q_EMIT apiKeyChanged(m_api_key);
-}
 
 const QByteArray &SimpleJWTAuthenticator::getAccessToken() const { return m_access_token; }
 
@@ -119,9 +105,9 @@ void SimpleJWTAuthenticator::login(const QString &username, const QString &passw
   auto reply = client->post(client->getUrl(m_routing->gettokenCreate()),
                             LoginRequest{.username = username, .password = password});
 
-  connectReply( // TODO - Implement scenario for success and fail
-      reply, [](auto reply) { qDebug() << "login succeed"; },
-      [](auto reply) { qDebug() << "login failed"; });
+  // TODO - Implement scenario for success and fail
+  reply.onSuccess<LoginResponse>([](auto &response) { qDebug() << "login succeed"; })
+      .onError([](auto error) { qDebug() << "login failed = " << error; });
 }
 
 void SimpleJWTAuthenticator::logout() {
@@ -131,9 +117,10 @@ void SimpleJWTAuthenticator::logout() {
   auto reply = client->post(client->getUrl(m_routing->gettokenBlacklist()),
                             LogoutRequest{.refresh_token = m_refresh_token});
 
-  connectReply( // TODO - Implement scenario for success and fail
-      reply, [](auto reply) { qDebug() << "logout succeed"; },
-      [](auto reply) { qDebug() << "logout failed"; });
+  // TODO - Implement scenario for success and fail
+  reply.onSuccess([]() { qDebug() << "logout succeed"; }).onError([](auto error) {
+    qDebug() << "logout failed = " << error;
+  });
 }
 
 void SimpleJWTAuthenticator::renewAccessToken() {
@@ -143,9 +130,11 @@ void SimpleJWTAuthenticator::renewAccessToken() {
   auto reply = client->post(client->getUrl(m_routing->gettokenRefresh()),
                             RenewAccessTokenRequest{.refresh_token = m_refresh_token});
 
-  connectReply( // TODO - Implement scenario for success and fail
-      reply, [](auto reply) { qDebug() << "renewAccessToken succeed"; },
-      [](auto reply) { qDebug() << "renewAccessToken failed"; });
+  // TODO - Implement scenario for success and fail
+  reply
+      .onSuccess<RenewAccessTokenResponse>(
+          [](auto &response) { qDebug() << "renew token succeed"; })
+      .onError([](auto error) { qDebug() << "renew token failed = " << error; });
 }
 
 void SimpleJWTAuthenticator::renewRefreshToken() {
@@ -155,33 +144,14 @@ void SimpleJWTAuthenticator::renewRefreshToken() {
   // TODO - Research about refreshing refresh token ( maybe stay login and sens login request? )
 }
 
-void SimpleJWTAuthenticator::connectReply(QNetworkReply *reply, replySucceedListener success,
-                                          replyFailedListener failed) {
-  connect(reply, &QNetworkReply::finished, this,
-          [this, success = std::move(success), failed = std::move(failed)]() {
-            auto reply = qobject_cast<QNetworkReply *>(sender());
-            Q_ASSERT(reply);
-
-            if (reply->error() == QNetworkReply::NoError)
-              success(reply);
-            else
-              failed(reply);
-          });
-}
-
 void SimpleJWTAuthenticator::updateHeaders() {
 
   auto client = getClient();
   Q_ASSERT(client);
 
   auto headers = client->getHeaders();
-
-  if (!m_api_key.isEmpty())
-    headers.setRawHeader("Api-Key", m_api_key);
   if (!m_access_token.isEmpty())
-    headers.setRawHeader("Authorization", "Bearer " + m_access_token);
-
-  client->setHeaders(headers);
+    headers->setHeader(Headers::KnownHeaders::Authorization, "Bearer " + m_access_token);
 }
 
 } // namespace egnite::web

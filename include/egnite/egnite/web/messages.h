@@ -3,6 +3,7 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QByteArray>
+#include <QNetworkReply>
 #include <QString>
 /* ----------------------------------- Boost -------------------------------- */
 #include <boost/serialization/nvp.hpp>
@@ -72,9 +73,9 @@ void serialize(Archive& ar, egnite::web::LoginRequest& request, const unsigned i
 }
 
 template <class Archive>
-void serialize(Archive& ar, egnite::web::LoginResponse& request, const unsigned int version) {
-  ar& boost::serialization::make_nvp("access_token", request.access_token);
-  ar& boost::serialization::make_nvp("refresh_token", request.refresh_token);
+void serialize(Archive& ar, egnite::web::LoginResponse& response, const unsigned int version) {
+  ar& boost::serialization::make_nvp("access_token", response.access_token);
+  ar& boost::serialization::make_nvp("refresh_token", response.refresh_token);
 }
 
 /* ----------------------------------- Logout ----------------------------- */
@@ -93,9 +94,9 @@ void serialize(Archive& ar, egnite::web::RenewAccessTokenRequest& request,
 }
 
 template <class Archive>
-void serialize(Archive& ar, egnite::web::RenewAccessTokenResponse& request,
+void serialize(Archive& ar, egnite::web::RenewAccessTokenResponse& response,
                const unsigned int version) {
-  ar& boost::serialization::make_nvp("access_token", request.access_token);
+  ar& boost::serialization::make_nvp("access_token", response.access_token);
 }
 
 } // namespace boost::serialization

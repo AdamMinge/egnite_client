@@ -28,7 +28,7 @@ public:
   void setClient(Client *webClient);
 
 Q_SIGNALS:
-  void clientChanged(egnite::web::Client *Client);
+  void clientChanged(egnite::web::Client *client);
 
 private:
   Client *m_client;
@@ -37,11 +37,7 @@ private:
 class EGNITE_API SimpleJWTAuthenticator : public Authenticator {
   Q_OBJECT
 
-  using replySucceedListener = std::function<void(QNetworkReply *)>;
-  using replyFailedListener = std::function<void(QNetworkReply *)>;
-
 public:
-  Q_PROPERTY(QByteArray apiKey READ getApiKey WRITE setApiKey NOTIFY apiKeyChanged)
   Q_PROPERTY(QByteArray accessToken READ getAccessToken NOTIFY accessTokenChanged)
   Q_PROPERTY(QByteArray refreshToken READ getRefreshToken NOTIFY refreshTokenChanged)
 
@@ -56,9 +52,6 @@ public:
   explicit SimpleJWTAuthenticator(QObject *parent = nullptr);
   ~SimpleJWTAuthenticator() override;
 
-  [[nodiscard]] const QByteArray &getApiKey() const;
-  void setApiKey(const QByteArray &api_key);
-
   [[nodiscard]] const QByteArray &getAccessToken() const;
   [[nodiscard]] const QByteArray &getRefreshToken() const;
 
@@ -72,7 +65,6 @@ public:
   Q_INVOKABLE void logout();
 
 Q_SIGNALS:
-  void apiKeyChanged(const QByteArray &api_key);
   void accessTokenChanged(const QByteArray &access_token);
   void refreshTokenChanged(const QByteArray &refresh_token);
 
@@ -86,14 +78,10 @@ private:
   void renewAccessToken();
   void renewRefreshToken();
 
-  void connectReply(QNetworkReply *reply, replySucceedListener succeed,
-                    replyFailedListener failed = nullptr);
-
 private Q_SLOTS:
   void updateHeaders();
 
 private:
-  QByteArray m_api_key;
   QByteArray m_access_token;
   QByteArray m_refresh_token;
 

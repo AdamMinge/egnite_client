@@ -30,6 +30,7 @@ set(includes
         ${include_root}/web/routers.h
         ${include_root}/web/headers.h
         ${include_root}/web/serializer.h
+        ${include_root}/web/reply.h
         ${include_root}/web/client.h
         ${include_root}/web/authenticator.h)
 

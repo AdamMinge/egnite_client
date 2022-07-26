@@ -34,9 +34,6 @@ public:
   const nlohmann::json& value() const;
   nlohmann::json& value();
 
-  const nlohmann::json& parent() const;
-  nlohmann::json& parent();
-
 private:
   nlohmann::json& m_root;
   std::vector<nlohmann::json*> m_stack;
@@ -57,12 +54,6 @@ concept ConvertableFromJson = requires(TYPE& value) {
 class BOOST_ARCHIVE_API JsonOArchive : public detail::common_oarchive<JsonOArchive> {
   friend class save_access;
   friend class detail::interface_oarchive<JsonOArchive>;
-
-  struct DataItem {
-    std::string key;
-    bool pop_flag;
-  };
-  using DataVector = std::vector<DataItem>;
   using BaseClass = detail::common_oarchive<JsonOArchive>;
 
 public:
@@ -77,35 +68,44 @@ private:
 
   void write_data(nlohmann::json& data, const nlohmann::json& input);
 
-  template <typename TYPE> void save_override(TYPE& object) { BaseClass::save_override(object); }
-  template <typename TYPE> void save_override(const serialization::nvp<TYPE>& nvp) {
-    nvp_start(nvp.name());
-    BaseClass::save_override(nvp.const_value());
-    nvp_end(nvp.name());
+  template <typename TYPE> void save_override(const TYPE& object) {
+    BaseClass::save_override(object);
   }
   template <typename TYPE>
   void save_override(const serialization::dynamic_array_wrapper<TYPE>& array) {
     for (auto i = 0; i < array.size(); ++i) {
-      array_start(i);
-      BaseClass::save_override(array.value(i));
+      array_item(i);
+      save_override(array.value(i));
+      array_end();
+    }
+  }
+  template <typename TYPE> void save_override(const serialization::nvp<TYPE>& nvp) {
+    save_start(nvp.name());
+    save_override(nvp.const_value());
+    save_end(nvp.name());
+  }
+  template <typename TYPE> void load_override(const serialization::array_wrapper<TYPE>& array) {
+    for (auto i = 0; i < array.count(); ++i) {
+      array_item(i);
+      load_override(array.address()[i]);
       array_end();
     }
   }
 
-  void nvp_start(const std::string& name);
-  void nvp_end(const std::string& name);
+  void save_start(const std::string& name);
+  void save_end(const std::string& name);
 
-  void array_start(int number);
+  void array_item(int number);
   void array_end();
 
-  void save_override(class_name_type& t) {}
-  void save_override(version_type& t) {}
-  void save_override(object_id_type& t) {}
-  void save_override(object_reference_type& t) {}
-  void save_override(class_id_type& t) {}
-  void save_override(class_id_optional_type& t) {}
-  void save_override(class_id_reference_type& t) {}
-  void save_override(tracking_type& t) {}
+  void save_override(const class_name_type& t) {}
+  void save_override(const version_type& t) {}
+  void save_override(const object_id_type& t) {}
+  void save_override(const object_reference_type& t) {}
+  void save_override(const class_id_type& t) {}
+  void save_override(const class_id_optional_type& t) {}
+  void save_override(const class_id_reference_type& t) {}
+  void save_override(const tracking_type& t) {}
 
 private:
   detail::JsonArchive m_archive;
@@ -114,13 +114,6 @@ private:
 class BOOST_ARCHIVE_API JsonIArchive : public detail::common_iarchive<JsonIArchive> {
   friend class load_access;
   friend class detail::interface_iarchive<JsonIArchive>;
-
-  struct DataItem {
-    std::string key;
-    int index;
-    bool pop_flag;
-  };
-  using DataVector = std::vector<DataItem>;
   using BaseClass = detail::common_iarchive<JsonIArchive>;
 
 public:
@@ -136,25 +129,32 @@ private:
   nlohmann::json& read_data();
 
   template <typename TYPE> void load_override(TYPE& object) { BaseClass::load_override(object); }
-  template <typename TYPE> void load_override(const serialization::nvp<TYPE>& nvp) {
-    nvp_start(nvp.name());
-    if (!m_archive.value().is_null())
-      BaseClass::load_override(nvp.value());
-    nvp_end(nvp.name());
-  }
   template <typename TYPE>
   void load_override(const serialization::dynamic_array_wrapper<TYPE>& array) {
-    for (auto i = 0; i < m_archive.value().size(); ++i) {
-      array_start(i);
-      BaseClass::load_override(array.value(i));
+    for (auto i = 0; i < array.size(); ++i) {
+      array_item(i);
+      load_override(array.value(i));
+      array_end();
+    }
+  }
+  template <typename TYPE> void load_override(const serialization::nvp<TYPE>& nvp) {
+    load_start(nvp.name());
+    if (!m_archive.value().is_null())
+      load_override(nvp.value());
+    load_end(nvp.name());
+  }
+  template <typename TYPE> void load_override(const serialization::array_wrapper<TYPE>& array) {
+    for (auto i = 0; i < array.count(); ++i) {
+      array_item(i);
+      load_override(array.address()[i]);
       array_end();
     }
   }
 
-  void nvp_start(const std::string& name);
-  void nvp_end(const std::string& name);
+  void load_start(const std::string& name);
+  void load_end(const std::string& name);
 
-  void array_start(int number);
+  void array_item(int number);
   void array_end();
 
   void load_override(class_name_type& t) {}
