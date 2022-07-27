@@ -1,5 +1,5 @@
 /* ----------------------------------- Locals ------------------------------- */
-#include "test_web_serializer.h"
+#include "egnite/web/test_serializer.h"
 /* -------------------------------------------------------------------------- */
 
 TEST_F(TestJsonSerializer, returnCorrectFormat) {

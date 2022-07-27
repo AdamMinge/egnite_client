@@ -15,9 +15,9 @@ Headers::~Headers() = default;
 QNetworkRequest Headers::createRequest(const QUrl& url) const {
   QNetworkRequest request(url);
 
-  for (auto& headerName : keys()) {
-    auto header = nameToHeader(headerName.toLocal8Bit());
-    request.setRawHeader(headerName.toLocal8Bit(), headerValue(header, getHeader(header)));
+  for (auto& header_name : keys()) {
+    auto header = nameToHeader(header_name.toLocal8Bit());
+    request.setRawHeader(header_name.toLocal8Bit(), headerValue(header, getHeader(header)));
   }
 
   return request;
@@ -29,11 +29,11 @@ void Headers::setHeader(KnownHeaders header, const QVariant& value) {
 
 QVariant Headers::getHeader(KnownHeaders header) const { return value(headerToName(header)); }
 
-QList<Headers::KnownHeaders> Headers::getHeaderList() const {
-  QList<Headers::KnownHeaders> headerList;
-  for (auto& headerName : keys())
-    headerList.append(nameToHeader(headerName.toLocal8Bit()));
-  return headerList;
+QSet<Headers::KnownHeaders> Headers::getHeaderSet() const {
+  QSet<Headers::KnownHeaders> header_set;
+  for (auto& header_name : keys())
+    header_set.insert(nameToHeader(header_name.toLocal8Bit()));
+  return header_set;
 }
 
 bool Headers::hasHeader(KnownHeaders header) const { return contains(headerToName(header)); }
@@ -94,61 +94,61 @@ QByteArray Headers::headerToName(KnownHeaders header) {
   }
 }
 
-Headers::KnownHeaders Headers::nameToHeader(const QByteArray& headerName) {
-  if (headerName.isEmpty())
+Headers::KnownHeaders Headers::nameToHeader(const QByteArray& header_name) {
+  if (header_name.isEmpty())
     return KnownHeaders::Unknown;
 
-  switch (tolower(headerName.at(0))) {
+  switch (tolower(header_name.at(0))) {
   case 'a':
-    if (headerName.compare("api-key", Qt::CaseInsensitive) == 0)
+    if (header_name.compare("api-key", Qt::CaseInsensitive) == 0)
       return KnownHeaders::ApiKey;
-    if (headerName.compare("authorization", Qt::CaseInsensitive) == 0)
+    if (header_name.compare("authorization", Qt::CaseInsensitive) == 0)
       return KnownHeaders::Authorization;
-    if (headerName.compare("accept", Qt::CaseInsensitive) == 0)
+    if (header_name.compare("accept", Qt::CaseInsensitive) == 0)
       return KnownHeaders::Accept;
     break;
 
   case 'c':
-    if (headerName.compare("content-type", Qt::CaseInsensitive) == 0)
+    if (header_name.compare("content-type", Qt::CaseInsensitive) == 0)
       return KnownHeaders::ContentType;
-    else if (headerName.compare("content-length", Qt::CaseInsensitive) == 0)
+    else if (header_name.compare("content-length", Qt::CaseInsensitive) == 0)
       return KnownHeaders::ContentLength;
-    else if (headerName.compare("cookie", Qt::CaseInsensitive) == 0)
+    else if (header_name.compare("cookie", Qt::CaseInsensitive) == 0)
       return KnownHeaders::Cookie;
-    else if (qstricmp(headerName.constData(), "content-disposition") == 0)
+    else if (qstricmp(header_name.constData(), "content-disposition") == 0)
       return KnownHeaders::ContentDisposition;
     break;
 
   case 'e':
-    if (qstricmp(headerName.constData(), "etag") == 0)
+    if (qstricmp(header_name.constData(), "etag") == 0)
       return KnownHeaders::ETag;
     break;
 
   case 'i':
-    if (qstricmp(headerName.constData(), "if-modified-since") == 0)
+    if (qstricmp(header_name.constData(), "if-modified-since") == 0)
       return KnownHeaders::IfModifiedSince;
-    if (qstricmp(headerName.constData(), "if-match") == 0)
+    if (qstricmp(header_name.constData(), "if-match") == 0)
       return KnownHeaders::IfMatch;
-    if (qstricmp(headerName.constData(), "if-none-match") == 0)
+    if (qstricmp(header_name.constData(), "if-none-match") == 0)
       return KnownHeaders::IfNoneMatch;
     break;
 
   case 'l':
-    if (headerName.compare("location", Qt::CaseInsensitive) == 0)
+    if (header_name.compare("location", Qt::CaseInsensitive) == 0)
       return KnownHeaders::Location;
-    else if (headerName.compare("last-modified", Qt::CaseInsensitive) == 0)
+    else if (header_name.compare("last-modified", Qt::CaseInsensitive) == 0)
       return KnownHeaders::LastModified;
     break;
 
   case 's':
-    if (headerName.compare("set-cookie", Qt::CaseInsensitive) == 0)
+    if (header_name.compare("set-cookie", Qt::CaseInsensitive) == 0)
       return KnownHeaders::SetCookie;
-    else if (headerName.compare("server", Qt::CaseInsensitive) == 0)
+    else if (header_name.compare("server", Qt::CaseInsensitive) == 0)
       return KnownHeaders::Server;
     break;
 
   case 'u':
-    if (headerName.compare("user-agent", Qt::CaseInsensitive) == 0)
+    if (header_name.compare("user-agent", Qt::CaseInsensitive) == 0)
       return KnownHeaders::UserAgent;
     break;
   }

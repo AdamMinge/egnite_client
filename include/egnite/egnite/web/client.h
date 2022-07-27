@@ -75,14 +75,17 @@ private:
 };
 
 template <typename TYPE> Reply Client::post(const QUrl &url, const TYPE &data) {
+  Q_ASSERT(m_serializer);
   return post(url, m_serializer->serialize(data));
 }
 
 template <typename TYPE> Reply Client::put(const QUrl &url, const TYPE &data) {
+  Q_ASSERT(m_serializer);
   return put(url, m_serializer->serialize(data));
 }
 
 template <typename TYPE> Reply Client::patch(const QUrl &url, const TYPE &data) {
+  Q_ASSERT(m_serializer);
   return patch(url, m_serializer->serialize(data));
 }
 

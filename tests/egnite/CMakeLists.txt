@@ -10,10 +10,13 @@ set(include_root ${EGNITE_SOURCE_DIR}/tests/egnite)
 
 set(sources
     ${source_root}/main.cpp
-    ${source_root}/test_web_serializer.cpp)
+
+    ${source_root}/web/test_serializer.cpp
+    ${source_root}/web/test_headers.cpp)
 
 set(includes
-    ${include_root}/test_web_serializer.h)
+    ${include_root}/web/test_serializer.h
+    ${include_root}/web/test_headers.h)
 # -------------------------------------------------------------------------------------------------- #
 # ----------------------------------- Find external libraries -------------------------------------- #
 # -------------------------------------------------------------------------------------------------- #

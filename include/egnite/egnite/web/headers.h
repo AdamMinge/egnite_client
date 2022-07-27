@@ -8,7 +8,7 @@
 #include "egnite/egnite/export.h"
 /* -------------------------------------------------------------------------- */
 
-#define EGNITE_KNOW_HEADER(propertyName, knowHeader)                                               \
+#define EGNITE_KNOWN_HEADER(propertyName, knowHeader)                                              \
 public:                                                                                            \
   Q_PROPERTY(QVariant propertyName READ get##propertyName WRITE set##propertyName NOTIFY           \
                  propertyName##Changed)                                                            \
@@ -48,22 +48,22 @@ public:
     Unknown,
   };
 
-  EGNITE_KNOW_HEADER(contentType, KnownHeaders::ContentType)
-  EGNITE_KNOW_HEADER(contentLength, KnownHeaders::ContentLength)
-  EGNITE_KNOW_HEADER(location, KnownHeaders::Location)
-  EGNITE_KNOW_HEADER(lastModified, KnownHeaders::LastModified)
-  EGNITE_KNOW_HEADER(cookie, KnownHeaders::Cookie)
-  EGNITE_KNOW_HEADER(setCookie, KnownHeaders::SetCookie)
-  EGNITE_KNOW_HEADER(contentDisposition, KnownHeaders::ContentDisposition)
-  EGNITE_KNOW_HEADER(userAgent, KnownHeaders::UserAgent)
-  EGNITE_KNOW_HEADER(server, KnownHeaders::Server)
-  EGNITE_KNOW_HEADER(ifModifiedSince, KnownHeaders::IfModifiedSince)
-  EGNITE_KNOW_HEADER(eTag, KnownHeaders::ETag)
-  EGNITE_KNOW_HEADER(ifMatch, KnownHeaders::IfMatch)
-  EGNITE_KNOW_HEADER(ifNoneMatch, KnownHeaders::IfNoneMatch)
-  EGNITE_KNOW_HEADER(apiKey, KnownHeaders::ApiKey)
-  EGNITE_KNOW_HEADER(authorization, KnownHeaders::Authorization)
-  EGNITE_KNOW_HEADER(accept, KnownHeaders::Accept)
+  EGNITE_KNOWN_HEADER(contentType, KnownHeaders::ContentType)
+  EGNITE_KNOWN_HEADER(contentLength, KnownHeaders::ContentLength)
+  EGNITE_KNOWN_HEADER(location, KnownHeaders::Location)
+  EGNITE_KNOWN_HEADER(lastModified, KnownHeaders::LastModified)
+  EGNITE_KNOWN_HEADER(cookie, KnownHeaders::Cookie)
+  EGNITE_KNOWN_HEADER(setCookie, KnownHeaders::SetCookie)
+  EGNITE_KNOWN_HEADER(contentDisposition, KnownHeaders::ContentDisposition)
+  EGNITE_KNOWN_HEADER(userAgent, KnownHeaders::UserAgent)
+  EGNITE_KNOWN_HEADER(server, KnownHeaders::Server)
+  EGNITE_KNOWN_HEADER(ifModifiedSince, KnownHeaders::IfModifiedSince)
+  EGNITE_KNOWN_HEADER(eTag, KnownHeaders::ETag)
+  EGNITE_KNOWN_HEADER(ifMatch, KnownHeaders::IfMatch)
+  EGNITE_KNOWN_HEADER(ifNoneMatch, KnownHeaders::IfNoneMatch)
+  EGNITE_KNOWN_HEADER(apiKey, KnownHeaders::ApiKey)
+  EGNITE_KNOWN_HEADER(authorization, KnownHeaders::Authorization)
+  EGNITE_KNOWN_HEADER(accept, KnownHeaders::Accept)
 
 public:
   explicit Headers();
@@ -74,12 +74,12 @@ public:
   void setHeader(KnownHeaders header, const QVariant& value);
   [[nodiscard]] QVariant getHeader(KnownHeaders header) const;
 
-  [[nodiscard]] QList<KnownHeaders> getHeaderList() const;
+  [[nodiscard]] QSet<KnownHeaders> getHeaderSet() const;
   [[nodiscard]] bool hasHeader(KnownHeaders header) const;
 
 protected:
   static QByteArray headerToName(KnownHeaders header);
-  static KnownHeaders nameToHeader(const QByteArray& headerName);
+  static KnownHeaders nameToHeader(const QByteArray& header_name);
   static QByteArray headerValue(KnownHeaders header, const QVariant& value);
 };
 

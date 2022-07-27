@@ -45,57 +45,67 @@ void Client::setSerializer(Serializer *serializer) {
 }
 
 Reply Client::get(const QUrl &url) {
+  Q_ASSERT(m_headers);
   auto reply = createReply(m_network_access_manager.get(m_headers->createRequest(url)));
   return reply;
 }
 
 Reply Client::post(const QUrl &url) {
+  Q_ASSERT(m_headers);
   auto reply = createReply(
       m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "POST"));
   return reply;
 }
 
 Reply Client::post(const QUrl &url, const QByteArray &data) {
+  Q_ASSERT(m_headers);
   auto reply = createReply(
       m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "POST", data));
   return reply;
 }
 
 Reply Client::put(const QUrl &url) {
+  Q_ASSERT(m_headers);
   auto reply = createReply(
       m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PUT"));
   return reply;
 }
 
 Reply Client::put(const QUrl &url, const QByteArray &data) {
+  Q_ASSERT(m_headers);
   auto reply = createReply(
       m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PUT", data));
   return reply;
 }
 
 Reply Client::patch(const QUrl &url) {
+  Q_ASSERT(m_headers);
   auto reply = createReply(
       m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PATCH"));
   return reply;
 }
 
 Reply Client::patch(const QUrl &url, const QByteArray &data) {
+  Q_ASSERT(m_headers);
   auto reply = createReply(
       m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PATCH", data));
   return reply;
 }
 
 Reply Client::deleteResource(const QUrl &url) {
+  Q_ASSERT(m_headers);
   auto reply = createReply(m_network_access_manager.deleteResource(m_headers->createRequest(url)));
   return reply;
 }
 
 Reply Client::head(const QUrl &url) {
+  Q_ASSERT(m_headers);
   auto reply = createReply(m_network_access_manager.head(m_headers->createRequest(url)));
   return reply;
 }
 
 Reply Client::options(const QUrl &url) {
+  Q_ASSERT(m_headers);
   auto reply = createReply(
       m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "OPTIONS"));
   return reply;
