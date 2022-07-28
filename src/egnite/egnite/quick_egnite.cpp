@@ -2,6 +2,7 @@
 #include "egnite/egnite/quick_egnite.h"
 #include "egnite/egnite/web/authenticator.h"
 #include "egnite/egnite/web/client.h"
+#include "egnite/egnite/web/enums.h"
 #include "egnite/egnite/web/headers.h"
 #include "egnite/egnite/web/serializer.h"
 /* -------------------------------------------------------------------------- */
@@ -39,6 +40,11 @@ void QuickEgnite::registerTypes() {
   qmlRegisterType<web::SimpleJWTAuthenticator>("Egnite.Web", 1, 0, "SimpleJWTAuthenticator");
   qmlRegisterType<web::SimpleJWTAuthenticatorRouting>("Egnite.Web", 1, 0,
                                                       "SimpleJWTAuthenticatorRouting");
+
+  qmlRegisterUncreatableMetaObject(egnite::web::network_error::staticMetaObject, "Egnite.Web", 1, 0,
+                                   "NetworkError", "NetworkError is not instantiable!");
+  qmlRegisterUncreatableMetaObject(egnite::web::ssl_error::staticMetaObject, "Egnite.Web", 1, 0,
+                                   "SslError", "SslError is not instantiable!");
 }
 
 void QuickEgnite::initializeEngine(QQmlEngine *engine) {}

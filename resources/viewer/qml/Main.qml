@@ -17,11 +17,11 @@ QtObject {
             accept: "application/json"
         }
 
-        onErrorOccured: {
+        onErrorOccured: function(error) {
 
         }
 
-        onSslErrorOccured: {
+        onSslErrorOccured: function(errors) {
 
         }
     }
@@ -36,6 +36,22 @@ QtObject {
             tokenCreate: "/token/"
             tokenRefresh: "/token/refresh/"
             tokenBlacklist: "/token/blacklist/"
+        }
+
+        onLoginSuccess: {
+
+        }
+
+        onLoginError: function(error) {
+
+        }
+
+        onLogoutSuccess: {
+
+        }
+
+        onLogoutError: function(error) {
+
         }
     }
 

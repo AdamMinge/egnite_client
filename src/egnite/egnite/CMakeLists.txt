@@ -16,6 +16,7 @@ set(sources
         ${source_root}/web/messages.cpp
         ${source_root}/web/headers.cpp
         ${source_root}/web/serializer.cpp
+        ${source_root}/web/reply.cpp
         ${source_root}/web/client.cpp
         ${source_root}/web/authenticator.cpp)
 
@@ -26,6 +27,7 @@ set(includes
 
         ${include_root}/macros/map.h
 
+        ${include_root}/web/enums.h
         ${include_root}/web/messages.h
         ${include_root}/web/routers.h
         ${include_root}/web/headers.h

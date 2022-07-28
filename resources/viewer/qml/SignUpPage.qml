@@ -67,6 +67,7 @@ Page {
             leftPadding: 30
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
+            echoMode: TextInput.Password
 
             Text {
                 text: "\uf023"
@@ -86,6 +87,7 @@ Page {
             leftPadding: 30
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
+            echoMode: TextInput.Password
 
             Text {
                 text: "\uf023"

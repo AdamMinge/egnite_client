@@ -20,6 +20,7 @@ QNetworkRequest Headers::createRequest(const QUrl& url) const {
     request.setRawHeader(header_name.toLocal8Bit(), headerValue(header, getHeader(header)));
   }
 
+  request.setAttribute(QNetworkRequest::AutoDeleteReplyOnFinishAttribute, true);
   return request;
 }
 

@@ -4,7 +4,6 @@
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QJsonObject>
 #include <QNetworkAccessManager>
-#include <QNetworkReply>
 #include <QObject>
 #include <QUrl>
 /* ----------------------------------- Local -------------------------------- */
@@ -56,16 +55,13 @@ Q_SIGNALS:
   void headersChanged(egnite::web::Headers *headers);
   void serializerChanged(egnite::web::Serializer *serializer);
 
-  void errorOccured(QNetworkReply::NetworkError code);
+  void errorOccured(QNetworkReply::NetworkError error);
   void sslErrorOccured(const QList<QSslError> &errors);
 
 protected:
   Reply post(const QUrl &url, const QByteArray &data);
   Reply put(const QUrl &url, const QByteArray &data);
   Reply patch(const QUrl &url, const QByteArray &data);
-
-private:
-  Reply createReply(QNetworkReply *reply);
 
 private:
   QUrl m_base_url;

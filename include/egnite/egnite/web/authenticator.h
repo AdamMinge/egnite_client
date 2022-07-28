@@ -71,6 +71,12 @@ Q_SIGNALS:
   void accessTokenLifetimeChanged(unsigned access_token_lifetime);
   void refreshTokenLifetimeChanged(unsigned refresh_token_lifetime);
 
+  void loginSuccess();
+  void logoutSuccess();
+
+  void loginError(QNetworkReply::NetworkError error);
+  void logoutError(QNetworkReply::NetworkError error);
+
 private:
   void setAccessToken(const QByteArray &access_token);
   void setRefreshToken(const QByteArray &refresh_token);

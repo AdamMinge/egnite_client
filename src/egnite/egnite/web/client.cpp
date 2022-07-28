@@ -4,6 +4,22 @@
 #include <functional>
 /* -------------------------------------------------------------------------- */
 
+namespace {
+
+egnite::web::Reply createReply(QNetworkReply *qreply, egnite::web::Client *client) {
+  Q_ASSERT(qreply);
+  Q_ASSERT(client && client->getSerializer());
+
+  auto reply = egnite::web::Reply{qreply, client->getSerializer()};
+
+  reply.onError(std::bind(&egnite::web::Client::errorOccured, client, std::placeholders::_1))
+      .onSslError(std::bind(&egnite::web::Client::sslErrorOccured, client, std::placeholders::_1));
+
+  return reply;
+}
+
+} // namespace
+
 namespace egnite::web {
 
 Client::Client(QObject *parent) : QObject(parent), m_headers(nullptr), m_serializer(nullptr) {}
@@ -46,79 +62,62 @@ void Client::setSerializer(Serializer *serializer) {
 
 Reply Client::get(const QUrl &url) {
   Q_ASSERT(m_headers);
-  auto reply = createReply(m_network_access_manager.get(m_headers->createRequest(url)));
-  return reply;
+  return createReply(m_network_access_manager.get(m_headers->createRequest(url)), this);
 }
 
 Reply Client::post(const QUrl &url) {
   Q_ASSERT(m_headers);
-  auto reply = createReply(
-      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "POST"));
-  return reply;
+  return createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "POST"), this);
 }
 
 Reply Client::post(const QUrl &url, const QByteArray &data) {
   Q_ASSERT(m_headers);
-  auto reply = createReply(
-      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "POST", data));
-  return reply;
+  return createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "POST", data),
+      this);
 }
 
 Reply Client::put(const QUrl &url) {
   Q_ASSERT(m_headers);
-  auto reply = createReply(
-      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PUT"));
-  return reply;
+  return createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PUT"), this);
 }
 
 Reply Client::put(const QUrl &url, const QByteArray &data) {
   Q_ASSERT(m_headers);
-  auto reply = createReply(
-      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PUT", data));
-  return reply;
+  return createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PUT", data), this);
 }
 
 Reply Client::patch(const QUrl &url) {
   Q_ASSERT(m_headers);
-  auto reply = createReply(
-      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PATCH"));
-  return reply;
+  return createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PATCH"), this);
 }
 
 Reply Client::patch(const QUrl &url, const QByteArray &data) {
   Q_ASSERT(m_headers);
-  auto reply = createReply(
-      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PATCH", data));
-  return reply;
+  return createReply(
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "PATCH", data),
+      this);
 }
 
 Reply Client::deleteResource(const QUrl &url) {
   Q_ASSERT(m_headers);
-  auto reply = createReply(m_network_access_manager.deleteResource(m_headers->createRequest(url)));
-  return reply;
+  return createReply(m_network_access_manager.deleteResource(m_headers->createRequest(url)), this);
 }
 
 Reply Client::head(const QUrl &url) {
   Q_ASSERT(m_headers);
-  auto reply = createReply(m_network_access_manager.head(m_headers->createRequest(url)));
-  return reply;
+  return createReply(m_network_access_manager.head(m_headers->createRequest(url)), this);
 }
 
 Reply Client::options(const QUrl &url) {
   Q_ASSERT(m_headers);
   auto reply = createReply(
-      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "OPTIONS"));
+      m_network_access_manager.sendCustomRequest(m_headers->createRequest(url), "OPTIONS"), this);
   return reply;
-}
-
-Reply Client::createReply(QNetworkReply *reply) {
-  auto client_reply = Reply{reply, m_serializer};
-
-  client_reply.onError(std::bind(&Client::errorOccured, this, std::placeholders::_1))
-      .onSslError(std::bind(&Client::sslErrorOccured, this, std::placeholders::_1))
-      .onSuccess([reply]() { reply->deleteLater(); });
-
-  return client_reply;
 }
 
 } // namespace egnite::web

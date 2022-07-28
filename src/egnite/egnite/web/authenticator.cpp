@@ -104,10 +104,13 @@ void SimpleJWTAuthenticator::login(const QString &username, const QString &passw
 
   auto reply = client->post(client->getUrl(m_routing->gettokenCreate()),
                             LoginRequest{.username = username, .password = password});
-
-  // TODO - Implement scenario for success and fail
-  reply.onSuccess<LoginResponse>([](auto &response) { qDebug() << "login succeed"; })
-      .onError([](auto error) { qDebug() << "login failed = " << error; });
+  reply
+      .onSuccess<LoginResponse>([this](auto &response) {
+        setRefreshToken(response.refresh_token);
+        setAccessToken(response.access_token);
+        Q_EMIT loginSuccess();
+      })
+      .onError(std::bind(&SimpleJWTAuthenticator::loginError, this, std::placeholders::_1));
 }
 
 void SimpleJWTAuthenticator::logout() {
@@ -116,11 +119,13 @@ void SimpleJWTAuthenticator::logout() {
 
   auto reply = client->post(client->getUrl(m_routing->gettokenBlacklist()),
                             LogoutRequest{.refresh_token = m_refresh_token});
-
-  // TODO - Implement scenario for success and fail
-  reply.onSuccess([]() { qDebug() << "logout succeed"; }).onError([](auto error) {
-    qDebug() << "logout failed = " << error;
-  });
+  reply
+      .onSuccess<LoginResponse>([this](auto &response) {
+        setRefreshToken(QByteArray{});
+        setAccessToken(QByteArray{});
+        Q_EMIT logoutSuccess();
+      })
+      .onError(std::bind(&SimpleJWTAuthenticator::logoutError, this, std::placeholders::_1));
 }
 
 void SimpleJWTAuthenticator::renewAccessToken() {
