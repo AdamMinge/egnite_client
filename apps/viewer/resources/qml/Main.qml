@@ -17,11 +17,11 @@ QtObject {
             accept: "application/json"
         }
 
-        onErrorOccured: function(error) {
+        onErrorOccurred: function(error) {
 
         }
 
-        onSslErrorOccured: function(errors) {
+        onSslErrorOccurred: function(errors) {
 
         }
     }

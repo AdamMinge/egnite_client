@@ -61,8 +61,8 @@ class EGNITE_API Client : public QObject {
   void headersChanged(egnite::rest::Headers *headers);
   void serializerChanged(egnite::rest::Serializer *serializer);
 
-  void errorOccured(QNetworkReply::NetworkError error);
-  void sslErrorOccured(const QList<QSslError> &errors);
+  void errorOccurred(QNetworkReply::NetworkError error);
+  void sslErrorOccurred(const QList<QSslError> &errors);
 
  protected:
   Reply post(const QUrl &url, const QByteArray &data);

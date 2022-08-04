@@ -14,9 +14,9 @@ egnite::rest::Reply createReply(QNetworkReply *qreply,
   auto reply = egnite::rest::Reply{qreply, client->getSerializer()};
 
   reply
-      .onError(std::bind(&egnite::rest::Client::errorOccured, client,
+      .onError(std::bind(&egnite::rest::Client::errorOccurred, client,
                          std::placeholders::_1))
-      .onSslError(std::bind(&egnite::rest::Client::sslErrorOccured, client,
+      .onSslError(std::bind(&egnite::rest::Client::sslErrorOccurred, client,
                             std::placeholders::_1));
 
   return reply;
