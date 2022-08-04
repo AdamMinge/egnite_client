@@ -1,5 +1,2 @@
 /build/
-/.idea/
-/dependencies/gtest/
-/dependencies/di/
-
+.vscode/settings.json
