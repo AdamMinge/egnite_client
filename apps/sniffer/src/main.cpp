@@ -2,7 +2,6 @@
 #include "egnite/config.h"
 /* ---------------------------------- Egnite -------------------------------- */
 #include <egnite/cmd/parser.h>
-#include <egnite/quick_egnite.h>
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QApplication>
 #include <QFontDatabase>
@@ -49,9 +48,6 @@ int main(int argc, char **argv) {
   parseCommandLine(app);
 
   QQmlApplicationEngine engine;
-  egnite::QuickEgnite::getInstance().registerTypes();
-  egnite::QuickEgnite::getInstance().initializeEngine(&engine);
-
   const auto url = QUrl("qrc:/qml/Main.qml");
   QObject::connect(
       &engine, &QQmlApplicationEngine::objectCreated, &app,

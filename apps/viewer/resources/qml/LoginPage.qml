@@ -81,7 +81,7 @@ Page {
             }
 
             onClicked: {
-                web_client_authenticator.login(username_field.text, password_field.text)
+                
             }
         }
 

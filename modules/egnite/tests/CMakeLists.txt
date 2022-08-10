@@ -8,11 +8,9 @@ cmake_minimum_required(VERSION 3.11)
 set(source_root ${EGNITE_SOURCE_DIR}/modules/egnite/tests)
 set(include_root ${EGNITE_SOURCE_DIR}/modules/egnite/tests)
 
-set(sources ${source_root}/main.cpp ${source_root}/rest/test_serializer.cpp
-            ${source_root}/rest/test_headers.cpp)
+set(sources ${source_root}/main.cpp)
 
-set(includes ${include_root}/rest/test_serializer.h
-             ${include_root}/rest/test_headers.h)
+set(includes)
 # ----------------------------------------------------------------------- #
 # ----------------------- Find external libraries ----------------------- #
 # ----------------------------------------------------------------------- #

@@ -35,7 +35,6 @@ macro(egnite_setup_dependency dependency)
 endmacro()
 
 egnite_setup_dependency(gtest)
-egnite_setup_dependency(nlohmann_json)
 egnite_setup_dependency(boost)
 egnite_setup_dependency(qt)
 # ----------------------------------------------------------------------- #

@@ -5,31 +5,17 @@ cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
 # -------------------------- Generate headers --------------------------- #
 # ----------------------------------------------------------------------- #
-set(source_root ${EGNITE_SOURCE_DIR}/modules/egnite/src)
-set(include_root ${EGNITE_SOURCE_DIR}/modules/egnite/include/egnite)
-set(resources_root ${EGNITE_SOURCE_DIR}/modules/egnite/resources)
-
-configure_file(${include_root}/config.h.in ${include_root}/config.h)
+set(source_root ${EGNITE_SOURCE_DIR}/imports/egnite/src)
+set(include_root ${EGNITE_SOURCE_DIR}/imports/egnite/include/egnite)
+set(resources_root ${EGNITE_SOURCE_DIR}/imports/egnite/resources)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(sources
-    ${source_root}/cmd/parser.cpp ${source_root}/rest/rest_api.cpp
-    ${source_root}/rest/rest_auth.cpp ${source_root}/rest/rest_client.cpp
-    ${source_root}/rest/rest_reply.cpp ${source_root}/rest/rest_serializer.cpp)
+set(sources)
 
-set(includes
-    ${include_root}/config.h
-    ${include_root}/export.h
-    ${include_root}/cmd/parser.h
-    ${include_root}/utils/binder.h
-    ${include_root}/rest/rest_api.h
-    ${include_root}/rest/rest_auth.h
-    ${include_root}/rest/rest_client.h
-    ${include_root}/rest/rest_reply.h
-    ${include_root}/rest/rest_serializer.h)
+set(includes)
 
-set(resources ${resources_root}/egnite.qrc)
+set(resources ${resources_root}/import.qrc)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #
@@ -39,21 +25,20 @@ set(CMAKE_AUTORCC ON)
 # ----------------------------------------------------------------------- #
 # ----------------------- Find external libraries ----------------------- #
 # ----------------------------------------------------------------------- #
-find_package(Qt6 REQUIRED COMPONENTS Widgets Network)
+find_package(Qt6 REQUIRED COMPONENTS Quick)
 # ----------------------------------------------------------------------- #
 # ----------------------- Create egnite shared lib ---------------------- #
 # ----------------------------------------------------------------------- #
-egnite_add_module(
+qt_add_qml_module(
+  egnite_import
+  URI
   egnite
+  VERSION
+  ${EGNITE_VERSION_MAJOR}.${EGNITE_VERSION_MINOR}
   SOURCES
   ${sources}
   ${includes}
-  ${resources}
-  SRC_DIRECTORY
-  ${source_root}
-  INCLUDE_DIRECTORY
-  ${include_root}/..
-  DEPENDS
-  Qt6::Widgets
-  Qt6::Network)
+  ${resources})
+
+target_link_libraries(egnite_import PRIVATE egnite::egnite)
 # ----------------------------------------------------------------------- #
