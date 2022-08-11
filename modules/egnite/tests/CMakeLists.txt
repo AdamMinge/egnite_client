@@ -8,9 +8,9 @@ cmake_minimum_required(VERSION 3.11)
 set(source_root ${EGNITE_SOURCE_DIR}/modules/egnite/tests)
 set(include_root ${EGNITE_SOURCE_DIR}/modules/egnite/tests)
 
-set(sources ${source_root}/main.cpp)
+set(sources ${source_root}/main.cpp ${source_root}/binder_test.cpp)
 
-set(includes)
+set(includes ${include_root}/binder_test.h)
 # ----------------------------------------------------------------------- #
 # ----------------------- Find external libraries ----------------------- #
 # ----------------------------------------------------------------------- #
