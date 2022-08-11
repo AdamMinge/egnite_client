@@ -9,10 +9,16 @@
 
 namespace egnite::rest {
 
+class RestSerializerPrivate;
+
 class EGNITE_API RestSerializer : public QObject {
   Q_OBJECT
 
- public:
+ protected:
+  RestSerializer(RestSerializerPrivate& impl, QObject* parent = nullptr);
+
+ private:
+  Q_DECLARE_PRIVATE(RestSerializer);
 };
 
 }  // namespace egnite::rest

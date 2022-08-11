@@ -11,6 +11,7 @@
 
 namespace egnite::rest {
 
+class RestClientPrivate;
 class RestApi;
 
 class EGNITE_API RestClient : public QObject {
@@ -38,9 +39,11 @@ class EGNITE_API RestClient : public QObject {
   void baseUrlChanged(const QUrl& url);
   void versionChanged(const QVersionNumber& version);
 
+ protected:
+  RestClient(RestClientPrivate& impl, QObject* parent = nullptr);
+
  private:
-  QUrl m_base_url;
-  QVersionNumber m_version;
+  Q_DECLARE_PRIVATE(RestClient);
 };
 
 }  // namespace egnite::rest

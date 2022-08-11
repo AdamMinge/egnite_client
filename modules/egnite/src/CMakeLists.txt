@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
 # -------------------------- Generate headers --------------------------- #
 # ----------------------------------------------------------------------- #
-set(source_root ${EGNITE_SOURCE_DIR}/modules/egnite/src)
+set(source_root ${EGNITE_SOURCE_DIR}/modules/egnite/src/egnite)
 set(include_root ${EGNITE_SOURCE_DIR}/modules/egnite/include/egnite)
 set(resources_root ${EGNITE_SOURCE_DIR}/modules/egnite/resources)
 
@@ -14,9 +14,17 @@ configure_file(${include_root}/config.h.in ${include_root}/config.h)
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
 set(sources
-    ${source_root}/cmd/parser.cpp ${source_root}/rest/rest_api.cpp
-    ${source_root}/rest/rest_auth.cpp ${source_root}/rest/rest_client.cpp
-    ${source_root}/rest/rest_reply.cpp ${source_root}/rest/rest_serializer.cpp)
+    ${source_root}/cmd/parser.cpp
+    ${source_root}/rest/rest_api.cpp
+    ${source_root}/rest/rest_auth.cpp
+    ${source_root}/rest/rest_client.cpp
+    ${source_root}/rest/rest_reply.cpp
+    ${source_root}/rest/rest_serializer.cpp
+    ${source_root}/rest/private/rest_api_p.h
+    ${source_root}/rest/private/rest_auth_p.h
+    ${source_root}/rest/private/rest_client_p.h
+    ${source_root}/rest/private/rest_reply_p.h
+    ${source_root}/rest/private/rest_serializer_p.h)
 
 set(includes
     ${include_root}/config.h
@@ -50,10 +58,11 @@ egnite_add_module(
   ${includes}
   ${resources}
   SRC_DIRECTORY
-  ${source_root}
+  ${source_root}/..
   INCLUDE_DIRECTORY
   ${include_root}/..
   DEPENDS
   Qt6::Widgets
-  Qt6::Network)
+  Qt6::Network
+  Qt6::CorePrivate)
 # ----------------------------------------------------------------------- #

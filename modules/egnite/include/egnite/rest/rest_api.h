@@ -9,6 +9,7 @@
 
 namespace egnite::rest {
 
+class RestApiPrivate;
 class RestClient;
 
 class EGNITE_API RestApi : public QObject {
@@ -28,11 +29,12 @@ class EGNITE_API RestApi : public QObject {
   ~RestApi() override;
 
  protected:
-  RestApi(RestClient* client, const QString& subpath);
+  RestApi(RestClient* client, const QString& subpath,
+          QObject* parent = nullptr);
+  RestApi(RestApiPrivate& impl, QObject* parent = nullptr);
 
  private:
-  RestClient* m_client;
-  QString m_subpath;
+  Q_DECLARE_PRIVATE(RestApi);
 };
 
 }  // namespace egnite::rest

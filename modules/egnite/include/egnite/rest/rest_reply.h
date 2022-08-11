@@ -6,8 +6,6 @@
 #include <QObject>
 #include <QPointer>
 /* ---------------------------------- Standard ------------------------------ */
-#include <chrono>
-#include <functional>
 #include <variant>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/export.h"
@@ -15,6 +13,8 @@
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
+
+class RestReplyPrivate;
 
 class EGNITE_API RestReply : public QObject {
   Q_OBJECT
@@ -48,11 +48,11 @@ class EGNITE_API RestReply : public QObject {
   void error(Error error, QPrivateSignal);
 
  protected:
-  RestReply(QNetworkReply* reply, QObject* parent = nullptr);
+  RestReply(QNetworkReply* network_reply, QObject* parent = nullptr);
+  RestReply(RestReplyPrivate& impl, QObject* parent = nullptr);
 
  private:
-  QPointer<QNetworkReply> m_network_reply;
-  std::chrono::milliseconds m_retry_delay;
+  Q_DECLARE_PRIVATE(RestReply);
 };
 
 template <typename HANDLER>
