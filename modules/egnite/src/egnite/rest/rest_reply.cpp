@@ -166,7 +166,6 @@ void RestReplyPrivate::replyFinished() {
     Q_EMIT q->failed(status, data, {});
   } else {
     Q_EMIT q->succeeded(status, data, {});
-    return;
   }
 
   if (m_retry_delay == std::chrono::milliseconds(0)) {
@@ -182,6 +181,8 @@ void RestReplyPrivate::replyFinished() {
 
     timer->start();
   }
+
+  m_retry_delay = std::chrono::milliseconds(-1);
 }
 
 QNetworkReply* RestReplyPrivate::send(QNetworkAccessManager* manager,
