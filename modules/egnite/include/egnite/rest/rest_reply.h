@@ -2,6 +2,8 @@
 #define EGNITE_REST_REPLY_H
 
 /* ------------------------------------ Qt ---------------------------------- */
+#include <QCborValue>
+#include <QJsonValue>
 #include <QNetworkReply>
 #include <QObject>
 #include <QPointer>
@@ -20,10 +22,10 @@ class EGNITE_API RestReply : public QObject {
   Q_OBJECT
 
  public:
-  enum class Error {};
+  enum class Error { Network, Parser, Failure };
   Q_ENUM(Error)
 
-  using DataType = std::variant<std::nullopt_t>;
+  using DataType = std::variant<std::nullopt_t, QJsonValue, QCborValue>;
 
  public:
   ~RestReply() override;
@@ -45,14 +47,19 @@ class EGNITE_API RestReply : public QObject {
   void completed(int http_code, const DataType& data, QPrivateSignal);
   void succeeded(int http_code, const DataType& data, QPrivateSignal);
   void failed(int http_code, const DataType& data, QPrivateSignal);
-  void error(Error error, QPrivateSignal);
+  void error(const QString& error_str, Error error_type, QPrivateSignal);
+
+  void downloadProgress(qint64 bytes_received, qint64 bytes_total);
+  void uploadProgress(qint64 bytes_sent, qint64 bytes_total);
 
  protected:
   RestReply(QNetworkReply* network_reply, QObject* parent = nullptr);
   RestReply(RestReplyPrivate& impl, QObject* parent = nullptr);
 
  private:
-  Q_DECLARE_PRIVATE(RestReply);
+  Q_DECLARE_PRIVATE(RestReply)
+  Q_PRIVATE_SLOT(d_func(), void replyFinished())
+  Q_PRIVATE_SLOT(d_func(), void retryReply())
 };
 
 template <typename HANDLER>

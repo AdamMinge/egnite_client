@@ -16,6 +16,14 @@ class RestApiPrivate : public QObjectPrivate {
   Q_DECLARE_PUBLIC(RestApi)
 
  public:
+  static const QByteArray GetVerb;
+  static const QByteArray PostVerb;
+  static const QByteArray PutVerb;
+  static const QByteArray PatchVerb;
+  static const QByteArray DeleteVerb;
+  static const QByteArray HeadVerb;
+
+ public:
   RestApiPrivate(RestClient* client, const QString& subpath);
 
   RestClient* client;

@@ -9,13 +9,6 @@ namespace egnite::rest {
 
 /* -------------------------------- RestApi --------------------------------- */
 
-const QByteArray RestApi::GetVerb = QByteArray{"GET"};
-const QByteArray RestApi::PostVerb = QByteArray{"POST"};
-const QByteArray RestApi::PutVerb = QByteArray{"PUT"};
-const QByteArray RestApi::PatchVerb = QByteArray{"PATCH"};
-const QByteArray RestApi::DeleteVerb = QByteArray{"DELETE"};
-const QByteArray RestApi::HeadVerb = QByteArray{"HEAD"};
-
 RestApi::RestApi(RestClient* client, const QString& subpath, QObject* parent)
     : RestApi(*new RestApiPrivate(client, subpath), parent) {}
 
@@ -26,7 +19,16 @@ RestApi::~RestApi() = default;
 
 /* ----------------------------- RestApiPrivate ----------------------------- */
 
+const QByteArray RestApiPrivate::GetVerb = QByteArray{"GET"};
+const QByteArray RestApiPrivate::PostVerb = QByteArray{"POST"};
+const QByteArray RestApiPrivate::PutVerb = QByteArray{"PUT"};
+const QByteArray RestApiPrivate::PatchVerb = QByteArray{"PATCH"};
+const QByteArray RestApiPrivate::DeleteVerb = QByteArray{"DELETE"};
+const QByteArray RestApiPrivate::HeadVerb = QByteArray{"HEAD"};
+
 RestApiPrivate::RestApiPrivate(RestClient* client, const QString& subpath)
     : client(client), subpath(subpath) {}
 
 }  // namespace egnite::rest
+
+#include "egnite/rest/moc_rest_api.cpp"

@@ -16,3 +16,5 @@ RestAuth::RestAuth(RestAuthPrivate& impl, QObject* parent)
 RestAuthPrivate::RestAuthPrivate() {}
 
 }  // namespace egnite::rest
+
+#include "egnite/rest/moc_rest_auth.cpp"

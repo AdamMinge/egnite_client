@@ -18,14 +18,6 @@ class EGNITE_API RestApi : public QObject {
   friend RestClient;
 
  public:
-  static const QByteArray GetVerb;
-  static const QByteArray PostVerb;
-  static const QByteArray PutVerb;
-  static const QByteArray PatchVerb;
-  static const QByteArray DeleteVerb;
-  static const QByteArray HeadVerb;
-
- public:
   ~RestApi() override;
 
  protected:

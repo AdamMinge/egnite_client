@@ -54,3 +54,5 @@ RestClientPrivate::RestClientPrivate(const QUrl& url,
     : base_url(url), version(version) {}
 
 }  // namespace egnite::rest
+
+#include "egnite/rest/moc_rest_client.cpp"
