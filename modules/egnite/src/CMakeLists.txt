@@ -19,10 +19,10 @@ set(sources
     ${source_root}/rest/rest_auth.cpp
     ${source_root}/rest/rest_client.cpp
     ${source_root}/rest/rest_reply.cpp
-    ${source_root}/rest/private/rest_api_p.h
-    ${source_root}/rest/private/rest_auth_p.h
-    ${source_root}/rest/private/rest_client_p.h
-    ${source_root}/rest/private/rest_reply_p.h)
+    ${source_root}/rest/detail/rest_api_p.h
+    ${source_root}/rest/detail/rest_auth_p.h
+    ${source_root}/rest/detail/rest_client_p.h
+    ${source_root}/rest/detail/rest_reply_p.h)
 
 set(includes
     ${include_root}/config.h

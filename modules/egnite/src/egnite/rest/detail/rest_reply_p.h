@@ -6,13 +6,13 @@
 
 #include <QByteArray>
 #include <QNetworkAccessManager>
-#include <QNetworkReply>
 #include <QNetworkRequest>
-/* ---------------------------------- Standard ------------------------------ */
-#include <chrono>
+#include <QPointer>
+/* ------------------------------------ Local ------------------------------- */
+#include "egnite/rest/rest_reply.h"
 /* -------------------------------------------------------------------------- */
 
-namespace egnite::rest {
+namespace egnite::rest::detail {
 
 class RestReplyPrivate : public QObjectPrivate {
  public:
@@ -23,15 +23,14 @@ class RestReplyPrivate : public QObjectPrivate {
   static const QByteArray ContentTypeJson;
   static const QByteArray ContentTypeCbor;
 
+  using ParseError = std::optional<std::pair<RestReply::Error, QString>>;
+
  public:
-  RestReplyPrivate(QNetworkReply* network_reply,
-                   const std::chrono::milliseconds& retry_delay);
+  RestReplyPrivate(QNetworkReply* network_reply);
   ~RestReplyPrivate() override;
 
   void abort();
-  void retry(std::chrono::milliseconds msecs);
-
-  void replyFinished();
+  void retry();
 
  public:
   static QNetworkReply* send(QNetworkAccessManager* manager,
@@ -39,14 +38,20 @@ class RestReplyPrivate : public QObjectPrivate {
                              const QByteArray& verb, const QByteArray& body);
 
  private:
+  void replyFinished();
   void connectReply();
-  void retryReply();
+
+  [[nodiscard]] QByteArray parseContentType(ParseError& parse_error);
+  [[nodiscard]] RestReply::Data parseData(const QByteArray& content_type,
+                                          ParseError& parse_error);
+  [[nodiscard]] RestReply::Data parseJsonData(ParseError& parse_error);
+  [[nodiscard]] RestReply::Data parseCborData(ParseError& parse_error);
+  void processReply(const RestReply::Data& data, const ParseError& parse_error);
 
  private:
   QPointer<QNetworkReply> m_network_reply;
-  std::chrono::milliseconds m_retry_delay;
 };
 
-}  // namespace egnite::rest
+}  // namespace egnite::rest::detail
 
 #endif  // EGNITE_REST_REPLY_P_H

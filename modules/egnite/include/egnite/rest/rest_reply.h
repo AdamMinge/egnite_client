@@ -6,7 +6,6 @@
 #include <QJsonValue>
 #include <QNetworkReply>
 #include <QObject>
-#include <QPointer>
 /* ---------------------------------- Standard ------------------------------ */
 #include <variant>
 /* ----------------------------------- Local -------------------------------- */
@@ -16,23 +15,73 @@
 
 namespace egnite::rest {
 
+namespace detail {
 class RestReplyPrivate;
+}
+
+class RestApi;
 
 class EGNITE_API RestReply : public QObject {
   Q_OBJECT
 
+  friend RestApi;
+
  public:
-  enum class Error { Network, Parser, Failure };
+  enum class Error {
+    NoError = 0,
+
+    ConnectionRefusedError = 1,
+    RemoteHostClosedError,
+    HostNotFoundError,
+    TimeoutError,
+    OperationCanceledError,
+    SslHandshakeFailedError,
+    TemporaryNetworkFailureError,
+    NetworkSessionFailedError,
+    BackgroundRequestNotAllowedError,
+    TooManyRedirectsError,
+    InsecureRedirectError,
+    UnknownNetworkError = 99,
+
+    ProxyConnectionRefusedError = 101,
+    ProxyConnectionClosedError,
+    ProxyNotFoundError,
+    ProxyTimeoutError,
+    ProxyAuthenticationRequiredError,
+    UnknownProxyError = 199,
+
+    ContentAccessDenied = 201,
+    ContentOperationNotPermittedError,
+    ContentNotFoundError,
+    AuthenticationRequiredError,
+    ContentReSendError,
+    ContentConflictError,
+    ContentGoneError,
+    ContentUnsupportedType,
+    ContentUnknownTypeDirective,
+    ContentUnsupportedCharset,
+    ContentJsonParseError,
+    ContentCborParseError,
+    UnknownContentError = 299,
+
+    ProtocolUnknownError = 301,
+    ProtocolInvalidOperationError,
+    ProtocolFailure = 399,
+
+    InternalServerError = 401,
+    OperationNotImplementedError,
+    ServiceUnavailableError,
+    UnknownServerError = 499
+  };
   Q_ENUM(Error)
 
-  using DataType = std::variant<std::nullopt_t, QJsonValue, QCborValue>;
+  using Data = std::variant<std::nullopt_t, QJsonValue, QCborValue>;
 
  public:
   ~RestReply() override;
 
   void abort();
   void retry();
-  void retry(std::chrono::milliseconds msecs);
 
   template <typename HANDLER>
   RestReply* onCompleted(HANDLER&& handler, QObject* scope = nullptr);
@@ -44,9 +93,9 @@ class EGNITE_API RestReply : public QObject {
   RestReply* onError(HANDLER&& handler, QObject* scope = nullptr);
 
  Q_SIGNALS:
-  void completed(int http_code, const DataType& data, QPrivateSignal);
-  void succeeded(int http_code, const DataType& data, QPrivateSignal);
-  void failed(int http_code, const DataType& data, QPrivateSignal);
+  void completed(int http_code, const Data& data, QPrivateSignal);
+  void succeeded(int http_code, const Data& data, QPrivateSignal);
+  void failed(int http_code, const Data& data, QPrivateSignal);
   void error(const QString& error_str, Error error_type, QPrivateSignal);
 
   void downloadProgress(qint64 bytes_received, qint64 bytes_total);
@@ -54,12 +103,10 @@ class EGNITE_API RestReply : public QObject {
 
  protected:
   RestReply(QNetworkReply* network_reply, QObject* parent = nullptr);
-  RestReply(RestReplyPrivate& impl, QObject* parent = nullptr);
+  RestReply(detail::RestReplyPrivate& impl, QObject* parent = nullptr);
 
  private:
-  Q_DECLARE_PRIVATE(RestReply)
-  Q_PRIVATE_SLOT(d_func(), void replyFinished())
-  Q_PRIVATE_SLOT(d_func(), void retryReply())
+  Q_DECLARE_PRIVATE(detail::RestReply)
 };
 
 template <typename HANDLER>

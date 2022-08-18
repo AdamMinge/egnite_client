@@ -3,9 +3,11 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QtCore/private/qobject_p.h>
+/* ------------------------------------ Local ------------------------------- */
+#include "egnite/rest/rest_auth.h"
 /* -------------------------------------------------------------------------- */
 
-namespace egnite::rest {
+namespace egnite::rest::detail {
 
 class RestAuthPrivate : public QObjectPrivate {
  public:
@@ -15,6 +17,6 @@ class RestAuthPrivate : public QObjectPrivate {
   RestAuthPrivate();
 };
 
-}  // namespace egnite::rest
+}  // namespace egnite::rest::detail
 
 #endif  // EGNITE_REST_AUTH_P_H

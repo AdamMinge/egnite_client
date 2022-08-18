@@ -9,16 +9,18 @@
 
 namespace egnite::rest {
 
+namespace detail {
 class RestAuthPrivate;
+}
 
 class EGNITE_API RestAuth : public QObject {
   Q_OBJECT
 
  protected:
-  RestAuth(RestAuthPrivate& impl, QObject* parent = nullptr);
+  RestAuth(detail::RestAuthPrivate& impl, QObject* parent = nullptr);
 
  private:
-  Q_DECLARE_PRIVATE(RestAuth);
+  Q_DECLARE_PRIVATE(detail::RestAuth);
 };
 
 }  // namespace egnite::rest
