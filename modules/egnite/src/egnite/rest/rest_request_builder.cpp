@@ -1,7 +1,7 @@
 /* ----------------------------------- Local -------------------------------- */
-#include "egnite/rest/rest_request.h"
+#include "egnite/rest/rest_request_builder.h"
 
-#include "egnite/rest/detail/rest_request_p.h"
+#include "egnite/rest/detail/rest_request_builder_p.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
@@ -71,6 +71,8 @@ RestRequestBuilder& RestRequestBuilder::addHeader(
   addHeaders(headers);
 }
 
+QUrl RestRequestBuilder::buildUrl() const { m_impl->buildUrl(); }
+
 QNetworkRequest RestRequestBuilder::build() const { m_impl->build(); }
 
 /* ----------------------- RestRequestBuilderPrivate ------------------------ */
@@ -99,7 +101,28 @@ void RestRequestBuilderPrivate::addHeaders(const RestHeaders& headers) {
   m_headers = headers;
 }
 
-QNetworkRequest RestRequestBuilderPrivate::build() const {}
+QUrl RestRequestBuilderPrivate::buildUrl() const {
+  auto url = m_base_url;
+  auto paths = url.path().split(QLatin1Char('/'), Qt::SkipEmptyParts);
+
+  if (!m_version.isNull())
+    paths.append(QLatin1Char('v') + m_version.normalized().toString());
+  paths.append(m_paths);
+  url.setPath(QLatin1Char('/') + paths.join(QLatin1Char('/')));
+
+  if (!m_parameters.isEmpty()) url.setQuery(m_parameters);
+
+  return url;
+}
+
+QNetworkRequest RestRequestBuilderPrivate::build() const {
+  auto request = QNetworkRequest(buildUrl());
+
+  for (auto iter = m_headers.begin(); iter != m_headers.end(); ++iter)
+    request.setRawHeader(iter.key(), iter.value());
+
+  return request;
+}
 
 }  // namespace detail
 

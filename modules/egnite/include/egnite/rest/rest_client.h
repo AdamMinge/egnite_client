@@ -9,7 +9,7 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/export.h"
 #include "egnite/rest/rest_global.h"
-#include "egnite/rest/rest_request.h"
+#include "egnite/rest/rest_request_builder.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {

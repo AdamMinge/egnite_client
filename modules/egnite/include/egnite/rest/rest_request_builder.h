@@ -1,5 +1,5 @@
-#ifndef EGNITE_REST_REQUEST_H
-#define EGNITE_REST_REQUEST_H
+#ifndef EGNITE_REST_REQUEST_BUILDER_H
+#define EGNITE_REST_REQUEST_BUILDER_H
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QByteArray>
@@ -45,6 +45,7 @@ class EGNITE_API RestRequestBuilder {
   RestRequestBuilder& addHeader(const QByteArray& header_name,
                                 const QByteArray& header_value);
 
+  QUrl buildUrl() const;
   QNetworkRequest build() const;
 
  private:
@@ -53,4 +54,4 @@ class EGNITE_API RestRequestBuilder {
 
 }  // namespace egnite::rest
 
-#endif  // EGNITE_REST_REQUEST_H
+#endif  // EGNITE_REST_REQUEST_BUILDER_H

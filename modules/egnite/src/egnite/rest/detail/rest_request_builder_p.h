@@ -1,8 +1,8 @@
-#ifndef EGNITE_REST_REQUEST_P_H
-#define EGNITE_REST_REQUEST_P_H
+#ifndef EGNITE_REST_REQUEST_BUILDER_P_H
+#define EGNITE_REST_REQUEST_BUILDER_P_H
 
 /* ------------------------------------ Local ------------------------------- */
-#include "egnite/rest/rest_request.h"
+#include "egnite/rest/rest_request_builder.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest::detail {
@@ -18,6 +18,7 @@ class RestRequestBuilderPrivate {
   void addParameters(const QUrlQuery& parameters);
   void addHeaders(const RestHeaders& headers);
 
+  QUrl buildUrl() const;
   QNetworkRequest build() const;
 
  private:
@@ -31,4 +32,4 @@ class RestRequestBuilderPrivate {
 
 }  // namespace egnite::rest::detail
 
-#endif  // EGNITE_REST_REQUEST_P_H
+#endif  // EGNITE_REST_REQUEST_BUILDER_P_H
