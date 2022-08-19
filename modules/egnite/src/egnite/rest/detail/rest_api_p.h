@@ -3,6 +3,8 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QtCore/private/qobject_p.h>
+
+#include <QNetworkReply>
 /* ------------------------------------ Local ------------------------------- */
 #include "egnite/rest/rest_api.h"
 /* -------------------------------------------------------------------------- */
@@ -26,23 +28,29 @@ class RestApiPrivate : public QObjectPrivate {
   static const QByteArray HeadVerb;
 
  public:
-  RestApiPrivate(RestClient* client, const QString& path);
+  RestApiPrivate(RestClient* client, QNetworkAccessManager* manager,
+                 const QString& path);
 
   [[nodiscard]] RestClient* getClient() const;
   [[nodiscard]] QString getPath() const;
 
   QNetworkReply* create(const QByteArray& verb, const QString& path,
                         const QUrlQuery& parameters,
-                        const RestClient::Headers& headers) const;
+                        const RestHeaders& headers) const;
   QNetworkReply* create(const QByteArray& verb, const QString& path,
                         const QJsonValue& data, const QUrlQuery& parameters,
-                        const RestClient::Headers& headers) const;
+                        const RestHeaders& headers) const;
   QNetworkReply* create(const QByteArray& verb, const QString& path,
                         const QCborValue& data, const QUrlQuery& parameters,
-                        const RestClient::Headers& headers) const;
+                        const RestHeaders& headers) const;
+
+ private:
+  QByteArray convertData(const QJsonValue& body) const;
+  QByteArray convertData(const QCborValue& body) const;
 
  private:
   RestClient* m_client;
+  QNetworkAccessManager* m_manager;
   QString m_path;
 };
 

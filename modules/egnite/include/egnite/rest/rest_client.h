@@ -8,6 +8,8 @@
 #include <QVersionNumber>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/export.h"
+#include "egnite/rest/rest_global.h"
+#include "egnite/rest/rest_request.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
@@ -22,15 +24,12 @@ class EGNITE_API RestClient : public QObject {
   Q_OBJECT
 
  public:
-  using Headers = QHash<QByteArray, QByteArray>;
-
- public:
   Q_PROPERTY(
       QUrl baseUrl READ getBaseUrl WRITE setBaseUrl NOTIFY baseUrlChanged)
   Q_PROPERTY(QVersionNumber version READ getVersion WRITE setVersion NOTIFY
                  versionChanged)
-  Q_PROPERTY(Headers globalHeaders READ getGlobalHeaders WRITE setGlobalHeaders
-                 NOTIFY globalHeadersChanged)
+  Q_PROPERTY(RestHeaders globalHeaders READ getGlobalHeaders WRITE
+                 setGlobalHeaders NOTIFY globalHeadersChanged)
   Q_PROPERTY(QUrlQuery globalParameters READ getGlobalParameters WRITE
                  setGlobalParameters NOTIFY globalParametersChanged)
 
@@ -47,16 +46,18 @@ class EGNITE_API RestClient : public QObject {
   void setVersion(const QVersionNumber& version);
   [[nodiscard]] QVersionNumber getVersion() const;
 
-  void setGlobalHeaders(const Headers& headers);
-  [[nodiscard]] Headers getGlobalHeaders() const;
+  void setGlobalHeaders(const RestHeaders& headers);
+  [[nodiscard]] RestHeaders getGlobalHeaders() const;
 
   void setGlobalParameters(const QUrlQuery& parameters);
   [[nodiscard]] QUrlQuery getGlobalParameters() const;
 
+  [[nodiscard]] RestRequestBuilder getRequestBuilder() const;
+
  Q_SIGNALS:
   void baseUrlChanged(const QUrl& url);
   void versionChanged(const QVersionNumber& version);
-  void globalHeadersChanged(const Headers& headers);
+  void globalHeadersChanged(const egnite::rest::RestHeaders& headers);
   void globalParametersChanged(const QUrlQuery& parameters);
 
  protected:

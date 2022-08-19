@@ -10,6 +10,7 @@
 #include <variant>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/export.h"
+#include "egnite/rest/rest_global.h"
 #include "egnite/utils/binder.h"
 /* -------------------------------------------------------------------------- */
 
@@ -75,8 +76,6 @@ class EGNITE_API RestReply : public QObject {
   };
   Q_ENUM(Error)
 
-  using Data = std::variant<std::nullopt_t, QJsonValue, QCborValue>;
-
  public:
   ~RestReply() override;
 
@@ -93,9 +92,9 @@ class EGNITE_API RestReply : public QObject {
   RestReply* onError(HANDLER&& handler, QObject* scope = nullptr);
 
  Q_SIGNALS:
-  void completed(int http_code, const Data& data, QPrivateSignal);
-  void succeeded(int http_code, const Data& data, QPrivateSignal);
-  void failed(int http_code, const Data& data, QPrivateSignal);
+  void completed(int http_code, const RestData& data, QPrivateSignal);
+  void succeeded(int http_code, const RestData& data, QPrivateSignal);
+  void failed(int http_code, const RestData& data, QPrivateSignal);
   void error(const QString& error_str, Error error_type, QPrivateSignal);
 
   void downloadProgress(qint64 bytes_received, qint64 bytes_total);

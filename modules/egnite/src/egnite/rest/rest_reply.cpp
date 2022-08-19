@@ -145,6 +145,10 @@ static QNetworkReply::NetworkError convertError(RestReply::Error error) {
 
 const QByteArray RestReplyPrivate::PropertyBody =
     QByteArray{"__Egnite_Rest_RestReplyPrivate_PropertyBody"};
+
+const QByteArray RestReplyPrivate::ContentType = QByteArray{"ContentType"};
+const QByteArray RestReplyPrivate::Accept = QByteArray{"Accept"};
+
 const QByteArray RestReplyPrivate::ContentTypeJson =
     QByteArray{"application/json"};
 const QByteArray RestReplyPrivate::ContentTypeCbor =
@@ -193,7 +197,7 @@ void RestReplyPrivate::replyFinished() {
   auto parse_error = ParseError{};
   auto content_type = parseContentType(parse_error);
   auto data = !parse_error ? parseData(content_type, parse_error)
-                           : RestReply::Data{std::nullopt};
+                           : RestData{std::nullopt};
 
   processReply(data, parse_error);
 }
@@ -237,8 +241,8 @@ QByteArray RestReplyPrivate::parseContentType(ParseError& parse_error) {
   return content_type;
 }
 
-RestReply::Data RestReplyPrivate::parseData(const QByteArray& content_type,
-                                            ParseError& parse_error) {
+RestData RestReplyPrivate::parseData(const QByteArray& content_type,
+                                     ParseError& parse_error) {
   if (content_type == ContentTypeJson) return parseJsonData(parse_error);
   if (content_type == ContentTypeCbor) return parseCborData(parse_error);
 
@@ -248,7 +252,7 @@ RestReply::Data RestReplyPrivate::parseData(const QByteArray& content_type,
   return std::nullopt;
 }
 
-RestReply::Data RestReplyPrivate::parseJsonData(ParseError& parse_error) {
+RestData RestReplyPrivate::parseJsonData(ParseError& parse_error) {
   const auto read_data = m_network_reply->readAll();
   QJsonParseError error;
   auto json_doc = QJsonDocument::fromJson(read_data, &error);
@@ -274,7 +278,7 @@ RestReply::Data RestReplyPrivate::parseJsonData(ParseError& parse_error) {
   return std::nullopt;
 }
 
-RestReply::Data RestReplyPrivate::parseCborData(ParseError& parse_error) {
+RestData RestReplyPrivate::parseCborData(ParseError& parse_error) {
   QCborStreamReader reader{m_network_reply};
   if (const auto error = reader.lastError(); error.c != QCborError::NoError)
     parse_error = std::make_pair(RestReply::Error::ContentCborParseError,
@@ -283,7 +287,7 @@ RestReply::Data RestReplyPrivate::parseCborData(ParseError& parse_error) {
   return QCborValue::fromCbor(reader);
 }
 
-void RestReplyPrivate::processReply(const RestReply::Data& data,
+void RestReplyPrivate::processReply(const RestData& data,
                                     const ParseError& parse_error) {
   Q_Q(RestReply);
   const auto status =

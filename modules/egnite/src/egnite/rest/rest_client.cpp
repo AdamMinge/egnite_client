@@ -10,10 +10,9 @@ namespace egnite::rest {
 /* ------------------------------- RestClient ------------------------------- */
 
 RestClient::RestClient(QObject* parent)
-    : RestClient(
-          *new detail::RestClientPrivate(QUrl{}, QVersionNumber{},
-                                         RestClient::Headers{}, QUrlQuery{}),
-          parent) {}
+    : RestClient(*new detail::RestClientPrivate(QUrl{}, QVersionNumber{},
+                                                RestHeaders{}, QUrlQuery{}),
+                 parent) {}
 
 RestClient::RestClient(detail::RestClientPrivate& impl, QObject* parent)
     : QObject(impl, parent) {}
@@ -21,7 +20,8 @@ RestClient::RestClient(detail::RestClientPrivate& impl, QObject* parent)
 RestClient::~RestClient() = default;
 
 RestApi* RestClient::createApi(const QString& path, QObject* parent) {
-  return new RestApi(this, path, parent);
+  Q_D(detail::RestClient);
+  return new RestApi(this, d->getNetworkAccessManager(), path, parent);
 }
 
 void RestClient::setBaseUrl(const QUrl& url) {
@@ -50,7 +50,7 @@ QVersionNumber RestClient::getVersion() const {
   return d->getVersion();
 }
 
-void RestClient::setGlobalHeaders(const Headers& headers) {
+void RestClient::setGlobalHeaders(const RestHeaders& headers) {
   Q_D(detail::RestClient);
   if (d->getGlobalHeaders() == headers) return;
 
@@ -58,7 +58,7 @@ void RestClient::setGlobalHeaders(const Headers& headers) {
   Q_EMIT globalHeadersChanged(headers);
 }
 
-RestClient::Headers RestClient::getGlobalHeaders() const {
+RestHeaders RestClient::getGlobalHeaders() const {
   Q_D(const detail::RestClient);
   return d->getGlobalHeaders();
 }
@@ -76,13 +76,18 @@ QUrlQuery RestClient::getGlobalParameters() const {
   return d->getGlobalParameters();
 }
 
+RestRequestBuilder RestClient::getRequestBuilder() const {
+  Q_D(const detail::RestClient);
+  return d->getRequestBuilder();
+}
+
 /* ---------------------------- RestClientPrivate --------------------------- */
 
 namespace detail {
 
 RestClientPrivate::RestClientPrivate(const QUrl& url,
                                      const QVersionNumber& version,
-                                     const RestClient::Headers& headers,
+                                     const RestHeaders& headers,
                                      const QUrlQuery& parameters)
     : m_base_url(url),
       m_version(version),
@@ -99,13 +104,11 @@ void RestClientPrivate::setVersion(const QVersionNumber& version) {
 
 QVersionNumber RestClientPrivate::getVersion() const { return m_version; }
 
-void RestClientPrivate::setGlobalHeaders(const RestClient::Headers& headers) {
+void RestClientPrivate::setGlobalHeaders(const RestHeaders& headers) {
   m_headers = headers;
 }
 
-RestClient::Headers RestClientPrivate::getGlobalHeaders() const {
-  return m_headers;
-}
+RestHeaders RestClientPrivate::getGlobalHeaders() const { return m_headers; }
 
 void RestClientPrivate::setGlobalParameters(const QUrlQuery& parameters) {
   m_parameters = parameters;
@@ -113,6 +116,17 @@ void RestClientPrivate::setGlobalParameters(const QUrlQuery& parameters) {
 
 QUrlQuery RestClientPrivate::getGlobalParameters() const {
   return m_parameters;
+}
+
+RestRequestBuilder RestClientPrivate::getRequestBuilder() const {
+  return RestRequestBuilder{}
+      .setBaseUrl(m_base_url)
+      .addParameters(m_parameters)
+      .addHeaders(m_headers);
+}
+
+QNetworkAccessManager* RestClientPrivate::getNetworkAccessManager() const {
+  return m_manager;
 }
 
 }  // namespace detail

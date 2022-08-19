@@ -3,6 +3,8 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QtCore/private/qobject_p.h>
+
+#include <QNetworkAccessManager>
 /* ------------------------------------ Local ------------------------------- */
 #include "egnite/rest/rest_client.h"
 /* -------------------------------------------------------------------------- */
@@ -15,8 +17,7 @@ class RestClientPrivate : public QObjectPrivate {
 
  public:
   RestClientPrivate(const QUrl& url, const QVersionNumber& version,
-                    const RestClient::Headers& headers,
-                    const QUrlQuery& parameters);
+                    const RestHeaders& headers, const QUrlQuery& parameters);
 
   void setBaseUrl(const QUrl& url);
   [[nodiscard]] QUrl getBaseUrl() const;
@@ -24,17 +25,21 @@ class RestClientPrivate : public QObjectPrivate {
   void setVersion(const QVersionNumber& version);
   [[nodiscard]] QVersionNumber getVersion() const;
 
-  void setGlobalHeaders(const RestClient::Headers& headers);
-  [[nodiscard]] RestClient::Headers getGlobalHeaders() const;
+  void setGlobalHeaders(const RestHeaders& headers);
+  [[nodiscard]] RestHeaders getGlobalHeaders() const;
 
   void setGlobalParameters(const QUrlQuery& parameters);
   [[nodiscard]] QUrlQuery getGlobalParameters() const;
 
+  [[nodiscard]] RestRequestBuilder getRequestBuilder() const;
+  [[nodiscard]] QNetworkAccessManager* getNetworkAccessManager() const;
+
  private:
   QUrl m_base_url;
   QVersionNumber m_version;
-  RestClient::Headers m_headers;
+  RestHeaders m_headers;
   QUrlQuery m_parameters;
+  QNetworkAccessManager* m_manager;
 };
 
 }  // namespace egnite::rest::detail

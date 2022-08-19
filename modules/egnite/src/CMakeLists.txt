@@ -19,10 +19,12 @@ set(sources
     ${source_root}/rest/rest_auth.cpp
     ${source_root}/rest/rest_client.cpp
     ${source_root}/rest/rest_reply.cpp
+    ${source_root}/rest/rest_request.cpp
     ${source_root}/rest/detail/rest_api_p.h
     ${source_root}/rest/detail/rest_auth_p.h
     ${source_root}/rest/detail/rest_client_p.h
-    ${source_root}/rest/detail/rest_reply_p.h)
+    ${source_root}/rest/detail/rest_reply_p.h
+    ${source_root}/rest/detail/rest_request_p.h)
 
 set(includes
     ${include_root}/config.h
@@ -32,7 +34,8 @@ set(includes
     ${include_root}/rest/rest_api.h
     ${include_root}/rest/rest_auth.h
     ${include_root}/rest/rest_client.h
-    ${include_root}/rest/rest_reply.h)
+    ${include_root}/rest/rest_reply.h
+    ${include_root}/rest/rest_request.h)
 
 set(resources ${resources_root}/egnite.qrc)
 # ----------------------------------------------------------------------- #

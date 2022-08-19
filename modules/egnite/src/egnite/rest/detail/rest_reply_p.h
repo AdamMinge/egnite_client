@@ -20,6 +20,8 @@ class RestReplyPrivate : public QObjectPrivate {
 
  public:
   static const QByteArray PropertyBody;
+  static const QByteArray Accept;
+  static const QByteArray ContentType;
   static const QByteArray ContentTypeJson;
   static const QByteArray ContentTypeCbor;
 
@@ -42,11 +44,11 @@ class RestReplyPrivate : public QObjectPrivate {
   void connectReply();
 
   [[nodiscard]] QByteArray parseContentType(ParseError& parse_error);
-  [[nodiscard]] RestReply::Data parseData(const QByteArray& content_type,
-                                          ParseError& parse_error);
-  [[nodiscard]] RestReply::Data parseJsonData(ParseError& parse_error);
-  [[nodiscard]] RestReply::Data parseCborData(ParseError& parse_error);
-  void processReply(const RestReply::Data& data, const ParseError& parse_error);
+  [[nodiscard]] RestData parseData(const QByteArray& content_type,
+                                   ParseError& parse_error);
+  [[nodiscard]] RestData parseJsonData(ParseError& parse_error);
+  [[nodiscard]] RestData parseCborData(ParseError& parse_error);
+  void processReply(const RestData& data, const ParseError& parse_error);
 
  private:
   QPointer<QNetworkReply> m_network_reply;
