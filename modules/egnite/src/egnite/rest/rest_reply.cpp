@@ -2,6 +2,7 @@
 #include "egnite/rest/rest_reply.h"
 
 #include "egnite/rest/detail/rest_reply_p.h"
+#include "egnite/rest/rest_api.h"
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QCborStreamReader>
 #include <QJsonArray>
@@ -13,8 +14,11 @@ namespace egnite::rest {
 
 /* -------------------------------- RestReply ------------------------------- */
 
-RestReply::RestReply(QNetworkReply* network_reply, QObject* parent)
-    : RestReply(*new detail::RestReplyPrivate(network_reply), parent) {}
+RestReply::RestReply(RestApi* api, QNetworkReply* network_reply)
+    : RestReply(*new detail::RestReplyPrivate(api, network_reply), api) {
+  connect(this, &RestReply::succeeded, this, &RestReply::completed);
+  connect(this, &RestReply::failed, this, &RestReply::completed);
+}
 
 RestReply::RestReply(detail::RestReplyPrivate& impl, QObject* parent)
     : QObject(impl, parent) {}
@@ -29,6 +33,16 @@ void RestReply::abort() {
 void RestReply::retry() {
   Q_D(detail::RestReply);
   d->retry();
+}
+
+RestApi* RestReply::getApi() const {
+  Q_D(const detail::RestReply);
+  return d->getApi();
+}
+
+RestClient* RestReply::getClient() const {
+  Q_D(const detail::RestReply);
+  return d->getClient();
 }
 
 /* ---------------------------- RestReplyPrivate ---------------------------- */
@@ -154,8 +168,8 @@ const QByteArray RestReplyPrivate::ContentTypeJson =
 const QByteArray RestReplyPrivate::ContentTypeCbor =
     QByteArray{"application/cbor"};
 
-RestReplyPrivate::RestReplyPrivate(QNetworkReply* network_reply)
-    : m_network_reply(network_reply) {
+RestReplyPrivate::RestReplyPrivate(RestApi* api, QNetworkReply* network_reply)
+    : m_api(api), m_network_reply(network_reply) {
   connectReply();
 }
 
@@ -176,6 +190,10 @@ void RestReplyPrivate::retry() {
   m_network_reply = send(manager, request, verb, body);
   connectReply();
 }
+
+RestApi* RestReplyPrivate::getApi() const { return m_api; }
+
+RestClient* RestReplyPrivate::getClient() const { return m_api->getClient(); }
 
 QNetworkReply* RestReplyPrivate::send(QNetworkAccessManager* manager,
                                       const QNetworkRequest& request,

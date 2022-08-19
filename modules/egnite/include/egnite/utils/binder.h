@@ -152,6 +152,13 @@ static inline auto bindCallback(TDstFn&& fn) {
   return SrcBindInfo::bind(std::forward<TDstFn>(fn));
 }
 
+/* -------------------------------- Overloaded ------------------------------ */
+
+template <class... Ts>
+struct overloaded : Ts... {
+  using Ts::operator()...;
+};
+
 }  // namespace egnite::utils
 
 #endif  // EGNITE_UTILS_BINDER_H

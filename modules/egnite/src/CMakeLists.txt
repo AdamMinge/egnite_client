@@ -35,7 +35,8 @@ set(includes
     ${include_root}/rest/rest_auth.h
     ${include_root}/rest/rest_client.h
     ${include_root}/rest/rest_reply.h
-    ${include_root}/rest/rest_request_builder.h)
+    ${include_root}/rest/rest_request_builder.h
+    ${include_root}/rest/rest_generic_reply.h)
 
 set(resources ${resources_root}/egnite.qrc)
 # ----------------------------------------------------------------------- #

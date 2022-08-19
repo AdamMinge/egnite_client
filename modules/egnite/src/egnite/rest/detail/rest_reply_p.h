@@ -28,11 +28,14 @@ class RestReplyPrivate : public QObjectPrivate {
   using ParseError = std::optional<std::pair<RestReply::Error, QString>>;
 
  public:
-  RestReplyPrivate(QNetworkReply* network_reply);
+  RestReplyPrivate(RestApi* api, QNetworkReply* network_reply);
   ~RestReplyPrivate() override;
 
   void abort();
   void retry();
+
+  [[nodiscard]] RestApi* getApi() const;
+  [[nodiscard]] RestClient* getClient() const;
 
  public:
   static QNetworkReply* send(QNetworkAccessManager* manager,
@@ -51,6 +54,7 @@ class RestReplyPrivate : public QObjectPrivate {
   void processReply(const RestData& data, const ParseError& parse_error);
 
  private:
+  RestApi* m_api;
   QPointer<QNetworkReply> m_network_reply;
 };
 

@@ -21,6 +21,7 @@ class RestReplyPrivate;
 }
 
 class RestApi;
+class RestClient;
 
 class EGNITE_API RestReply : public QObject {
   Q_OBJECT
@@ -82,6 +83,9 @@ class EGNITE_API RestReply : public QObject {
   void abort();
   void retry();
 
+  [[nodiscard]] RestApi* getApi() const;
+  [[nodiscard]] RestClient* getClient() const;
+
   template <typename HANDLER>
   RestReply* onCompleted(HANDLER&& handler, QObject* scope = nullptr);
   template <typename HANDLER>
@@ -101,7 +105,7 @@ class EGNITE_API RestReply : public QObject {
   void uploadProgress(qint64 bytes_sent, qint64 bytes_total);
 
  protected:
-  RestReply(QNetworkReply* network_reply, QObject* parent = nullptr);
+  RestReply(RestApi* api, QNetworkReply* network_reply);
   RestReply(detail::RestReplyPrivate& impl, QObject* parent = nullptr);
 
  private:
