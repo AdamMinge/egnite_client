@@ -86,14 +86,14 @@ class EGNITE_API RestReply : public QObject {
   [[nodiscard]] RestApi* getApi() const;
   [[nodiscard]] RestClient* getClient() const;
 
-  template <typename HANDLER>
-  RestReply* onCompleted(HANDLER&& handler, QObject* scope = nullptr);
-  template <typename HANDLER>
-  RestReply* onSucceeded(HANDLER&& handler, QObject* scope = nullptr);
-  template <typename HANDLER>
-  RestReply* onFailed(HANDLER&& handler, QObject* scope = nullptr);
-  template <typename HANDLER>
-  RestReply* onError(HANDLER&& handler, QObject* scope = nullptr);
+  template <typename Handler>
+  RestReply* onCompleted(Handler&& handler, QObject* scope = nullptr);
+  template <typename Handler>
+  RestReply* onSucceeded(Handler&& handler, QObject* scope = nullptr);
+  template <typename Handler>
+  RestReply* onFailed(Handler&& handler, QObject* scope = nullptr);
+  template <typename Handler>
+  RestReply* onError(Handler&& handler, QObject* scope = nullptr);
 
  Q_SIGNALS:
   void completed(int http_code, const RestData& data, QPrivateSignal);
@@ -112,35 +112,35 @@ class EGNITE_API RestReply : public QObject {
   Q_DECLARE_PRIVATE(detail::RestReply)
 };
 
-template <typename HANDLER>
-RestReply* RestReply::onCompleted(HANDLER&& handler, QObject* scope) {
+template <typename Handler>
+RestReply* RestReply::onCompleted(Handler&& handler, QObject* scope) {
   connect(this, &RestReply::completed, scope ? scope : this,
           utils::bindCallback<decltype(&RestReply::completed)>(
-              std::forward<HANDLER>(handler)));
+              std::forward<Handler>(handler)));
   return this;
 }
 
-template <typename HANDLER>
-RestReply* RestReply::onSucceeded(HANDLER&& handler, QObject* scope) {
+template <typename Handler>
+RestReply* RestReply::onSucceeded(Handler&& handler, QObject* scope) {
   connect(this, &RestReply::succeeded, scope ? scope : this,
           utils::bindCallback<decltype(&RestReply::succeeded)>(
-              std::forward<HANDLER>(handler)));
+              std::forward<Handler>(handler)));
   return this;
 }
 
-template <typename HANDLER>
-RestReply* RestReply::onFailed(HANDLER&& handler, QObject* scope) {
+template <typename Handler>
+RestReply* RestReply::onFailed(Handler&& handler, QObject* scope) {
   connect(this, &RestReply::failed, scope ? scope : this,
           utils::bindCallback<decltype(&RestReply::failed)>(
-              std::forward<HANDLER>(handler)));
+              std::forward<Handler>(handler)));
   return this;
 }
 
-template <typename HANDLER>
-RestReply* RestReply::onError(HANDLER&& handler, QObject* scope) {
+template <typename Handler>
+RestReply* RestReply::onError(Handler&& handler, QObject* scope) {
   connect(this, &RestReply::error, scope ? scope : this,
           utils::bindCallback<decltype(&RestReply::error)>(
-              std::forward<HANDLER>(handler)));
+              std::forward<Handler>(handler)));
   return this;
 }
 

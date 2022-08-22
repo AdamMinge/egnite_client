@@ -58,6 +58,7 @@ RestRequestBuilder& RestRequestBuilder::addParameter(
     const QString& parameter_name, const QString& parameter_value) {
   auto url_query = QUrlQuery{std::make_pair(parameter_name, parameter_value)};
   addParameters(url_query);
+  return *this;
 }
 
 RestRequestBuilder& RestRequestBuilder::addHeaders(const RestHeaders& headers) {
@@ -69,11 +70,12 @@ RestRequestBuilder& RestRequestBuilder::addHeader(
     const QByteArray& header_name, const QByteArray& header_value) {
   auto headers = RestHeaders{std::make_pair(header_name, header_value)};
   addHeaders(headers);
+  return *this;
 }
 
-QUrl RestRequestBuilder::buildUrl() const { m_impl->buildUrl(); }
+QUrl RestRequestBuilder::buildUrl() const { return m_impl->buildUrl(); }
 
-QNetworkRequest RestRequestBuilder::build() const { m_impl->build(); }
+QNetworkRequest RestRequestBuilder::build() const { return m_impl->build(); }
 
 /* ----------------------- RestRequestBuilderPrivate ------------------------ */
 

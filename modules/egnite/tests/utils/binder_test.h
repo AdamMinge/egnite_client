@@ -1,5 +1,5 @@
-#ifndef EGNITE_TEST_BINDER_H
-#define EGNITE_TEST_BINDER_H
+#ifndef EGNITE_UTILS_TEST_BINDER_H
+#define EGNITE_UTILS_TEST_BINDER_H
 
 /* -------------------------------- GoogleTest ------------------------------ */
 #include <gtest/gtest.h>
@@ -14,4 +14,4 @@ class BinderTest : public testing::Test {
   void TearDown() override {}
 };
 
-#endif  // EGNITE_TEST_BINDER_H
+#endif  // EGNITE_UTILS_TEST_BINDER_H

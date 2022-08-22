@@ -19,6 +19,7 @@ class RestClientPrivate;
 }
 
 class RestApi;
+class RestDataSerializer;
 
 class EGNITE_API RestClient : public QObject {
   Q_OBJECT
@@ -53,6 +54,7 @@ class EGNITE_API RestClient : public QObject {
   [[nodiscard]] QUrlQuery getGlobalParameters() const;
 
   [[nodiscard]] RestRequestBuilder getRequestBuilder() const;
+  [[nodiscard]] RestDataSerializer* getDataSerializer() const;
 
  Q_SIGNALS:
   void baseUrlChanged(const QUrl& url);

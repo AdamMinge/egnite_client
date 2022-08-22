@@ -3,6 +3,7 @@
 
 #include "egnite/rest/detail/rest_client_p.h"
 #include "egnite/rest/rest_api.h"
+#include "egnite/rest/rest_data_serializer.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
@@ -11,7 +12,8 @@ namespace egnite::rest {
 
 RestClient::RestClient(QObject* parent)
     : RestClient(*new detail::RestClientPrivate(QUrl{}, QVersionNumber{},
-                                                RestHeaders{}, QUrlQuery{}),
+                                                RestHeaders{}, QUrlQuery{},
+                                                new RestDataSerializer(this)),
                  parent) {}
 
 RestClient::RestClient(detail::RestClientPrivate& impl, QObject* parent)
@@ -81,6 +83,11 @@ RestRequestBuilder RestClient::getRequestBuilder() const {
   return d->getRequestBuilder();
 }
 
+RestDataSerializer* RestClient::getDataSerializer() const {
+  Q_D(const detail::RestClient);
+  return d->getDataSerializer();
+}
+
 /* ---------------------------- RestClientPrivate --------------------------- */
 
 namespace detail {
@@ -88,11 +95,13 @@ namespace detail {
 RestClientPrivate::RestClientPrivate(const QUrl& url,
                                      const QVersionNumber& version,
                                      const RestHeaders& headers,
-                                     const QUrlQuery& parameters)
+                                     const QUrlQuery& parameters,
+                                     RestDataSerializer* data_serializer)
     : m_base_url(url),
       m_version(version),
       m_headers(headers),
-      m_parameters(parameters) {}
+      m_parameters(parameters),
+      m_data_serializer(data_serializer) {}
 
 void RestClientPrivate::setBaseUrl(const QUrl& url) { m_base_url = url; }
 
@@ -127,6 +136,10 @@ RestRequestBuilder RestClientPrivate::getRequestBuilder() const {
 
 QNetworkAccessManager* RestClientPrivate::getNetworkAccessManager() const {
   return m_manager;
+}
+
+RestDataSerializer* RestClientPrivate::getDataSerializer() const {
+  return m_data_serializer;
 }
 
 }  // namespace detail

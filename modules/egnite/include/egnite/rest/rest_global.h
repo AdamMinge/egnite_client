@@ -7,6 +7,7 @@
 #include <QHash>
 #include <QJsonValue>
 /* ---------------------------------- Standard ------------------------------ */
+#include <type_traits>
 #include <variant>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/export.h"
@@ -16,6 +17,8 @@ namespace egnite::rest {
 
 using RestHeaders = QHash<QByteArray, QByteArray>;
 using RestData = std::variant<std::nullopt_t, QJsonValue, QCborValue>;
+
+namespace traits {}  // namespace traits
 
 }  // namespace egnite::rest
 

@@ -15,11 +15,16 @@ configure_file(${include_root}/config.h.in ${include_root}/config.h)
 # ----------------------------------------------------------------------- #
 set(sources
     ${source_root}/cmd/parser.cpp
+    ${source_root}/serializer/json_archive.cpp
+    ${source_root}/serializer/cbor_archive.cpp
+    ${source_root}/serializer/detail/json_archive_p.h
+    ${source_root}/serializer/detail/cbor_archive_p.h
     ${source_root}/rest/rest_api.cpp
     ${source_root}/rest/rest_auth.cpp
     ${source_root}/rest/rest_client.cpp
     ${source_root}/rest/rest_reply.cpp
     ${source_root}/rest/rest_request_builder.cpp
+    ${source_root}/rest/rest_data_serializer.cpp
     ${source_root}/rest/detail/rest_api_p.h
     ${source_root}/rest/detail/rest_auth_p.h
     ${source_root}/rest/detail/rest_client_p.h
@@ -30,12 +35,15 @@ set(includes
     ${include_root}/config.h
     ${include_root}/export.h
     ${include_root}/cmd/parser.h
+    ${include_root}/serializer/json_archive.h
+    ${include_root}/serializer/cbor_archive.h
     ${include_root}/utils/binder.h
     ${include_root}/rest/rest_api.h
     ${include_root}/rest/rest_auth.h
     ${include_root}/rest/rest_client.h
     ${include_root}/rest/rest_reply.h
     ${include_root}/rest/rest_request_builder.h
+    ${include_root}/rest/rest_data_serializer.h
     ${include_root}/rest/rest_generic_reply.h)
 
 set(resources ${resources_root}/egnite.qrc)
@@ -49,6 +57,7 @@ set(CMAKE_AUTORCC ON)
 # ----------------------- Find external libraries ----------------------- #
 # ----------------------------------------------------------------------- #
 find_package(Qt6 REQUIRED COMPONENTS Widgets Network)
+find_package(Boost REQUIRED COMPONENTS serialization)
 # ----------------------------------------------------------------------- #
 # ----------------------- Create egnite shared lib ---------------------- #
 # ----------------------------------------------------------------------- #
@@ -65,5 +74,6 @@ egnite_add_module(
   DEPENDS
   Qt6::Widgets
   Qt6::Network
-  Qt6::CorePrivate)
+  Qt6::CorePrivate
+  Boost::serialization)
 # ----------------------------------------------------------------------- #
