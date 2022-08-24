@@ -34,7 +34,7 @@ class EGNITE_API JsonOArchive
  private:
   template <typename TYPE>
   void save(const TYPE& v) {
-    write_data(QJsonValue(v));
+    write_data(QJsonValue::fromVariant(v));
   }
 
   void write_data(const QJsonValue& input);
@@ -52,7 +52,7 @@ class EGNITE_API JsonOArchive
   }
 
   template <typename TYPE>
-  void load_override(const boost::serialization::array_wrapper<TYPE>& array) {
+  void save_override(const boost::serialization::array_wrapper<TYPE>& array) {
     for (auto i = 0; i < array.count(); ++i) {
       array_item(i);
       load_override(array.address()[i]);
@@ -92,7 +92,7 @@ class EGNITE_API JsonIArchive
  private:
   template <typename TYPE>
   void load(TYPE& v) {
-    v = read_data();
+    v = read_data().toVariant().value<TYPE>();
   }
 
   QJsonValue& read_data();

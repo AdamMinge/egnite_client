@@ -9,10 +9,16 @@ set(source_root ${EGNITE_SOURCE_DIR}/modules/egnite/tests)
 set(include_root ${EGNITE_SOURCE_DIR}/modules/egnite/tests)
 
 set(sources ${source_root}/main.cpp ${source_root}/utils/binder_test.cpp
-            ${source_root}/serializer/json_archive_test.cpp)
+            ${source_root}/rest/rest_data_serializer_test.cpp)
 
 set(includes ${include_root}/utils/binder_test.h
-             ${include_root}/serializer/json_archive_test.h)
+             ${include_root}/rest/rest_data_serializer_test.h)
+# ----------------------------------------------------------------------- #
+# ---------------------- Qt libraries configuration --------------------- #
+# ----------------------------------------------------------------------- #
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 # ----------------------------------------------------------------------- #
 # ----------------------- Find external libraries ----------------------- #
 # ----------------------------------------------------------------------- #
