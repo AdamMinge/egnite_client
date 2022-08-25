@@ -38,7 +38,6 @@ DEFINE_MOCK(Date, QDate);
 DEFINE_MOCK(DateTime, QDateTime);
 DEFINE_MOCK(StringList, QStringList);
 DEFINE_MOCK(String, QString);
-DEFINE_MOCK(BitArray, QBitArray);
 DEFINE_MOCK(Float, float);
 DEFINE_MOCK(Double, double);
 DEFINE_MOCK(Bool, bool);

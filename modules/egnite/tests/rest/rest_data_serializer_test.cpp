@@ -147,13 +147,10 @@ TEST_F(RestDataJsonSerializerTest, DateTimeIsSerializable) {
   ASSERT_EQ(mock, mock_deserialized);
 }
 
-/*
-
 TEST_F(RestDataJsonSerializerTest, StringListIsSerializable) {
   auto mock = mocks::MockWithStringList{QStringList{} << "str1"
                                                       << "str2"
                                                       << "str3"};
-
   auto rest_data = m_serializer->serialize(
       mock, egnite::rest::RestDataSerializer::Format::Json);
   auto mock_deserialized =
@@ -161,8 +158,6 @@ TEST_F(RestDataJsonSerializerTest, StringListIsSerializable) {
 
   ASSERT_EQ(mock, mock_deserialized);
 }
-
-*/
 
 TEST_F(RestDataJsonSerializerTest, StringIsSerializable) {
   auto mock = mocks::MockWithString{QString("str")};
@@ -174,19 +169,6 @@ TEST_F(RestDataJsonSerializerTest, StringIsSerializable) {
 
   ASSERT_EQ(mock, mock_deserialized);
 }
-
-/*
-TEST_F(RestDataJsonSerializerTest, BitArrayIsSerializable) {
-  auto mock = mocks::MockWithBitArray{QBitArray(3, true)};
-
-  auto rest_data = m_serializer->serialize(
-      mock, egnite::rest::RestDataSerializer::Format::Json);
-  auto mock_deserialized =
-      m_serializer->deserialize<mocks::MockWithBitArray>(rest_data);
-
-  ASSERT_EQ(mock, mock_deserialized);
-}
-*/
 
 TEST_F(RestDataJsonSerializerTest, FloatIsSerializable) {
   auto mock = mocks::MockWithFloat{10.5f};

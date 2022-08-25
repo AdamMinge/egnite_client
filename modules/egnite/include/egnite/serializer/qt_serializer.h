@@ -5,6 +5,7 @@
 #include <QBitArray>
 #include <QLine>
 #include <QLineF>
+#include <QList>
 #include <QMetaObject>
 #include <QMetaProperty>
 #include <QMetaType>
@@ -12,7 +13,9 @@
 #include <QRect>
 #include <QRectF>
 #include <QSize>
+#include <QVector>
 /* ----------------------------------- Boost -------------------------------- */
+#include <boost/serialization/collection_size_type.hpp>
 #include <boost/serialization/nvp.hpp>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/export.h"
@@ -21,6 +24,8 @@
 namespace boost::serialization {
 
 namespace detail {
+
+/* ----------------------------------- Traits ------------------------------- */
 
 template <typename Type>
 concept IsRect = std::is_same_v<Type, QRect> || std::is_same_v<Type, QRectF>;
@@ -61,6 +66,40 @@ void serializeGadget(Archive& ar, QVariant& variant) {
 }
 
 }  // namespace detail
+
+/* ------------------------------- Qt Containers ---------------------------- */
+
+template <class Archive, class Type>
+void save(Archive& ar, const QVector<Type>& vector,
+          const unsigned int version) {
+  auto count = collection_size_type(vector.size());
+  ar << BOOST_SERIALIZATION_NVP(count);
+
+  if (count > 0) {
+    ar << make_array<const Type, collection_size_type>(
+        static_cast<const Type*>(&vector.data()[0]), count);
+  }
+}
+
+template <class Archive, class Type>
+void load(Archive& ar, QVector<Type>& vector, const unsigned int version) {
+  auto count = collection_size_type(0);
+  ar >> BOOST_SERIALIZATION_NVP(count);
+
+  vector.resize(count);
+  if (count > 0) {
+    ar >> make_array<Type, collection_size_type>(
+              static_cast<Type*>(&vector.data()[0]), count);
+  }
+}
+
+template <class Archive, class Type>
+void serialize(Archive& ar, QVector<Type>& vector, const unsigned int version) {
+  split_free(ar, vector, version);
+}
+
+/* ---------------------------------- Qt Types ------------------------------
+ */
 
 template <typename Archive, detail::IsRect Rect>
 void serialize(Archive& ar, Rect& rect, const unsigned int version) {
@@ -108,12 +147,6 @@ void serialize(Archive& ar, Time& time, const unsigned int version) {
 }
 
 template <typename Archive>
-void serialize(Archive& ar, QStringList& chr, const unsigned int version) {}
-
-template <typename Archive>
-void serialize(Archive& ar, QBitArray& chr, const unsigned int version) {}
-
-template <typename Archive>
 void serialize(Archive& ar, QVariant& variant, const unsigned int version) {
 #define EGNITE_VARIANT_SERIALIZE_CASE(meta_type, type) \
   case meta_type: {                                    \
@@ -139,7 +172,6 @@ void serialize(Archive& ar, QVariant& variant, const unsigned int version) {
     EGNITE_VARIANT_SERIALIZE_CASE(QMetaType::QDateTime, QDateTime);
     EGNITE_VARIANT_SERIALIZE_CASE(QMetaType::QStringList, QStringList);
     EGNITE_VARIANT_SERIALIZE_CASE(QMetaType::QString, QString);
-    EGNITE_VARIANT_SERIALIZE_CASE(QMetaType::QBitArray, QBitArray);
     EGNITE_VARIANT_SERIALIZE_CASE(QMetaType::Float, float);
     EGNITE_VARIANT_SERIALIZE_CASE(QMetaType::Double, double);
     EGNITE_VARIANT_SERIALIZE_CASE(QMetaType::Bool, bool);

@@ -35,7 +35,6 @@ set(includes
     ${include_root}/config.h
     ${include_root}/export.h
     ${include_root}/cmd/parser.h
-    ${include_root}/serializer/array_wrapper.h
     ${include_root}/serializer/json_archive.h
     ${include_root}/serializer/cbor_archive.h
     ${include_root}/utils/binder.h

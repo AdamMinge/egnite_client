@@ -2,7 +2,7 @@
 #define EGNITE_SERIALIZER_CBOR_ARCHIVE_H
 
 /* ------------------------------------ Qt ---------------------------------- */
-#include <QStringView>
+#include <QLatin1String>
 /* ----------------------------------- Boost -------------------------------- */
 #include <boost/archive/detail/common_iarchive.hpp>
 #include <boost/archive/detail/common_oarchive.hpp>
@@ -41,9 +41,9 @@ class EGNITE_API CborOArchive
 
   template <typename TYPE>
   void save_override(const boost::serialization::nvp<TYPE>& nvp) {
-    save_start(nvp.name());
+    save_start(QLatin1String(nvp.name()));
     save_override(nvp.const_value());
-    save_end(nvp.name());
+    save_end(QLatin1String(nvp.name()));
   }
 
   template <typename TYPE>
@@ -55,20 +55,20 @@ class EGNITE_API CborOArchive
     }
   }
 
-  void save_start(QStringView name);
-  void save_end(QStringView name);
+  void save_start(QLatin1String name);
+  void save_end(QLatin1String name);
 
   void array_item(int number);
   void array_end();
 
-  void save_override(const boost::archive::class_name_type& t) {}
-  void save_override(const boost::archive::version_type& t) {}
-  void save_override(const boost::archive::object_id_type& t) {}
-  void save_override(const boost::archive::object_reference_type& t) {}
-  void save_override(const boost::archive::class_id_type& t) {}
-  void save_override(const boost::archive::class_id_optional_type& t) {}
-  void save_override(const boost::archive::class_id_reference_type& t) {}
-  void save_override(const boost::archive::tracking_type& t) {}
+  void save_override(const boost::archive::class_name_type& t);
+  void save_override(const boost::archive::version_type& t);
+  void save_override(const boost::archive::object_id_type& t);
+  void save_override(const boost::archive::object_reference_type& t);
+  void save_override(const boost::archive::class_id_type& t);
+  void save_override(const boost::archive::class_id_optional_type& t);
+  void save_override(const boost::archive::class_id_reference_type& t);
+  void save_override(const boost::archive::tracking_type& t);
 
  private:
   std::unique_ptr<detail::CborOArchivePrivate> m_impl;
@@ -95,9 +95,9 @@ class EGNITE_API CborIArchive
 
   template <typename TYPE>
   void load_override(const boost::serialization::nvp<TYPE>& nvp) {
-    load_start(nvp.name());
+    load_start(QLatin1String(nvp.name()));
     load_override(nvp.value());
-    load_end(nvp.name());
+    load_end(QLatin1String(nvp.name()));
   }
 
   template <typename TYPE>
@@ -109,20 +109,20 @@ class EGNITE_API CborIArchive
     }
   }
 
-  void load_start(QStringView name);
-  void load_end(QStringView name);
+  void load_start(QLatin1String name);
+  void load_end(QLatin1String name);
 
   void array_item(int number);
   void array_end();
 
-  void load_override(boost::archive::class_name_type& t) {}
-  void load_override(boost::archive::version_type& t) {}
-  void load_override(boost::archive::object_id_type& t) {}
-  void load_override(boost::archive::object_reference_type& t) {}
-  void load_override(boost::archive::class_id_type& t) {}
-  void load_override(boost::archive::class_id_optional_type& t) {}
-  void load_override(boost::archive::class_id_reference_type& t) {}
-  void load_override(boost::archive::tracking_type& t) {}
+  void load_override(boost::archive::class_name_type& t);
+  void load_override(boost::archive::version_type& t);
+  void load_override(boost::archive::object_id_type& t);
+  void load_override(boost::archive::object_reference_type& t);
+  void load_override(boost::archive::class_id_type& t);
+  void load_override(boost::archive::class_id_optional_type& t);
+  void load_override(boost::archive::class_id_reference_type& t);
+  void load_override(boost::archive::tracking_type& t);
 
  private:
   std::unique_ptr<detail::CborIArchivePrivate> m_impl;

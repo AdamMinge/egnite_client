@@ -47,6 +47,29 @@ void JsonOArchive::array_item(int number) { m_impl->getArchive().push(number); }
 
 void JsonOArchive::array_end() { m_impl->getArchive().pop(); }
 
+void JsonOArchive::save_override(
+    const boost::serialization::nvp<boost::serialization::collection_size_type>&
+        nvp) {}
+
+void JsonOArchive::save_override(const boost::archive::class_name_type& t) {}
+
+void JsonOArchive::save_override(const boost::archive::version_type& t) {}
+
+void JsonOArchive::save_override(const boost::archive::object_id_type& t) {}
+
+void JsonOArchive::save_override(
+    const boost::archive::object_reference_type& t) {}
+
+void JsonOArchive::save_override(const boost::archive::class_id_type& t) {}
+
+void JsonOArchive::save_override(
+    const boost::archive::class_id_optional_type& t) {}
+
+void JsonOArchive::save_override(
+    const boost::archive::class_id_reference_type& t) {}
+
+void JsonOArchive::save_override(const boost::archive::tracking_type& t) {}
+
 /* ------------------------------- JsonIArchive ----------------------------- */
 
 JsonIArchive::JsonIArchive(QJsonValue& root)
@@ -66,6 +89,29 @@ void JsonIArchive::array_item(int number) { m_impl->getArchive().push(number); }
 
 void JsonIArchive::array_end() { m_impl->getArchive().pop(); }
 
+void JsonIArchive::load_override(
+    const boost::serialization::nvp<boost::serialization::collection_size_type>&
+        nvp) {
+  auto data = read_data();
+  nvp.value() = data.isArray() ? data.toArray().size() : 0;
+}
+
+void JsonIArchive::load_override(boost::archive::class_name_type& t) {}
+
+void JsonIArchive::load_override(boost::archive::version_type& t) {}
+
+void JsonIArchive::load_override(boost::archive::object_id_type& t) {}
+
+void JsonIArchive::load_override(boost::archive::object_reference_type& t) {}
+
+void JsonIArchive::load_override(boost::archive::class_id_type& t) {}
+
+void JsonIArchive::load_override(boost::archive::class_id_optional_type& t) {}
+
+void JsonIArchive::load_override(boost::archive::class_id_reference_type& t) {}
+
+void JsonIArchive::load_override(boost::archive::tracking_type& t) {}
+
 namespace detail {
 
 /* -------------------------------- JsonArchive ----------------------------- */
@@ -81,7 +127,7 @@ void JsonArchive::push(int number) {
   if (!target.isArray()) target = QJsonArray{};
 
   auto array = target.toArray();
-  while (array.size() < number) array.append(QJsonValue{});
+  while (array.count() < number) array.append(QJsonValue{});
   target = array;
 
   m_stack.push(ValueWithKey{.value = array.at(number), .key = number});
@@ -99,6 +145,7 @@ void JsonArchive::pop() {
                  },
                  [this, value = value_with_key.value](int key) {
                    auto array = this->value().toArray();
+                   array.removeAt(key);
                    array.insert(key, value);
                    this->value() = array;
                  }},

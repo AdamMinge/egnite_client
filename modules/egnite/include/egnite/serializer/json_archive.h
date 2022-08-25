@@ -3,11 +3,12 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QJsonValue>
-#include <QStringView>
+#include <QLatin1String>
 /* ----------------------------------- Boost -------------------------------- */
 #include <boost/archive/detail/common_iarchive.hpp>
 #include <boost/archive/detail/common_oarchive.hpp>
 #include <boost/archive/detail/register_archive.hpp>
+#include <boost/serialization/collection_size_type.hpp>
 /* ---------------------------------- Standard ------------------------------ */
 #include <memory>
 /* ----------------------------------- Local -------------------------------- */
@@ -55,7 +56,7 @@ class EGNITE_API JsonOArchive
   void save_override(const boost::serialization::array_wrapper<TYPE>& array) {
     for (auto i = 0; i < array.count(); ++i) {
       array_item(i);
-      load_override(array.address()[i]);
+      save_override(array.address()[i]);
       array_end();
     }
   }
@@ -66,14 +67,17 @@ class EGNITE_API JsonOArchive
   void array_item(int number);
   void array_end();
 
-  void save_override(const boost::archive::class_name_type& t) {}
-  void save_override(const boost::archive::version_type& t) {}
-  void save_override(const boost::archive::object_id_type& t) {}
-  void save_override(const boost::archive::object_reference_type& t) {}
-  void save_override(const boost::archive::class_id_type& t) {}
-  void save_override(const boost::archive::class_id_optional_type& t) {}
-  void save_override(const boost::archive::class_id_reference_type& t) {}
-  void save_override(const boost::archive::tracking_type& t) {}
+  void save_override(const boost::serialization::nvp<
+                     boost::serialization::collection_size_type>& nvp);
+
+  void save_override(const boost::archive::class_name_type& t);
+  void save_override(const boost::archive::version_type& t);
+  void save_override(const boost::archive::object_id_type& t);
+  void save_override(const boost::archive::object_reference_type& t);
+  void save_override(const boost::archive::class_id_type& t);
+  void save_override(const boost::archive::class_id_optional_type& t);
+  void save_override(const boost::archive::class_id_reference_type& t);
+  void save_override(const boost::archive::tracking_type& t);
 
  private:
   std::unique_ptr<detail::JsonOArchivePrivate> m_impl;
@@ -124,14 +128,17 @@ class EGNITE_API JsonIArchive
   void array_item(int number);
   void array_end();
 
-  void load_override(boost::archive::class_name_type& t) {}
-  void load_override(boost::archive::version_type& t) {}
-  void load_override(boost::archive::object_id_type& t) {}
-  void load_override(boost::archive::object_reference_type& t) {}
-  void load_override(boost::archive::class_id_type& t) {}
-  void load_override(boost::archive::class_id_optional_type& t) {}
-  void load_override(boost::archive::class_id_reference_type& t) {}
-  void load_override(boost::archive::tracking_type& t) {}
+  void load_override(const boost::serialization::nvp<
+                     boost::serialization::collection_size_type>& nvp);
+
+  void load_override(boost::archive::class_name_type& t);
+  void load_override(boost::archive::version_type& t);
+  void load_override(boost::archive::object_id_type& t);
+  void load_override(boost::archive::object_reference_type& t);
+  void load_override(boost::archive::class_id_type& t);
+  void load_override(boost::archive::class_id_optional_type& t);
+  void load_override(boost::archive::class_id_reference_type& t);
+  void load_override(boost::archive::tracking_type& t);
 
  private:
   std::unique_ptr<detail::JsonIArchivePrivate> m_impl;
