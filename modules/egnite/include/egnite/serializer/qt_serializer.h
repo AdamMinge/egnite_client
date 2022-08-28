@@ -17,7 +17,6 @@
 #include <QQueue>
 #include <QRect>
 #include <QRectF>
-#include <QRegularExpression>
 #include <QSequentialIterable>
 #include <QSize>
 #include <QStack>
@@ -32,6 +31,17 @@
 namespace boost::serialization {
 
 namespace detail {
+
+/* ---------------------------------- IsGadget ------------------------------ */
+
+template <typename Type, typename = void>
+struct IsGadget : std::false_type {};
+
+template <typename Type>
+struct IsGadget<
+    Type,
+    std::enable_if_t<QtPrivate::IsGadgetHelper<Type>::IsGadgetOrDerivedFrom>>
+    : std::true_type {};
 
 /* ----------------------------------- Traits ------------------------------- */
 
@@ -56,9 +66,8 @@ concept IsMetaTypeSpecialization = IsRect<Type> || IsLine<Type> ||
     IsPoint<Type> || IsSize<Type> || IsTime<Type>;
 
 template <typename Type>
-concept IsRegisteredMetaType = !IsMetaTypeSpecialization<Type> && requires {
-  qMetaTypeId<Type>();
-};
+concept IsRegisteredMetaType =
+    !IsMetaTypeSpecialization<Type> && IsGadget<Type>::value;
 
 /* ------------------------------------ List -------------------------------- */
 
@@ -100,20 +109,6 @@ bool tryDeserializeVariantList(Archive& ar, QVariant& variant) {
     meta_container.addValue(variant.data(), value.data());
 
   return true;
-}
-
-/* ------------------------------------ Map --------------------------------- */
-
-static int findMapValueType(int meta_type_id) { return QMetaType::UnknownType; }
-
-template <typename Archive>
-bool trySerializeVariantMap(Archive& ar, const QVariant& variant) {
-  return false;
-}
-
-template <typename Archive>
-bool tryDeserializeVariantMap(Archive& ar, QVariant& variant) {
-  return false;
 }
 
 /* ----------------------------------- Gadget ------------------------------- */
@@ -212,7 +207,6 @@ void serializeVariant(Archive& ar, const QVariant& variant) {
     [](auto& a, auto& v){ return trySerializeVariantBaseType<int>(a, v, QMetaType::Int); },
     
     [](auto& a, auto& v){ return trySerializeVariantGadget(a, v); },
-    [](auto& a, auto& v){ return trySerializeVariantMap(a, v); },
     [](auto& a, auto& v){ return trySerializeVariantList(a, v); }});
   // clang-format on
 
@@ -259,7 +253,6 @@ void deserializeVariant(Archive& ar, QVariant& variant) {
     [](auto& a, auto& v){ return tryDeserializeVariantBaseType<int>(a, v, QMetaType::Int); },
     
     [](auto& a, auto& v){ return tryDeserializeVariantGadget(a, v); },
-    [](auto& a, auto& v){ return tryDeserializeVariantMap(a, v); },
     [](auto& a, auto& v){ return tryDeserializeVariantList(a, v); }});
   // clang-format on
 

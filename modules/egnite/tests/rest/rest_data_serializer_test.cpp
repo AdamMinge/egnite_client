@@ -2,6 +2,8 @@
 #include "rest/rest_data_serializer_test.h"
 /* -------------------------------------------------------------------------- */
 
+/* ------------------------- RestDataJsonSerializerTest --------------------- */
+
 TEST_F(RestDataJsonSerializerTest, urlIsSerializable) {
   auto mock = mocks::MockWithUrl{QUrl("http://localhost:8000/api/v1/swagger")};
 
@@ -267,3 +269,5 @@ TEST_F(RestDataJsonSerializerTest, MockUserIsSerializable) {
 
   ASSERT_EQ(mock, mock_deserialized);
 }
+
+/* ------------------------- RestDataCborSerializerTest --------------------- */
