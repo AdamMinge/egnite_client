@@ -118,7 +118,7 @@ class RestDataJsonSerializerTest : public RestDataSerializerTest {
   ~RestDataJsonSerializerTest() override = default;
 };
 
-class RestDataCborSerializerTest : RestDataSerializerTest {
+class RestDataCborSerializerTest : public RestDataSerializerTest {
  public:
   RestDataCborSerializerTest() = default;
   ~RestDataCborSerializerTest() override = default;

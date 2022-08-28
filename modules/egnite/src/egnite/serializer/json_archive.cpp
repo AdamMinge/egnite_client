@@ -127,7 +127,7 @@ void JsonArchive::push(int number) {
   if (!target.isArray()) target = QJsonArray{};
 
   auto array = target.toArray();
-  while (array.count() < number) array.append(QJsonValue{});
+  while (array.count() <= number) array.append(QJsonValue{});
   target = array;
 
   m_stack.push(ValueWithKey{.value = array.at(number), .key = number});

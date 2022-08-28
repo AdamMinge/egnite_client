@@ -2,6 +2,7 @@
 #define EGNITE_SERIALIZER_CBOR_ARCHIVE_H
 
 /* ------------------------------------ Qt ---------------------------------- */
+#include <QCborValue>
 #include <QLatin1String>
 /* ----------------------------------- Boost -------------------------------- */
 #include <boost/archive/detail/common_iarchive.hpp>
@@ -27,12 +28,16 @@ class EGNITE_API CborOArchive
   using BaseClass = boost::archive::detail::common_oarchive<CborOArchive>;
 
  public:
-  CborOArchive();
+  CborOArchive(QCborValue& root);
   ~CborOArchive() override;
 
  private:
   template <typename TYPE>
-  void save(const TYPE& v) {}
+  void save(const TYPE& v) {
+    write_data(QCborValue::fromVariant(v));
+  }
+
+  void write_data(const QCborValue& input);
 
   template <typename TYPE>
   void save_override(const TYPE& object) {
@@ -47,10 +52,10 @@ class EGNITE_API CborOArchive
   }
 
   template <typename TYPE>
-  void load_override(const boost::serialization::array_wrapper<TYPE>& array) {
+  void save_override(const boost::serialization::array_wrapper<TYPE>& array) {
     for (auto i = 0; i < array.count(); ++i) {
       array_item(i);
-      load_override(array.address()[i]);
+      save_override(array.address()[i]);
       array_end();
     }
   }
@@ -60,6 +65,9 @@ class EGNITE_API CborOArchive
 
   void array_item(int number);
   void array_end();
+
+  void save_override(const boost::serialization::nvp<
+                     boost::serialization::collection_size_type>& nvp);
 
   void save_override(const boost::archive::class_name_type& t);
   void save_override(const boost::archive::version_type& t);
@@ -81,12 +89,16 @@ class EGNITE_API CborIArchive
   using BaseClass = boost::archive::detail::common_iarchive<CborIArchive>;
 
  public:
-  CborIArchive();
+  CborIArchive(QCborValue& root);
   ~CborIArchive() override;
 
  private:
   template <typename TYPE>
-  void load(TYPE& v) {}
+  void load(TYPE& v) {
+    v = read_data().toVariant().value<TYPE>();
+  }
+
+  QCborValue& read_data();
 
   template <typename TYPE>
   void load_override(TYPE& object) {
@@ -114,6 +126,9 @@ class EGNITE_API CborIArchive
 
   void array_item(int number);
   void array_end();
+
+  void load_override(const boost::serialization::nvp<
+                     boost::serialization::collection_size_type>& nvp);
 
   void load_override(boost::archive::class_name_type& t);
   void load_override(boost::archive::version_type& t);

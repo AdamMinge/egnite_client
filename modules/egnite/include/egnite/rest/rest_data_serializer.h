@@ -46,9 +46,8 @@ RestData RestDataSerializer::serialize(const Object& object,
                                  archive& object;
                                },
                                [&](QCborValue& data) {
-                                 // auto archive =
-                                 // serializer::CborOArchive(data);
-                                 // archive& object;
+                                 auto archive = serializer::CborOArchive(data);
+                                 archive& object;
                                }},
              data);
   return data;
@@ -66,9 +65,8 @@ Object RestDataSerializer::deserialize(const RestData& data) const {
                         },
                         [&](QCborValue& data) -> Object {
                           auto object = Object{};
-                          // auto archive =
-                          // serializer::CborIArchive(data);
-                          // archive& object;
+                          auto archive = serializer::CborIArchive(data);
+                          archive& object;
                           return object;
                         }},
       const_cast<RestData&>(data));
