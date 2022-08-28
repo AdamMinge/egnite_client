@@ -46,6 +46,56 @@ DEFINE_MOCK(LongLong, qlonglong);
 DEFINE_MOCK(UInt, uint);
 DEFINE_MOCK(Int, int);
 
+struct MockFriend {
+  Q_GADGET
+
+  Q_PROPERTY(uint id MEMBER id)
+  Q_PROPERTY(QString username MEMBER username)
+
+ public:
+  MockFriend(uint id = 0, QString username = {})
+      : id(id), username(std::move(username)) {}
+  bool operator<=>(const MockFriend&) const = default;
+
+  uint id;
+  QString username;
+};
+
+struct MockUserDetail {
+  Q_GADGET
+
+  Q_PROPERTY(QString email MEMBER email)
+  Q_PROPERTY(uint age MEMBER age)
+
+ public:
+  MockUserDetail(QString email = {}, uint age = 0) : email(email), age(age) {}
+  bool operator<=>(const MockUserDetail&) const = default;
+
+  QString email;
+  uint age;
+};
+
+struct MockUser {
+  Q_GADGET
+
+  Q_PROPERTY(uint id MEMBER id)
+  Q_PROPERTY(QString username MEMBER username)
+  Q_PROPERTY(QList<MockFriend> friends MEMBER friends)
+  Q_PROPERTY(QList<QDateTime> login_history MEMBER login_history)
+  Q_PROPERTY(MockUserDetail detail MEMBER detail)
+
+ public:
+  MockUser(uint id = 0, QString username = {})
+      : id(id), username(std::move(username)) {}
+  bool operator<=>(const MockUser&) const = default;
+
+  uint id;
+  QString username;
+  QList<MockFriend> friends;
+  QList<QDateTime> login_history;
+  MockUserDetail detail;
+};
+
 }  // namespace mocks
 
 class RestDataSerializerTest : public testing::Test {

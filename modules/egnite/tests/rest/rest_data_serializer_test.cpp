@@ -114,7 +114,7 @@ TEST_F(RestDataJsonSerializerTest, SizeIsSerializable) {
 }
 
 TEST_F(RestDataJsonSerializerTest, TimeIsSerializable) {
-  auto mock = mocks::MockWithTime{QTime(12, 20, 30, 40)};
+  auto mock = mocks::MockWithTime{QTime(12, 20, 30)};
 
   auto rest_data = m_serializer->serialize(
       mock, egnite::rest::RestDataSerializer::Format::Json);
@@ -137,7 +137,7 @@ TEST_F(RestDataJsonSerializerTest, DateIsSerializable) {
 
 TEST_F(RestDataJsonSerializerTest, DateTimeIsSerializable) {
   auto mock = mocks::MockWithDateTime{
-      QDateTime(QDate(1996, 10, 21), QTime(12, 20, 30, 40))};
+      QDateTime(QDate(1996, 10, 21), QTime(12, 20, 30))};
 
   auto rest_data = m_serializer->serialize(
       mock, egnite::rest::RestDataSerializer::Format::Json);
@@ -243,6 +243,27 @@ TEST_F(RestDataJsonSerializerTest, IntIsSerializable) {
       mock, egnite::rest::RestDataSerializer::Format::Json);
   auto mock_deserialized =
       m_serializer->deserialize<mocks::MockWithInt>(rest_data);
+
+  ASSERT_EQ(mock, mock_deserialized);
+}
+
+TEST_F(RestDataJsonSerializerTest, MockUserIsSerializable) {
+  auto mock = mocks::MockUser{1, "user"};
+  mock.friends = QList<mocks::MockFriend>{
+      mocks::MockFriend{2, "friend2"}, mocks::MockFriend{3, "friend3"},
+      mocks::MockFriend{4, "friend4"}, mocks::MockFriend{5, "friend5"}};
+  mock.login_history =
+      QList<QDateTime>{QDateTime(QDate(2020, 10, 20), QTime(12, 30, 0)),
+                       QDateTime(QDate(2020, 10, 20), QTime(12, 30, 0)),
+                       QDateTime(QDate(2020, 10, 20), QTime(12, 30, 0)),
+                       QDateTime(QDate(2020, 10, 20), QTime(12, 30, 0)),
+                       QDateTime(QDate(2020, 10, 20), QTime(12, 30, 0))};
+  mock.detail = mocks::MockUserDetail("user@gmail.com", 18);
+
+  auto rest_data = m_serializer->serialize(
+      mock, egnite::rest::RestDataSerializer::Format::Json);
+  auto mock_deserialized =
+      m_serializer->deserialize<mocks::MockUser>(rest_data);
 
   ASSERT_EQ(mock, mock_deserialized);
 }

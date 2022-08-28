@@ -100,10 +100,10 @@ class GenericRestReply : public GenericRestReplyBase<DataType, ErrorType> {
 template <typename DataType, typename ErrorType>
 template <typename Handler>
 GenericRestReply<DataType, ErrorType>*
-GenericRestReplyBase<DataType, ErrorType>::onSucceeded(Handler&& handler,
-                                                       QObject* scope) {
+GenericRestReply<DataType, ErrorType>::onSucceeded(Handler&& handler,
+                                                   QObject* scope) {
   onSucceededImpl(
-      utils::bindCallback<decltype(&GenericRestReplyBase::onSucceededImpl)>(
+      utils::bindCallback<decltype(&GenericRestReply::onSucceededImpl)>(
           std::forward<Handler>(handler)),
       scope);
   return this;
@@ -112,17 +112,16 @@ GenericRestReplyBase<DataType, ErrorType>::onSucceeded(Handler&& handler,
 template <typename DataType, typename ErrorType>
 template <typename Handler>
 GenericRestReply<DataType, ErrorType>*
-GenericRestReplyBase<DataType, ErrorType>::onFailed(Handler&& handler,
-                                                    QObject* scope) {
-  onFailedImpl(
-      utils::bindCallback<decltype(&GenericRestReplyBase::onFailedImpl)>(
-          std::forward<Handler>(handler)),
-      scope);
+GenericRestReply<DataType, ErrorType>::onFailed(Handler&& handler,
+                                                QObject* scope) {
+  onFailedImpl(utils::bindCallback<decltype(&GenericRestReply::onFailedImpl)>(
+                   std::forward<Handler>(handler)),
+               scope);
   return this;
 }
 
 template <typename DataType, typename ErrorType>
-void GenericRestReplyBase<DataType, ErrorType>::onSucceededImpl(
+void GenericRestReply<DataType, ErrorType>::onSucceededImpl(
     std::function<void(int, const DataType&)> handler, QObject* scope) {
   RestReply::onSucceeded(
       [this, xFn = std::move(handler)](int http_code, const RestData& data) {
@@ -133,7 +132,7 @@ void GenericRestReplyBase<DataType, ErrorType>::onSucceededImpl(
 }
 
 template <typename DataType, typename ErrorType>
-void GenericRestReplyBase<DataType, ErrorType>::onFailedImpl(
+void GenericRestReply<DataType, ErrorType>::onFailedImpl(
     std::function<void(int, const ErrorType&)> handler, QObject* scope) {
   RestReply::onFailed(std::visit(
       xFn(http_code,
