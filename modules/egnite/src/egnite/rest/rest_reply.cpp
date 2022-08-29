@@ -3,6 +3,7 @@
 
 #include "egnite/rest/detail/rest_reply_p.h"
 #include "egnite/rest/rest_api.h"
+#include "egnite/rest/rest_client.h"
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QCborStreamReader>
 #include <QJsonArray>
@@ -14,38 +15,50 @@ namespace egnite::rest {
 
 /* -------------------------------- RestReply ------------------------------- */
 
-RestReply::RestReply(RestApi* api, QNetworkReply* network_reply)
-    : RestReply(*new detail::RestReplyPrivate(api, network_reply), api) {
-  connect(this, &RestReply::succeeded, this, &RestReply::completed);
-  connect(this, &RestReply::failed, this, &RestReply::completed);
-}
+RestReply::RestReply(QObject* parent) : QObject(parent) {}
 
-RestReply::RestReply(detail::RestReplyPrivate& impl, QObject* parent)
+RestReply::RestReply(QObjectPrivate& impl, QObject* parent)
     : QObject(impl, parent) {}
 
 RestReply::~RestReply() = default;
 
-void RestReply::abort() {
-  Q_D(detail::RestReply);
+/* ------------------------------- RawRestReply ----------------------------- */
+
+RawRestReply::RawRestReply(RestApi* api, QNetworkReply* network_reply,
+                           QObject* parent)
+    : RestReply(*new detail::RawRestReplyPrivate(api, network_reply), parent) {
+  connect(this, &RawRestReply::succeeded, this, &RawRestReply::completed);
+  connect(this, &RawRestReply::failed, this, &RawRestReply::completed);
+}
+
+RawRestReply::~RawRestReply() = default;
+
+void RawRestReply::abort() {
+  Q_D(detail::RawRestReply);
   d->abort();
 }
 
-void RestReply::retry() {
-  Q_D(detail::RestReply);
+void RawRestReply::retry() {
+  Q_D(detail::RawRestReply);
   d->retry();
 }
 
-RestApi* RestReply::getApi() const {
-  Q_D(const detail::RestReply);
+RestApi* RawRestReply::getApi() const {
+  Q_D(const detail::RawRestReply);
   return d->getApi();
 }
 
-RestClient* RestReply::getClient() const {
-  Q_D(const detail::RestReply);
+RestClient* RawRestReply::getClient() const {
+  Q_D(const detail::RawRestReply);
   return d->getClient();
 }
 
-/* ---------------------------- RestReplyPrivate ---------------------------- */
+RestDataSerializer* RawRestReply::getDataSerializer() const {
+  Q_D(const detail::RawRestReply);
+  return d->getDataSerializer();
+}
+
+/* --------------------------- RawRestReplyPrivate -------------------------- */
 
 namespace detail {
 
@@ -157,29 +170,30 @@ static QNetworkReply::NetworkError convertError(RestReply::Error error) {
   }
 }
 
-const QByteArray RestReplyPrivate::PropertyBody =
+const QByteArray RawRestReplyPrivate::PropertyBody =
     QByteArray{"__Egnite_Rest_RestReplyPrivate_PropertyBody"};
 
-const QByteArray RestReplyPrivate::ContentType = QByteArray{"ContentType"};
-const QByteArray RestReplyPrivate::Accept = QByteArray{"Accept"};
+const QByteArray RawRestReplyPrivate::ContentType = QByteArray{"ContentType"};
+const QByteArray RawRestReplyPrivate::Accept = QByteArray{"Accept"};
 
-const QByteArray RestReplyPrivate::ContentTypeJson =
+const QByteArray RawRestReplyPrivate::ContentTypeJson =
     QByteArray{"application/json"};
-const QByteArray RestReplyPrivate::ContentTypeCbor =
+const QByteArray RawRestReplyPrivate::ContentTypeCbor =
     QByteArray{"application/cbor"};
 
-RestReplyPrivate::RestReplyPrivate(RestApi* api, QNetworkReply* network_reply)
+RawRestReplyPrivate::RawRestReplyPrivate(RestApi* api,
+                                         QNetworkReply* network_reply)
     : m_api(api), m_network_reply(network_reply) {
   connectReply();
 }
 
-RestReplyPrivate::~RestReplyPrivate() {
+RawRestReplyPrivate::~RawRestReplyPrivate() {
   if (m_network_reply) m_network_reply->deleteLater();
 }
 
-void RestReplyPrivate::abort() { m_network_reply->abort(); }
+void RawRestReplyPrivate::abort() { m_network_reply->abort(); }
 
-void RestReplyPrivate::retry() {
+void RawRestReplyPrivate::retry() {
   auto manager = m_network_reply->manager();
   auto request = m_network_reply->request();
   auto verb = m_network_reply->attribute(QNetworkRequest::CustomVerbAttribute)
@@ -191,14 +205,20 @@ void RestReplyPrivate::retry() {
   connectReply();
 }
 
-RestApi* RestReplyPrivate::getApi() const { return m_api; }
+RestApi* RawRestReplyPrivate::getApi() const { return m_api; }
 
-RestClient* RestReplyPrivate::getClient() const { return m_api->getClient(); }
+RestClient* RawRestReplyPrivate::getClient() const {
+  return m_api->getClient();
+}
 
-QNetworkReply* RestReplyPrivate::send(QNetworkAccessManager* manager,
-                                      const QNetworkRequest& request,
-                                      const QByteArray& verb,
-                                      const QByteArray& body) {
+RestDataSerializer* RawRestReplyPrivate::getDataSerializer() const {
+  return m_api->getClient()->getDataSerializer();
+}
+
+QNetworkReply* RawRestReplyPrivate::send(QNetworkAccessManager* manager,
+                                         const QNetworkRequest& request,
+                                         const QByteArray& verb,
+                                         const QByteArray& body) {
   QNetworkReply* reply = nullptr;
   if (body.isEmpty())
     reply = manager->sendCustomRequest(request, verb);
@@ -209,7 +229,7 @@ QNetworkReply* RestReplyPrivate::send(QNetworkAccessManager* manager,
   return reply;
 }
 
-void RestReplyPrivate::replyFinished() {
+void RawRestReplyPrivate::replyFinished() {
   if (!m_network_reply) return;
 
   auto parse_error = ParseError{};
@@ -220,9 +240,9 @@ void RestReplyPrivate::replyFinished() {
   processReply(data, parse_error);
 }
 
-void RestReplyPrivate::connectReply() {
+void RawRestReplyPrivate::connectReply() {
   connect(m_network_reply, &QNetworkReply::finished, this,
-          &RestReplyPrivate::replyFinished);
+          &RawRestReplyPrivate::replyFinished);
 
   Q_Q(RestReply);
   QObject::connect(m_network_reply, &QNetworkReply::downloadProgress, q,
@@ -231,7 +251,7 @@ void RestReplyPrivate::connectReply() {
                    &RestReply::uploadProgress);
 }
 
-QByteArray RestReplyPrivate::parseContentType(ParseError& parse_error) {
+QByteArray RawRestReplyPrivate::parseContentType(ParseError& parse_error) {
   auto content_type =
       m_network_reply->header(QNetworkRequest::ContentTypeHeader)
           .toByteArray()
@@ -259,8 +279,8 @@ QByteArray RestReplyPrivate::parseContentType(ParseError& parse_error) {
   return content_type;
 }
 
-RestData RestReplyPrivate::parseData(const QByteArray& content_type,
-                                     ParseError& parse_error) {
+RestData RawRestReplyPrivate::parseData(const QByteArray& content_type,
+                                        ParseError& parse_error) {
   if (content_type == ContentTypeJson) return parseJsonData(parse_error);
   if (content_type == ContentTypeCbor) return parseCborData(parse_error);
 
@@ -270,7 +290,7 @@ RestData RestReplyPrivate::parseData(const QByteArray& content_type,
   return std::nullopt;
 }
 
-RestData RestReplyPrivate::parseJsonData(ParseError& parse_error) {
+RestData RawRestReplyPrivate::parseJsonData(ParseError& parse_error) {
   const auto read_data = m_network_reply->readAll();
   QJsonParseError error;
   auto json_doc = QJsonDocument::fromJson(read_data, &error);
@@ -296,7 +316,7 @@ RestData RestReplyPrivate::parseJsonData(ParseError& parse_error) {
   return std::nullopt;
 }
 
-RestData RestReplyPrivate::parseCborData(ParseError& parse_error) {
+RestData RawRestReplyPrivate::parseCborData(ParseError& parse_error) {
   QCborStreamReader reader{m_network_reply};
   if (const auto error = reader.lastError(); error.c != QCborError::NoError)
     parse_error = std::make_pair(RestReply::Error::ContentCborParseError,
@@ -305,8 +325,8 @@ RestData RestReplyPrivate::parseCborData(ParseError& parse_error) {
   return QCborValue::fromCbor(reader);
 }
 
-void RestReplyPrivate::processReply(const RestData& data,
-                                    const ParseError& parse_error) {
+void RawRestReplyPrivate::processReply(const RestData& data,
+                                       const ParseError& parse_error) {
   Q_Q(RestReply);
   const auto status =
       m_network_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute)

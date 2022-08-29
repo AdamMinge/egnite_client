@@ -5,6 +5,7 @@
 #include <QtCore/private/qobject_p.h>
 
 #include <QNetworkReply>
+#include <QNetworkRequest>
 /* ------------------------------------ Local ------------------------------- */
 #include "egnite/rest/rest_api.h"
 /* -------------------------------------------------------------------------- */
@@ -32,7 +33,11 @@ class RestApiPrivate : public QObjectPrivate {
                  const QString& path);
 
   [[nodiscard]] RestClient* getClient() const;
+  [[nodiscard]] RestDataSerializer* getDataSerializer() const;
   [[nodiscard]] QString getPath() const;
+
+  [[nodiscard]] RestDataSerializer::Format getRequestDataFormat(
+      const RestHeaders& headers) const;
 
   QNetworkReply* create(const QByteArray& verb, const QString& path,
                         const QUrlQuery& parameters,

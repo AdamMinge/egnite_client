@@ -17,11 +17,12 @@
 namespace egnite::rest {
 
 namespace detail {
-class RestReplyPrivate;
+class RawRestReplyPrivate;
 }
 
 class RestApi;
 class RestClient;
+class RestDataSerializer;
 
 class EGNITE_API RestReply : public QObject {
   Q_OBJECT
@@ -80,11 +81,12 @@ class EGNITE_API RestReply : public QObject {
  public:
   ~RestReply() override;
 
-  void abort();
-  void retry();
+  virtual void abort() = 0;
+  virtual void retry() = 0;
 
-  [[nodiscard]] RestApi* getApi() const;
-  [[nodiscard]] RestClient* getClient() const;
+  [[nodiscard]] virtual RestApi* getApi() const = 0;
+  [[nodiscard]] virtual RestClient* getClient() const = 0;
+  [[nodiscard]] virtual RestDataSerializer* getDataSerializer() const = 0;
 
   template <typename Handler>
   RestReply* onCompleted(Handler&& handler, QObject* scope = nullptr);
@@ -105,11 +107,31 @@ class EGNITE_API RestReply : public QObject {
   void uploadProgress(qint64 bytes_sent, qint64 bytes_total);
 
  protected:
-  RestReply(RestApi* api, QNetworkReply* network_reply);
-  RestReply(detail::RestReplyPrivate& impl, QObject* parent = nullptr);
+  RestReply(QObject* parent = nullptr);
+  RestReply(QObjectPrivate& impl, QObject* parent = nullptr);
+};
+
+class EGNITE_API RawRestReply : public RestReply {
+  Q_OBJECT
+
+  friend RestApi;
+
+ public:
+  ~RawRestReply() override;
+
+  void abort() override;
+  void retry() override;
+
+  [[nodiscard]] RestApi* getApi() const override;
+  [[nodiscard]] RestClient* getClient() const override;
+  [[nodiscard]] RestDataSerializer* getDataSerializer() const override;
+
+ protected:
+  RawRestReply(RestApi* api, QNetworkReply* network_reply,
+               QObject* parent = nullptr);
 
  private:
-  Q_DECLARE_PRIVATE(detail::RestReply)
+  Q_DECLARE_PRIVATE(detail::RawRestReply)
 };
 
 template <typename Handler>

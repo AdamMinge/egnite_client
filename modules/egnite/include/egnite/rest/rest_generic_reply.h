@@ -3,6 +3,7 @@
 
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/export.h"
+#include "egnite/rest/rest_data_serializer.h"
 #include "egnite/rest/rest_reply.h"
 /* -------------------------------------------------------------------------- */
 
@@ -22,19 +23,37 @@ class GenericRestReplyBase : public RestReply {
                                                      QObject* scope = nullptr);
 
  protected:
-  GenericRestReplyBase(RestApi* api, QNetworkReply* network_reply);
+  GenericRestReplyBase(RestReply* reply, QObject* parent = nullptr);
+  ~GenericRestReplyBase() override;
 
  private:
   void onCompletedImpl(std::function<void(int)> handler,
                        QObject* scope = nullptr);
   void onErrorImpl(std::function<void(const QString&, Error)> handler,
                    QObject* scope = nullptr);
-}
+
+ protected:
+  RestReply* m_reply;
+};
 
 template <typename DataType, typename ErrorType>
 GenericRestReplyBase<DataType, ErrorType>::GenericRestReplyBase(
-    RestApi* api, QNetworkReply* network_reply)
-    : RestReply(api, network_reply) {
+    RestReply* reply, QObject* parent)
+    : RestReply(parent), m_reply(reply) {
+  connect(m_reply, &RestReply::completed, this, &RestReply::completed);
+  connect(m_reply, &RestReply::succeeded, this, &RestReply::succeeded);
+  connect(m_reply, &RestReply::failed, this, &RestReply::failed);
+  connect(m_reply, &RestReply::error, this, &RestReply::error);
+
+  connect(m_reply, &RestReply::downloadProgress, this,
+          &RestReply::downloadProgress);
+  connect(m_reply, &RestReply::uploadProgress, this,
+          &RestReply::uploadProgress);
+}
+
+template <typename DataType, typename ErrorType>
+GenericRestReplyBase<DataType, ErrorType>::~GenericRestReplyBase() {
+  m_reply->deleteLater();
 }
 
 template <typename DataType, typename ErrorType>
@@ -63,13 +82,13 @@ GenericRestReplyBase<DataType, ErrorType>::onError(Handler&& handler,
 template <typename DataType, typename ErrorType>
 void GenericRestReplyBase<DataType, ErrorType>::onCompletedImpl(
     std::function<void(int)> handler, QObject* scope) {
-  RestReply::onCompleted(std::move(handler), scope);
+  m_reply->onCompleted(std::move(handler), scope);
 }
 
 template <typename DataType, typename ErrorType>
 void GenericRestReplyBase<DataType, ErrorType>::onErrorImpl(
     std::function<void(const QString&, Error)> handler, QObject* scope) {
-  RestReply::onError(std::move(handler), scope);
+  m_reply->onError(std::move(handler), scope);
 }
 
 /* ------------------- GenericRestReply<DataType, ErrorType> ---------------- */
@@ -95,7 +114,7 @@ class GenericRestReply : public GenericRestReplyBase<DataType, ErrorType> {
                        QObject* scope = nullptr);
   void onFailedImpl(std::function<void(int, const ErrorType&)> handler,
                     QObject* scope = nullptr);
-}
+};
 
 template <typename DataType, typename ErrorType>
 template <typename Handler>
@@ -123,10 +142,10 @@ GenericRestReply<DataType, ErrorType>::onFailed(Handler&& handler,
 template <typename DataType, typename ErrorType>
 void GenericRestReply<DataType, ErrorType>::onSucceededImpl(
     std::function<void(int, const DataType&)> handler, QObject* scope) {
-  RestReply::onSucceeded(
+  this->m_reply->onSucceeded(
       [this, xFn = std::move(handler)](int http_code, const RestData& data) {
-        xFn(http_code,
-            getClient()->getSerializer()->deserialize<DataType>(data));
+        RestDataSerializer* serializer = this->getDataSerializer();
+        xFn(http_code, serializer->deserialize<DataType>(data));
       },
       scope);
 }
@@ -134,10 +153,12 @@ void GenericRestReply<DataType, ErrorType>::onSucceededImpl(
 template <typename DataType, typename ErrorType>
 void GenericRestReply<DataType, ErrorType>::onFailedImpl(
     std::function<void(int, const ErrorType&)> handler, QObject* scope) {
-  RestReply::onFailed(std::visit(
-      xFn(http_code,
-          getClient()->getSerializer()->deserialize<ErrorType>(data));
-      data) scope);
+  this->m_reply->onFailed(
+      [this, xFn = std::move(handler)](int http_code, const RestData& data) {
+        RestDataSerializer* serializer = this->getDataSerializer();
+        xFn(http_code, serializer->deserialize<ErrorType>(data));
+      },
+      scope);
 }
 
 }  // namespace egnite::rest

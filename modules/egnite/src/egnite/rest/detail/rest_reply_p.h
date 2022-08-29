@@ -14,9 +14,9 @@
 
 namespace egnite::rest::detail {
 
-class RestReplyPrivate : public QObjectPrivate {
+class RawRestReplyPrivate : public QObjectPrivate {
  public:
-  Q_DECLARE_PUBLIC(RestReply)
+  Q_DECLARE_PUBLIC(RawRestReply)
 
  public:
   static const QByteArray PropertyBody;
@@ -25,17 +25,18 @@ class RestReplyPrivate : public QObjectPrivate {
   static const QByteArray ContentTypeJson;
   static const QByteArray ContentTypeCbor;
 
-  using ParseError = std::optional<std::pair<RestReply::Error, QString>>;
+  using ParseError = std::optional<std::pair<RawRestReply::Error, QString>>;
 
  public:
-  RestReplyPrivate(RestApi* api, QNetworkReply* network_reply);
-  ~RestReplyPrivate() override;
+  RawRestReplyPrivate(RestApi* api, QNetworkReply* network_reply);
+  ~RawRestReplyPrivate() override;
 
   void abort();
   void retry();
 
   [[nodiscard]] RestApi* getApi() const;
   [[nodiscard]] RestClient* getClient() const;
+  [[nodiscard]] RestDataSerializer* getDataSerializer() const;
 
  public:
   static QNetworkReply* send(QNetworkAccessManager* manager,
