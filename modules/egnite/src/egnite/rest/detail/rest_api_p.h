@@ -34,6 +34,7 @@ class RestApiPrivate : public QObjectPrivate {
 
   [[nodiscard]] RestClient* getClient() const;
   [[nodiscard]] RestDataSerializer* getDataSerializer() const;
+  [[nodiscard]] RestReplyDecoratorManager* getReplyDecoratorManager() const;
   [[nodiscard]] QString getPath() const;
 
   [[nodiscard]] RestDataSerializer::Format getRequestDataFormat(

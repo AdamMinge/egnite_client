@@ -14,6 +14,13 @@ namespace egnite::rest {
 template <typename DataType, typename ErrorType>
 class GenericRestReplyBase : public RestReply {
  public:
+  void abort() override;
+  void retry() override;
+
+  [[nodiscard]] RestApi* getApi() const override;
+  [[nodiscard]] RestClient* getClient() const override;
+  [[nodiscard]] RestDataSerializer* getDataSerializer() const override;
+
   template <typename Handler>
   GenericRestReplyBase<DataType, ErrorType>* onCompleted(
       Handler&& handler, QObject* scope = nullptr);
@@ -54,6 +61,32 @@ GenericRestReplyBase<DataType, ErrorType>::GenericRestReplyBase(
 template <typename DataType, typename ErrorType>
 GenericRestReplyBase<DataType, ErrorType>::~GenericRestReplyBase() {
   m_reply->deleteLater();
+}
+
+template <typename DataType, typename ErrorType>
+void GenericRestReplyBase<DataType, ErrorType>::abort() {
+  m_reply->abort();
+}
+
+template <typename DataType, typename ErrorType>
+void GenericRestReplyBase<DataType, ErrorType>::retry() {
+  m_reply->retry();
+}
+
+template <typename DataType, typename ErrorType>
+RestApi* GenericRestReplyBase<DataType, ErrorType>::getApi() const {
+  return m_reply->getApi();
+}
+
+template <typename DataType, typename ErrorType>
+RestClient* GenericRestReplyBase<DataType, ErrorType>::getClient() const {
+  return m_reply->getClient();
+}
+
+template <typename DataType, typename ErrorType>
+RestDataSerializer*
+GenericRestReplyBase<DataType, ErrorType>::getDataSerializer() const {
+  return m_reply->getDataSerializer();
 }
 
 template <typename DataType, typename ErrorType>

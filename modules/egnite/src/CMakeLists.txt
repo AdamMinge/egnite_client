@@ -23,12 +23,14 @@ set(sources
     ${source_root}/rest/rest_auth.cpp
     ${source_root}/rest/rest_client.cpp
     ${source_root}/rest/rest_reply.cpp
+    ${source_root}/rest/rest_reply_decorator_manager.cpp
     ${source_root}/rest/rest_request_builder.cpp
     ${source_root}/rest/rest_data_serializer.cpp
     ${source_root}/rest/detail/rest_api_p.h
     ${source_root}/rest/detail/rest_auth_p.h
     ${source_root}/rest/detail/rest_client_p.h
     ${source_root}/rest/detail/rest_reply_p.h
+    ${source_root}/rest/detail/rest_reply_decorator_manager_p.h
     ${source_root}/rest/detail/rest_request_builder_p.h)
 
 set(includes
@@ -42,6 +44,7 @@ set(includes
     ${include_root}/rest/rest_auth.h
     ${include_root}/rest/rest_client.h
     ${include_root}/rest/rest_reply.h
+    ${include_root}/rest/rest_reply_decorator_manager.h
     ${include_root}/rest/rest_request_builder.h
     ${include_root}/rest/rest_data_serializer.h
     ${include_root}/rest/rest_generic_reply.h)

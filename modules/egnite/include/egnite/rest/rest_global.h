@@ -18,8 +18,6 @@ namespace egnite::rest {
 using RestHeaders = QHash<QByteArray, QByteArray>;
 using RestData = std::variant<std::nullopt_t, QJsonValue, QCborValue>;
 
-namespace traits {}  // namespace traits
-
 }  // namespace egnite::rest
 
 #endif  // EGNITE_REST_GLOBAL_H

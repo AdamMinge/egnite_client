@@ -18,7 +18,8 @@ class RestClientPrivate : public QObjectPrivate {
  public:
   RestClientPrivate(const QUrl& url, const QVersionNumber& version,
                     const RestHeaders& headers, const QUrlQuery& parameters,
-                    RestDataSerializer* data_serializer);
+                    RestDataSerializer* data_serializer,
+                    RestReplyDecoratorManager* reply_decorator_manager);
 
   void setBaseUrl(const QUrl& url);
   [[nodiscard]] QUrl getBaseUrl() const;
@@ -35,6 +36,7 @@ class RestClientPrivate : public QObjectPrivate {
   [[nodiscard]] RestRequestBuilder getRequestBuilder() const;
   [[nodiscard]] QNetworkAccessManager* getNetworkAccessManager() const;
   [[nodiscard]] RestDataSerializer* getDataSerializer() const;
+  [[nodiscard]] RestReplyDecoratorManager* getReplyDecoratorManager() const;
 
  private:
   QUrl m_base_url;
@@ -43,6 +45,7 @@ class RestClientPrivate : public QObjectPrivate {
   QUrlQuery m_parameters;
   QNetworkAccessManager* m_manager;
   RestDataSerializer* m_data_serializer;
+  RestReplyDecoratorManager* m_reply_decorator_manager;
 };
 
 }  // namespace egnite::rest::detail

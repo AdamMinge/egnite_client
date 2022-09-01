@@ -4,6 +4,7 @@
 #include "egnite/rest/detail/rest_api_p.h"
 #include "egnite/rest/detail/rest_reply_p.h"
 #include "egnite/rest/rest_client.h"
+#include "egnite/rest/rest_reply_decorator_manager.h"
 /* ------------------------------------- Qt --------------------------------- */
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -33,14 +34,19 @@ RestDataSerializer* RestApi::getDataSerializer() const {
   return d->getDataSerializer();
 }
 
+RestReplyDecoratorManager* RestApi::getReplyDecoratorManager() const {
+  Q_D(const detail::RestApi);
+  return d->getReplyDecoratorManager();
+}
+
 RestApi* RestApi::createSubApi(const QString& path, QObject* parent) {
   Q_D(const detail::RestApi);
   return d->getClient()->createApi(QString("%1/%2").arg(d->getPath(), path),
                                    parent);
 }
 
-RawRestReply* RestApi::get(const QString& path, const QUrlQuery& parameters,
-                           const RestHeaders& headers, QObject* parent) const {
+RestReply* RestApi::get(const QString& path, const QUrlQuery& parameters,
+                        const RestHeaders& headers, QObject* parent) const {
   Q_D(const detail::RestApi);
   return new RawRestReply(
       const_cast<RestApi*>(this),
@@ -48,8 +54,8 @@ RawRestReply* RestApi::get(const QString& path, const QUrlQuery& parameters,
       parent);
 }
 
-RawRestReply* RestApi::head(const QString& path, const QUrlQuery& parameters,
-                            const RestHeaders& headers, QObject* parent) const {
+RestReply* RestApi::head(const QString& path, const QUrlQuery& parameters,
+                         const RestHeaders& headers, QObject* parent) const {
   Q_D(const detail::RestApi);
   return new RawRestReply(
       const_cast<RestApi*>(this),
@@ -57,10 +63,10 @@ RawRestReply* RestApi::head(const QString& path, const QUrlQuery& parameters,
       parent);
 }
 
-RawRestReply* RestApi::deleteResource(const QString& path,
-                                      const QUrlQuery& parameters,
-                                      const RestHeaders& headers,
-                                      QObject* parent) const {
+RestReply* RestApi::deleteResource(const QString& path,
+                                   const QUrlQuery& parameters,
+                                   const RestHeaders& headers,
+                                   QObject* parent) const {
   Q_D(const detail::RestApi);
   return new RawRestReply(
       const_cast<RestApi*>(this),
@@ -68,8 +74,8 @@ RawRestReply* RestApi::deleteResource(const QString& path,
       parent);
 }
 
-RawRestReply* RestApi::post(const QString& path, const QUrlQuery& parameters,
-                            const RestHeaders& headers, QObject* parent) const {
+RestReply* RestApi::post(const QString& path, const QUrlQuery& parameters,
+                         const RestHeaders& headers, QObject* parent) const {
   Q_D(const detail::RestApi);
   return new RawRestReply(
       const_cast<RestApi*>(this),
@@ -77,9 +83,9 @@ RawRestReply* RestApi::post(const QString& path, const QUrlQuery& parameters,
       parent);
 }
 
-RawRestReply* RestApi::post(const QString& path, const QJsonValue& data,
-                            const QUrlQuery& parameters,
-                            const RestHeaders& headers, QObject* parent) const {
+RestReply* RestApi::post(const QString& path, const QJsonValue& data,
+                         const QUrlQuery& parameters,
+                         const RestHeaders& headers, QObject* parent) const {
   Q_D(const detail::RestApi);
   return new RawRestReply(const_cast<RestApi*>(this),
                           d->create(detail::RestApiPrivate::PostVerb, path,
@@ -87,9 +93,9 @@ RawRestReply* RestApi::post(const QString& path, const QJsonValue& data,
                           parent);
 }
 
-RawRestReply* RestApi::post(const QString& path, const QCborValue& data,
-                            const QUrlQuery& parameters,
-                            const RestHeaders& headers, QObject* parent) const {
+RestReply* RestApi::post(const QString& path, const QCborValue& data,
+                         const QUrlQuery& parameters,
+                         const RestHeaders& headers, QObject* parent) const {
   Q_D(const detail::RestApi);
   return new RawRestReply(const_cast<RestApi*>(this),
                           d->create(detail::RestApiPrivate::PostVerb, path,
@@ -97,8 +103,8 @@ RawRestReply* RestApi::post(const QString& path, const QCborValue& data,
                           parent);
 }
 
-RawRestReply* RestApi::put(const QString& path, const QUrlQuery& parameters,
-                           const RestHeaders& headers, QObject* parent) const {
+RestReply* RestApi::put(const QString& path, const QUrlQuery& parameters,
+                        const RestHeaders& headers, QObject* parent) const {
   Q_D(const detail::RestApi);
   return new RawRestReply(
       const_cast<RestApi*>(this),
@@ -106,9 +112,9 @@ RawRestReply* RestApi::put(const QString& path, const QUrlQuery& parameters,
       parent);
 }
 
-RawRestReply* RestApi::put(const QString& path, const QJsonValue& data,
-                           const QUrlQuery& parameters,
-                           const RestHeaders& headers, QObject* parent) const {
+RestReply* RestApi::put(const QString& path, const QJsonValue& data,
+                        const QUrlQuery& parameters, const RestHeaders& headers,
+                        QObject* parent) const {
   Q_D(const detail::RestApi);
   return new RawRestReply(const_cast<RestApi*>(this),
                           d->create(detail::RestApiPrivate::PutVerb, path, data,
@@ -116,9 +122,9 @@ RawRestReply* RestApi::put(const QString& path, const QJsonValue& data,
                           parent);
 }
 
-RawRestReply* RestApi::put(const QString& path, const QCborValue& data,
-                           const QUrlQuery& parameters,
-                           const RestHeaders& headers, QObject* parent) const {
+RestReply* RestApi::put(const QString& path, const QCborValue& data,
+                        const QUrlQuery& parameters, const RestHeaders& headers,
+                        QObject* parent) const {
   Q_D(const detail::RestApi);
   return new RawRestReply(const_cast<RestApi*>(this),
                           d->create(detail::RestApiPrivate::PutVerb, path, data,
@@ -126,9 +132,8 @@ RawRestReply* RestApi::put(const QString& path, const QCborValue& data,
                           parent);
 }
 
-RawRestReply* RestApi::patch(const QString& path, const QUrlQuery& parameters,
-                             const RestHeaders& headers,
-                             QObject* parent) const {
+RestReply* RestApi::patch(const QString& path, const QUrlQuery& parameters,
+                          const RestHeaders& headers, QObject* parent) const {
   Q_D(const detail::RestApi);
   return new RawRestReply(
       const_cast<RestApi*>(this),
@@ -136,10 +141,9 @@ RawRestReply* RestApi::patch(const QString& path, const QUrlQuery& parameters,
       parent);
 }
 
-RawRestReply* RestApi::patch(const QString& path, const QJsonValue& data,
-                             const QUrlQuery& parameters,
-                             const RestHeaders& headers,
-                             QObject* parent) const {
+RestReply* RestApi::patch(const QString& path, const QJsonValue& data,
+                          const QUrlQuery& parameters,
+                          const RestHeaders& headers, QObject* parent) const {
   Q_D(const detail::RestApi);
   return new RawRestReply(const_cast<RestApi*>(this),
                           d->create(detail::RestApiPrivate::PatchVerb, path,
@@ -147,10 +151,9 @@ RawRestReply* RestApi::patch(const QString& path, const QJsonValue& data,
                           parent);
 }
 
-RawRestReply* RestApi::patch(const QString& path, const QCborValue& data,
-                             const QUrlQuery& parameters,
-                             const RestHeaders& headers,
-                             QObject* parent) const {
+RestReply* RestApi::patch(const QString& path, const QCborValue& data,
+                          const QUrlQuery& parameters,
+                          const RestHeaders& headers, QObject* parent) const {
   Q_D(const detail::RestApi);
   return new RawRestReply(const_cast<RestApi*>(this),
                           d->create(detail::RestApiPrivate::PatchVerb, path,
@@ -184,6 +187,10 @@ RestClient* RestApiPrivate::getClient() const { return m_client; }
 
 RestDataSerializer* RestApiPrivate::getDataSerializer() const {
   return m_client->getDataSerializer();
+}
+
+RestReplyDecoratorManager* RestApiPrivate::getReplyDecoratorManager() const {
+  return m_client->getReplyDecoratorManager();
 }
 
 QString RestApiPrivate::getPath() const { return m_path; }
