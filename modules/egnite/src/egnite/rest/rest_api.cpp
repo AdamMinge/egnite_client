@@ -264,7 +264,20 @@ QNetworkReply* RestApiPrivate::create(const QByteArray& verb,
   return RawRestReplyPrivate::send(m_manager, request, verb, convertData(data));
 }
 
-QByteArray RestApiPrivate::convertData(const QJsonValue& body) const {
+QByteArray RestApiPrivate::convertData(const RestData& body) {
+  return std::visit(
+      utils::overloaded{
+          [&](std::nullopt_t) -> QByteArray { return QByteArray{}; },
+          [&](const QJsonValue& body) -> QByteArray {
+            return RestApiPrivate::convertData(body);
+          },
+          [&](const QCborValue& body) -> QByteArray {
+            return RestApiPrivate::convertData(body);
+          }},
+      body);
+}
+
+QByteArray RestApiPrivate::convertData(const QJsonValue& body) {
   switch (body.type()) {
     case QJsonValue::Array:
       return QJsonDocument(body.toArray()).toJson(QJsonDocument::Compact);
@@ -278,7 +291,7 @@ QByteArray RestApiPrivate::convertData(const QJsonValue& body) const {
   }
 }
 
-QByteArray RestApiPrivate::convertData(const QCborValue& body) const {
+QByteArray RestApiPrivate::convertData(const QCborValue& body) {
   return body.toCbor();
 }
 

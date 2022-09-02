@@ -24,7 +24,7 @@ class EGNITE_API RestDataSerializer : public QObject {
   enum class Format { Json, Cbor };
 
  public:
-  RestDataSerializer(QObject* parent = nullptr);
+  explicit RestDataSerializer(QObject* parent = nullptr);
   ~RestDataSerializer() override;
 
   template <typename Object>

@@ -29,8 +29,8 @@ class RestApiPrivate : public QObjectPrivate {
   static const QByteArray HeadVerb;
 
  public:
-  RestApiPrivate(RestClient* client, QNetworkAccessManager* manager,
-                 const QString& path);
+  explicit RestApiPrivate(RestClient* client, QNetworkAccessManager* manager,
+                          const QString& path);
 
   [[nodiscard]] RestClient* getClient() const;
   [[nodiscard]] RestDataSerializer* getDataSerializer() const;
@@ -50,9 +50,10 @@ class RestApiPrivate : public QObjectPrivate {
                         const QCborValue& data, const QUrlQuery& parameters,
                         const RestHeaders& headers) const;
 
- private:
-  QByteArray convertData(const QJsonValue& body) const;
-  QByteArray convertData(const QCborValue& body) const;
+ public:
+  [[nodiscard]] static QByteArray convertData(const RestData& body);
+  [[nodiscard]] static QByteArray convertData(const QJsonValue& body);
+  [[nodiscard]] static QByteArray convertData(const QCborValue& body);
 
  private:
   RestClient* m_client;

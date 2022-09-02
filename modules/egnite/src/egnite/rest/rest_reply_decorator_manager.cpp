@@ -1,7 +1,9 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/rest/rest_reply_decorator_manager.h"
 
+#include "egnite/rest/detail/rest_api_p.h"
 #include "egnite/rest/detail/rest_reply_decorator_manager_p.h"
+#include "egnite/rest/rest_reply.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
@@ -39,6 +41,30 @@ void RestReplyDecoratorManager::removeAllDecorators() {
   d->removeAllDecorators();
 }
 
+/* -------------------------- RestReplyLogDecorator ------------------------- */
+
+RestReplyLogDecorator::RestReplyLogDecorator(const RestReplyLogDecorator& other)
+    : m_impl(std::make_unique<detail::RestReplyLogDecoratorPrivate>(
+          *other.m_impl)) {}
+
+RestReplyLogDecorator::RestReplyLogDecorator()
+    : m_impl(std::make_unique<detail::RestReplyLogDecoratorPrivate>(
+          Option::LogAll)) {}
+
+RestReplyLogDecorator::~RestReplyLogDecorator() = default;
+
+RestReply* RestReplyLogDecorator::operator()(RestReply* reply) const {
+  return m_impl->decorate(reply);
+}
+
+void RestReplyLogDecorator::setOptions(Options log_detail) {
+  m_impl->setOptions(log_detail);
+}
+
+RestReplyLogDecorator::Options RestReplyLogDecorator::getOptions() const {
+  return m_impl->getOptions();
+}
+
 /* -------------------- RestReplyDecoratorManagerPrivate -------------------- */
 
 namespace detail {
@@ -61,6 +87,99 @@ void RestReplyDecoratorManagerPrivate::removeDecorator(const QString& name) {
 
 void RestReplyDecoratorManagerPrivate::removeAllDecorators() {
   m_decorators.clear();
+}
+
+/* ---------------------- RestReplyLogDecoratorPrivate ---------------------- */
+
+RestReplyLogDecoratorPrivate::RestReplyLogDecoratorPrivate(
+    RestReplyLogDecorator::Options options)
+    : m_options(options) {}
+
+RestReply* RestReplyLogDecoratorPrivate::decorate(RestReply* reply) const {
+  if (m_options.testFlag(RestReplyLogDecorator::Option::LogSucceeded))
+    reply->onSucceeded([reply](int http_code, const RestData& data) {
+      RestReplyLogDecoratorPrivate::onSucceeded(reply, http_code, data);
+    });
+
+  if (m_options.testFlag(RestReplyLogDecorator::Option::LogFailed))
+    reply->onFailed([reply](int http_code, const RestData& data) {
+      RestReplyLogDecoratorPrivate::onFailed(reply, http_code, data);
+    });
+
+  if (m_options.testFlag(RestReplyLogDecorator::Option::LogError))
+    reply->onError([reply](const QString& err_str, RestReply::Error err_type) {
+      RestReplyLogDecoratorPrivate::onError(reply, err_str, err_type);
+    });
+
+  if (m_options.testFlag(RestReplyLogDecorator::Option::LogDownloadProgress))
+    reply->onDownloadProgress(
+        [reply](qint64 bytes_received, qint64 bytes_total) {
+          RestReplyLogDecoratorPrivate::onDownloadProgress(
+              reply, bytes_received, bytes_total);
+        });
+
+  if (m_options.testFlag(RestReplyLogDecorator::Option::LogUploadProgress))
+    reply->onUploadProgress([reply](qint64 bytes_received, qint64 bytes_total) {
+      RestReplyLogDecoratorPrivate::onUploadProgress(reply, bytes_received,
+                                                     bytes_total);
+    });
+
+  return reply;
+}
+
+void RestReplyLogDecoratorPrivate::setOptions(
+    RestReplyLogDecorator::Options options) {
+  m_options = options;
+}
+
+RestReplyLogDecorator::Options RestReplyLogDecoratorPrivate::getOptions()
+    const {
+  return m_options;
+}
+
+void RestReplyLogDecoratorPrivate::onSucceeded(RestReply* reply, int http_code,
+                                               const RestData& data) {
+  qDebug()
+      << QString("[reply %1] succeeded")
+             .arg(QString::number((std::uintptr_t)(reply)))
+      << QString("\t code: %1").arg(http_code)
+      << QString("\t data: %1").arg(detail::RestApiPrivate::convertData(data));
+}
+
+void RestReplyLogDecoratorPrivate::onFailed(RestReply* reply, int http_code,
+                                            const RestData& data) {
+  qDebug()
+      << QString("[reply %1] failed")
+             .arg(QString::number((std::uintptr_t)(reply)))
+      << QString("\t code: %1").arg(http_code)
+      << QString("\t data: %1").arg(detail::RestApiPrivate::convertData(data));
+}
+
+void RestReplyLogDecoratorPrivate::onError(RestReply* reply,
+                                           const QString& err_str,
+                                           RestReply::Error err_type) {
+  qDebug() << QString("[reply #%1] error")
+                  .arg(QString::number((std::uintptr_t)(reply)))
+           << QString("\t error: %1").arg((int)err_type)
+           << QString("\t info: %1").arg(err_str);
+}
+
+void RestReplyLogDecoratorPrivate::onDownloadProgress(RestReply* reply,
+                                                      qint64 bytes_received,
+                                                      qint64 bytes_total) {
+  qDebug() << QString("[reply #%1] download progress")
+                  .arg(QString::number((std::uintptr_t)(reply)))
+           << QString("\t bytes_received: %1").arg(bytes_received)
+           << QString("\t bytes_total: %1").arg(bytes_total);
+}
+
+void RestReplyLogDecoratorPrivate::onUploadProgress(RestReply* reply,
+                                                    qint64 bytes_received,
+                                                    qint64 bytes_total) {
+  qDebug() << QString("[reply #%1] upload progress")
+                  .arg(QString::number((std::uintptr_t)(reply)))
+           << QString("\t bytes_received: %1").arg(bytes_received)
+           << QString("\t bytes_total: %1").arg(bytes_total);
 }
 
 }  // namespace detail

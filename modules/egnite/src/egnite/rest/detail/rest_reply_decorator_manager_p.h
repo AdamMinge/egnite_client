@@ -20,7 +20,7 @@ class RestReplyDecoratorManagerPrivate : public QObjectPrivate {
   Q_DECLARE_PUBLIC(RestReplyDecoratorManager)
 
  public:
-  RestReplyDecoratorManagerPrivate();
+  explicit RestReplyDecoratorManagerPrivate();
 
   RestReply* decorate(RestReply* reply) const;
 
@@ -31,6 +31,30 @@ class RestReplyDecoratorManagerPrivate : public QObjectPrivate {
 
  private:
   QHash<QString, RestReplyDecoratorManager::Decorator> m_decorators;
+};
+
+class RestReplyLogDecoratorPrivate {
+ public:
+  explicit RestReplyLogDecoratorPrivate(RestReplyLogDecorator::Options options);
+
+  [[nodiscard]] RestReply* decorate(RestReply* reply) const;
+
+  void setOptions(RestReplyLogDecorator::Options options);
+  [[nodiscard]] RestReplyLogDecorator::Options getOptions() const;
+
+ private:
+  static void onSucceeded(RestReply* reply, int http_code,
+                          const RestData& data);
+  static void onFailed(RestReply* reply, int http_code, const RestData& data);
+  static void onError(RestReply* reply, const QString& err_str,
+                      RestReply::Error err_type);
+  static void onDownloadProgress(RestReply* reply, qint64 bytes_received,
+                                 qint64 bytes_total);
+  static void onUploadProgress(RestReply* reply, qint64 bytes_received,
+                               qint64 bytes_total);
+
+ private:
+  RestReplyLogDecorator::Options m_options;
 };
 
 }  // namespace detail

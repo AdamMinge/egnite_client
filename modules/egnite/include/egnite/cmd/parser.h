@@ -2,26 +2,20 @@
 #define EGNITE_CMD_PARSER_H
 
 /* ------------------------------------ Qt ---------------------------------- */
-#include <QApplication>
-#include <QCommandLineOption>
-#include <QCommandLineParser>
-/* ---------------------------------- Standard ------------------------------ */
-#include <list>
+#include <QCoreApplication>
+/* --------------------------------- Standard ------------------------------- */
+#include <memory>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/export.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::cmd {
+
+namespace detail {
+class ParserPrivate;
+}
+
 class EGNITE_API Parser {
- private:
-  struct Option {
-    explicit Option(const QCommandLineOption &cmd_option,
-                    std::function<void(const QString &)> callback = {});
-
-    QCommandLineOption cmd_option;
-    std::function<void(const QString &)> callback;
-  };
-
  public:
   explicit Parser();
   virtual ~Parser();
@@ -37,16 +31,12 @@ class EGNITE_API Parser {
                       const std::function<void(const TYPE &)> &callback,
                       const QString &valueName);
 
+ private:
   template <typename TYPE>
   [[nodiscard]] TYPE convertValue(const QString &value);
 
  private:
-  void registerOptionImpl(const QStringList &names, const QString &description,
-                          const std::function<void(const QString &)> &callback,
-                          const QString &valueName = QString{});
-
- private:
-  std::list<Option> m_options;
+  std::unique_ptr<detail::ParserPrivate> m_impl;
 };
 
 template <typename TYPE>
@@ -54,7 +44,7 @@ void Parser::registerOption(const QStringList &names,
                             const QString &description,
                             const std::function<void(const TYPE &)> &callback,
                             const QString &valueName) {
-  registerOptionImpl(
+  registerOption(
       names, description,
       [callback, this](const QString &value) {
         callback(convertValue<TYPE>(value));
@@ -76,7 +66,6 @@ TYPE Parser::convertValue(const QString &value) {
     return (METHOD);                                             \
   }
 
-CONVERTER_VALUE_SPEC(QString, value)
 CONVERTER_VALUE_SPEC(short, value.toShort())
 CONVERTER_VALUE_SPEC(ushort, value.toUShort())
 CONVERTER_VALUE_SPEC(int, value.toInt())

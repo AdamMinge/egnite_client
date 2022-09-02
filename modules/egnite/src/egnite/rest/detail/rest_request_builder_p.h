@@ -9,7 +9,7 @@ namespace egnite::rest::detail {
 
 class RestRequestBuilderPrivate {
  public:
-  RestRequestBuilderPrivate();
+  explicit RestRequestBuilderPrivate();
 
   void setBaseUrl(const QUrl& base_url);
   void setVersion(const QVersionNumber& version);

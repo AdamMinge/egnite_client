@@ -334,16 +334,16 @@ void RawRestReplyPrivate::processReply(const RestData& data,
 
   if (!parse_error && status >= 300 &&
       !std::holds_alternative<std::nullopt_t>(data))
-    Q_EMIT q->failed(status, data, {});
+    Q_EMIT q->failed(status, data);
   else if (m_network_reply->error() != QNetworkReply::NoError)
     Q_EMIT q->error(m_network_reply->errorString(),
-                    convertError(m_network_reply->error()), {});
+                    convertError(m_network_reply->error()));
   else if (parse_error)
-    Q_EMIT q->error(parse_error->second, parse_error->first, {});
+    Q_EMIT q->error(parse_error->second, parse_error->first);
   else if (status >= 300 && std::holds_alternative<std::nullopt_t>(data))
-    Q_EMIT q->failed(status, data, {});
+    Q_EMIT q->failed(status, data);
   else {
-    Q_EMIT q->succeeded(status, data, {});
+    Q_EMIT q->succeeded(status, data);
   }
 }
 

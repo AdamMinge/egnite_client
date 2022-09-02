@@ -29,7 +29,7 @@ class EGNITE_API JsonOArchive
   using BaseClass = boost::archive::detail::common_oarchive<JsonOArchive>;
 
  public:
-  JsonOArchive(QJsonValue& root);
+  explicit JsonOArchive(QJsonValue& root);
   ~JsonOArchive() override;
 
  private:

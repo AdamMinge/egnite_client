@@ -97,18 +97,23 @@ class EGNITE_API RestReply : public QObject {
   template <typename Handler>
   RestReply* onError(Handler&& handler, QObject* scope = nullptr);
 
+  template <typename Handler>
+  RestReply* onDownloadProgress(Handler&& handler, QObject* scope = nullptr);
+  template <typename Handler>
+  RestReply* onUploadProgress(Handler&& handler, QObject* scope = nullptr);
+
  Q_SIGNALS:
-  void completed(int http_code, const RestData& data, QPrivateSignal);
-  void succeeded(int http_code, const RestData& data, QPrivateSignal);
-  void failed(int http_code, const RestData& data, QPrivateSignal);
-  void error(const QString& error_str, Error error_type, QPrivateSignal);
+  void completed(int http_code, const RestData& data);
+  void succeeded(int http_code, const RestData& data);
+  void failed(int http_code, const RestData& data);
+  void error(const QString& error_str, Error error_type);
 
   void downloadProgress(qint64 bytes_received, qint64 bytes_total);
   void uploadProgress(qint64 bytes_sent, qint64 bytes_total);
 
  protected:
-  RestReply(QObject* parent = nullptr);
-  RestReply(QObjectPrivate& impl, QObject* parent = nullptr);
+  explicit RestReply(QObject* parent = nullptr);
+  explicit RestReply(QObjectPrivate& impl, QObject* parent = nullptr);
 };
 
 class EGNITE_API RawRestReply : public RestReply {
@@ -162,6 +167,22 @@ template <typename Handler>
 RestReply* RestReply::onError(Handler&& handler, QObject* scope) {
   connect(this, &RestReply::error, scope ? scope : this,
           utils::bindCallback<decltype(&RestReply::error)>(
+              std::forward<Handler>(handler)));
+  return this;
+}
+
+template <typename Handler>
+RestReply* RestReply::onDownloadProgress(Handler&& handler, QObject* scope) {
+  connect(this, &RestReply::downloadProgress, scope ? scope : this,
+          utils::bindCallback<decltype(&RestReply::downloadProgress)>(
+              std::forward<Handler>(handler)));
+  return this;
+}
+
+template <typename Handler>
+RestReply* RestReply::onUploadProgress(Handler&& handler, QObject* scope) {
+  connect(this, &RestReply::uploadProgress, scope ? scope : this,
+          utils::bindCallback<decltype(&RestReply::uploadProgress)>(
               std::forward<Handler>(handler)));
   return this;
 }

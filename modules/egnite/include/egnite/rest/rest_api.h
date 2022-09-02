@@ -142,9 +142,9 @@ class EGNITE_API RestApi : public QObject {
       QObject* parent = nullptr);
 
  protected:
-  RestApi(RestClient* client, QNetworkAccessManager* manager,
-          const QString& subpath, QObject* parent = nullptr);
-  RestApi(detail::RestApiPrivate& impl, QObject* parent = nullptr);
+  explicit RestApi(RestClient* client, QNetworkAccessManager* manager,
+                   const QString& subpath, QObject* parent = nullptr);
+  explicit RestApi(detail::RestApiPrivate& impl, QObject* parent = nullptr);
 
   [[nodiscard]] RestDataSerializer::Format getRequestDataFormat(
       const RestHeaders& headers) const;

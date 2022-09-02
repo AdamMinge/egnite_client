@@ -28,7 +28,7 @@ class RawRestReplyPrivate : public QObjectPrivate {
   using ParseError = std::optional<std::pair<RawRestReply::Error, QString>>;
 
  public:
-  RawRestReplyPrivate(RestApi* api, QNetworkReply* network_reply);
+  explicit RawRestReplyPrivate(RestApi* api, QNetworkReply* network_reply);
   ~RawRestReplyPrivate() override;
 
   void abort();

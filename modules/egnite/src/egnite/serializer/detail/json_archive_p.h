@@ -20,7 +20,7 @@ class JsonArchive {
   };
 
  public:
-  JsonArchive(QJsonValue& root);
+  explicit JsonArchive(QJsonValue& root);
 
   void push(QLatin1String key);
   void push(int number);
@@ -37,7 +37,7 @@ class JsonArchive {
 
 class JsonOArchivePrivate {
  public:
-  JsonOArchivePrivate(QJsonValue& root);
+  explicit JsonOArchivePrivate(QJsonValue& root);
 
   const JsonArchive& getArchive() const;
   JsonArchive& getArchive();
@@ -48,7 +48,7 @@ class JsonOArchivePrivate {
 
 class JsonIArchivePrivate {
  public:
-  JsonIArchivePrivate(QJsonValue& root);
+  explicit JsonIArchivePrivate(QJsonValue& root);
 
   const JsonArchive& getArchive() const;
   JsonArchive& getArchive();

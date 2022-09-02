@@ -28,7 +28,7 @@ class EGNITE_API CborOArchive
   using BaseClass = boost::archive::detail::common_oarchive<CborOArchive>;
 
  public:
-  CborOArchive(QCborValue& root);
+  explicit CborOArchive(QCborValue& root);
   ~CborOArchive() override;
 
  private:

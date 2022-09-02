@@ -16,10 +16,11 @@ class RestClientPrivate : public QObjectPrivate {
   Q_DECLARE_PUBLIC(RestClient)
 
  public:
-  RestClientPrivate(const QUrl& url, const QVersionNumber& version,
-                    const RestHeaders& headers, const QUrlQuery& parameters,
-                    RestDataSerializer* data_serializer,
-                    RestReplyDecoratorManager* reply_decorator_manager);
+  explicit RestClientPrivate(
+      const QUrl& url, const QVersionNumber& version,
+      const RestHeaders& headers, const QUrlQuery& parameters,
+      RestDataSerializer* data_serializer,
+      RestReplyDecoratorManager* reply_decorator_manager);
 
   void setBaseUrl(const QUrl& url);
   [[nodiscard]] QUrl getBaseUrl() const;

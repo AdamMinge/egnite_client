@@ -30,7 +30,7 @@ class GenericRestReplyBase : public RestReply {
                                                      QObject* scope = nullptr);
 
  protected:
-  GenericRestReplyBase(RestReply* reply, QObject* parent = nullptr);
+  explicit GenericRestReplyBase(RestReply* reply, QObject* parent = nullptr);
   ~GenericRestReplyBase() override;
 
  private:

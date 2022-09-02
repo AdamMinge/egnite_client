@@ -15,19 +15,18 @@ configure_file(${include_root}/config.h.in ${include_root}/config.h)
 # ----------------------------------------------------------------------- #
 set(sources
     ${source_root}/cmd/parser.cpp
+    ${source_root}/cmd/detail/parser_p.h
     ${source_root}/serializer/json_archive.cpp
     ${source_root}/serializer/cbor_archive.cpp
     ${source_root}/serializer/detail/json_archive_p.h
     ${source_root}/serializer/detail/cbor_archive_p.h
     ${source_root}/rest/rest_api.cpp
-    ${source_root}/rest/rest_auth.cpp
     ${source_root}/rest/rest_client.cpp
     ${source_root}/rest/rest_reply.cpp
     ${source_root}/rest/rest_reply_decorator_manager.cpp
     ${source_root}/rest/rest_request_builder.cpp
     ${source_root}/rest/rest_data_serializer.cpp
     ${source_root}/rest/detail/rest_api_p.h
-    ${source_root}/rest/detail/rest_auth_p.h
     ${source_root}/rest/detail/rest_client_p.h
     ${source_root}/rest/detail/rest_reply_p.h
     ${source_root}/rest/detail/rest_reply_decorator_manager_p.h
@@ -40,8 +39,8 @@ set(includes
     ${include_root}/serializer/json_archive.h
     ${include_root}/serializer/cbor_archive.h
     ${include_root}/utils/binder.h
+    ${include_root}/utils/map_macro.h
     ${include_root}/rest/rest_api.h
-    ${include_root}/rest/rest_auth.h
     ${include_root}/rest/rest_client.h
     ${include_root}/rest/rest_reply.h
     ${include_root}/rest/rest_reply_decorator_manager.h

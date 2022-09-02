@@ -20,7 +20,7 @@ class CborArchive {
   };
 
  public:
-  CborArchive(QCborValue& root);
+  explicit CborArchive(QCborValue& root);
 
   void push(QLatin1String key);
   void push(int number);
@@ -37,7 +37,7 @@ class CborArchive {
 
 class CborOArchivePrivate {
  public:
-  CborOArchivePrivate(QCborValue& root);
+  explicit CborOArchivePrivate(QCborValue& root);
 
   const CborArchive& getArchive() const;
   CborArchive& getArchive();
@@ -48,7 +48,7 @@ class CborOArchivePrivate {
 
 class CborIArchivePrivate {
  public:
-  CborIArchivePrivate(QCborValue& root);
+  explicit CborIArchivePrivate(QCborValue& root);
 
   const CborArchive& getArchive() const;
   CborArchive& getArchive();

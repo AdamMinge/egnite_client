@@ -36,7 +36,7 @@ class EGNITE_API RestClient : public QObject {
                  setGlobalParameters NOTIFY globalParametersChanged)
 
  public:
-  RestClient(QObject* parent = nullptr);
+  explicit RestClient(QObject* parent = nullptr);
   ~RestClient() override;
 
   [[nodiscard]] RestApi* createApi(const QString& path,
@@ -65,7 +65,8 @@ class EGNITE_API RestClient : public QObject {
   void globalParametersChanged(const QUrlQuery& parameters);
 
  protected:
-  RestClient(detail::RestClientPrivate& impl, QObject* parent = nullptr);
+  explicit RestClient(detail::RestClientPrivate& impl,
+                      QObject* parent = nullptr);
 
  private:
   Q_DECLARE_PRIVATE(detail::RestClient);

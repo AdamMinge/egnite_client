@@ -23,7 +23,7 @@ class RestRequestBuilderPrivate;
 
 class EGNITE_API RestRequestBuilder {
  public:
-  RestRequestBuilder();
+  explicit RestRequestBuilder();
   ~RestRequestBuilder();
 
   RestRequestBuilder(const RestRequestBuilder& other);
