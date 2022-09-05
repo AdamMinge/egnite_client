@@ -1,24 +1,21 @@
 # ----------------------------------------------------------------------- #
-# -------------------- Set CMake version and project -------------------- #
+# -------------------------- Set CMake Version -------------------------- #
 # ----------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.11)
-project(
-  EGNITE
-  VERSION 0.1.0
-  LANGUAGES CXX)
 # ----------------------------------------------------------------------- #
-# ---------------------- Include config and macros ---------------------- #
+# -------------------------- Generate headers --------------------------- #
 # ----------------------------------------------------------------------- #
-include(${EGNITE_SOURCE_DIR}/cmake/config.cmake)
-include(${EGNITE_SOURCE_DIR}/cmake/macros.cmake)
+set(include_root ${EGNITE_SOURCE_DIR}/modules/include/egnite)
+configure_file(${include_root}/config.h.in ${include_root}/config.h)
 # ----------------------------------------------------------------------- #
 # -------------------------- Add subdirectories ------------------------- #
 # ----------------------------------------------------------------------- #
-add_subdirectory(deps)
-
-add_subdirectory(modules)
-add_subdirectory(imports)
-add_subdirectory(apps)
-
-add_subdirectory(docs)
+add_subdirectory(core)
+add_subdirectory(serializer)
+add_subdirectory(cmd)
+add_subdirectory(rest)
+# ----------------------------------------------------------------------- #
+# ---------------------------- Export Modules --------------------------- #
+# ----------------------------------------------------------------------- #
+egnite_export_modules()
 # ----------------------------------------------------------------------- #

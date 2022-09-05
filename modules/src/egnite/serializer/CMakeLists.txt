@@ -3,23 +3,20 @@
 # ----------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
+# -------------------------- Generate headers --------------------------- #
+# ----------------------------------------------------------------------- #
+set(source_root ${EGNITE_SOURCE_DIR}/modules/src/egnite/serializer)
+set(include_root ${EGNITE_SOURCE_DIR}/modules/include/egnite/serializer)
+# ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(viewer_root ${EGNITE_SOURCE_DIR}/apps/viewer)
-set(source_root ${viewer_root}/src)
-set(include_root ${viewer_root}/include)
-set(qmls_root ${viewer_root}/qml)
-set(resources_root ${viewer_root}/resources)
+set(sources
+    ${source_root}/json_archive.cpp ${source_root}/cbor_archive.cpp
+    ${source_root}/detail/json_archive_p.h
+    ${source_root}/detail/cbor_archive_p.h)
 
-set(sources ${source_root}/main.cpp)
-
-set(includes)
-
-set(qmls ${qmls_root}/AuthWindow.qml ${qmls_root}/LoginPage.qml
-         ${qmls_root}/Main.qml ${qmls_root}/SignUpPage.qml)
-
-set(resources ${resources_root}/conf/qtquickcontrols2.conf
-              ${resources_root}/font/FontAwesome.ttf)
+set(includes ${include_root}/export.h ${include_root}/json_archive.h
+             ${include_root}/cbor_archive.h)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #
@@ -27,32 +24,25 @@ set(CMAKE_AUTOMOC ON)
 # ----------------------------------------------------------------------- #
 # ----------------------- Find external libraries ----------------------- #
 # ----------------------------------------------------------------------- #
-find_package(Qt6 REQUIRED COMPONENTS Qml QuickControls2 Gui)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Boost REQUIRED COMPONENTS serialization)
 # ----------------------------------------------------------------------- #
-# -------------------------- Create viewer app -------------------------- #
+# ----------------------- Create egnite shared lib ---------------------- #
 # ----------------------------------------------------------------------- #
-egnite_add_qml_executable(
-  viewer
-  URI
-  viewer
-  VERSION
-  ${EGNITE_VERSION_MAJOR}.${EGNITE_VERSION_MINOR}
+egnite_add_module(
+  egnite-serializer
   SOURCES
   ${sources}
   ${includes}
-  QML_FILES
-  ${qmls}
-  RESOURCES
-  ${resources}
   DEPENDENCIES
-  Qt::Gui
-  Qt::Qml
-  Qt::QuickControls2
-  egnite::egnite-rest
-  egnite::egnite-cmd)
+  Qt6::Core
+  Qt6::CorePrivate
+  Boost::serialization
+  egnite::egnite-core)
 
 target_include_directories(
-  sniffer
-  PUBLIC $<BUILD_INTERFACE:${include_root}>
-  PRIVATE ${source_root})
+  egnite-serializer
+  PUBLIC $<BUILD_INTERFACE:${EGNITE_SOURCE_DIR}/modules/include/>
+  INTERFACE $<INSTALL_INTERFACE:include>
+  PRIVATE ${EGNITE_SOURCE_DIR}/modules/src/)
 # ----------------------------------------------------------------------- #

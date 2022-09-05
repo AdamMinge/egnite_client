@@ -3,23 +3,22 @@
 # ----------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
+# -------------------------- Generate headers --------------------------- #
+# ----------------------------------------------------------------------- #
+set(source_root ${EGNITE_SOURCE_DIR}/imports/src/egnite/rest)
+set(include_root ${EGNITE_SOURCE_DIR}/imports/include/egnite/rest)
+set(resource_root ${viewer_root}/imports/resource/egnite/rest)
+set(qmls_root ${viewer_root}/imports/qml/egnite/rest)
+# ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(viewer_root ${EGNITE_SOURCE_DIR}/apps/viewer)
-set(source_root ${viewer_root}/src)
-set(include_root ${viewer_root}/include)
-set(qmls_root ${viewer_root}/qml)
-set(resources_root ${viewer_root}/resources)
-
-set(sources ${source_root}/main.cpp)
+set(sources)
 
 set(includes)
 
-set(qmls ${qmls_root}/AuthWindow.qml ${qmls_root}/LoginPage.qml
-         ${qmls_root}/Main.qml ${qmls_root}/SignUpPage.qml)
+set(resources)
 
-set(resources ${resources_root}/conf/qtquickcontrols2.conf
-              ${resources_root}/font/FontAwesome.ttf)
+set(qmls)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #
@@ -27,14 +26,14 @@ set(CMAKE_AUTOMOC ON)
 # ----------------------------------------------------------------------- #
 # ----------------------- Find external libraries ----------------------- #
 # ----------------------------------------------------------------------- #
-find_package(Qt6 REQUIRED COMPONENTS Qml QuickControls2 Gui)
+find_package(Qt6 REQUIRED COMPONENTS Quick)
 # ----------------------------------------------------------------------- #
-# -------------------------- Create viewer app -------------------------- #
+# ----------------------- Create egnite shared lib ---------------------- #
 # ----------------------------------------------------------------------- #
-egnite_add_qml_executable(
-  viewer
+egnite_add_qml_module(
+  egnite-rest-import
   URI
-  viewer
+  egnite.rest
   VERSION
   ${EGNITE_VERSION_MAJOR}.${EGNITE_VERSION_MINOR}
   SOURCES
@@ -45,14 +44,11 @@ egnite_add_qml_executable(
   RESOURCES
   ${resources}
   DEPENDENCIES
-  Qt::Gui
-  Qt::Qml
-  Qt::QuickControls2
-  egnite::egnite-rest
-  egnite::egnite-cmd)
+  egnite::egnite-rest)
 
 target_include_directories(
-  sniffer
-  PUBLIC $<BUILD_INTERFACE:${include_root}>
-  PRIVATE ${source_root})
+  egnite-rest-import
+  PUBLIC $<BUILD_INTERFACE:${EGNITE_SOURCE_DIR}/imports/include/>
+  INTERFACE $<INSTALL_INTERFACE:include>
+  PRIVATE ${EGNITE_SOURCE_DIR}/imports/src/)
 # ----------------------------------------------------------------------- #

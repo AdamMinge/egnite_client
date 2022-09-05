@@ -5,47 +5,54 @@ cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(source_root ${EGNITE_SOURCE_DIR}/apps/sniffer/src)
-set(include_root ${EGNITE_SOURCE_DIR}/apps/sniffer/include)
-set(uis_root ${EGNITE_SOURCE_DIR}/apps/sniffer/ui)
-set(resources_root ${EGNITE_SOURCE_DIR}/apps/sniffer/resources)
+set(sniffer_root ${EGNITE_SOURCE_DIR}/apps/sniffer)
+set(source_root ${sniffer_root}/src)
+set(include_root ${sniffer_root}/include)
+set(qmls_root ${sniffer_root}/qml)
+set(resources_root ${sniffer_root}/resources)
 
 set(sources ${source_root}/main.cpp)
 
 set(includes)
 
-set(uis)
+set(qmls ${qmls_root}/AuthWindow.qml ${qmls_root}/LoginPage.qml
+         ${qmls_root}/Main.qml ${qmls_root}/SignUpPage.qml)
 
-set(resources ${resources_root}/sniffer.qrc)
+set(resources ${resources_root}/conf/qtquickcontrols2.conf
+              ${resources_root}/font/FontAwesome.ttf)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
-
-set(CMAKE_AUTOUIC_SEARCH_PATHS ${uis_root})
 # ----------------------------------------------------------------------- #
 # ----------------------- Find external libraries ----------------------- #
 # ----------------------------------------------------------------------- #
-find_package(Qt6 REQUIRED COMPONENTS Widgets Qml QuickControls2)
+find_package(Qt6 REQUIRED COMPONENTS Qml QuickControls2 Gui)
 # ----------------------------------------------------------------------- #
 # -------------------------- Create sniffer app ------------------------- #
 # ----------------------------------------------------------------------- #
-egnite_add_application(
+egnite_add_qml_executable(
   sniffer
+  URI
+  sniffer
+  VERSION
+  ${EGNITE_VERSION_MAJOR}.${EGNITE_VERSION_MINOR}
   SOURCES
   ${sources}
   ${includes}
-  ${uis}
+  QML_FILES
+  ${qmls}
+  RESOURCES
   ${resources}
-  SRC_DIRECTORY
-  ${source_root}
-  INCLUDE_DIRECTORY
-  ${include_root}
-  DEPENDS
-  Qt::Widgets
+  DEPENDENCIES
+  Qt::Gui
   Qt::Qml
   Qt::QuickControls2
-  egnite::egnite)
+  egnite::egnite-rest
+  egnite::egnite-cmd)
+
+target_include_directories(
+  sniffer
+  PUBLIC $<BUILD_INTERFACE:${include_root}>
+  PRIVATE ${source_root})
 # ----------------------------------------------------------------------- #
