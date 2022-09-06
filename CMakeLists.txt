@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.11)
 project(
   EGNITE
-  VERSION 0.1.0
+  VERSION 1.0.0
   LANGUAGES CXX)
 # ----------------------------------------------------------------------- #
 # ---------------------- Include config and macros ---------------------- #
@@ -17,7 +17,6 @@ include(${EGNITE_SOURCE_DIR}/cmake/macros.cmake)
 add_subdirectory(deps)
 
 add_subdirectory(modules)
-add_subdirectory(imports)
 add_subdirectory(apps)
 
 add_subdirectory(docs)
