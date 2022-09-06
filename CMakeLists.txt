@@ -17,6 +17,7 @@ include(${EGNITE_SOURCE_DIR}/cmake/macros.cmake)
 add_subdirectory(deps)
 
 add_subdirectory(modules)
+add_subdirectory(imports)
 add_subdirectory(apps)
 
 add_subdirectory(docs)

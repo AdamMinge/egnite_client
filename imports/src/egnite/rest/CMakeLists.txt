@@ -5,16 +5,14 @@ cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
 # -------------------------- Generate headers --------------------------- #
 # ----------------------------------------------------------------------- #
-set(source_root ${EGNITE_SOURCE_DIR}/modules/src/egnite_qml/rest)
-set(include_root ${EGNITE_SOURCE_DIR}/modules/include/egnite_qml/rest)
-set(resource_root ${viewer_root}/modules/resource/egnite_qml/rest)
-set(qmls_root ${viewer_root}/modules/qml/egnite_qml/rest)
+set(source_root ${EGNITE_SOURCE_DIR}/imports/src/egnite/rest)
+set(include_root ${EGNITE_SOURCE_DIR}/imports/include/egnite/rest)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(sources)
+set(sources ${source_root}/client.cpp ${source_root}/api.cpp)
 
-set(includes)
+set(includes ${include_root}/client.h ${include_root}/api.h)
 
 set(resources)
 
@@ -31,7 +29,7 @@ find_package(Qt6 REQUIRED COMPONENTS Quick)
 # ----------------------- Create egnite shared lib ---------------------- #
 # ----------------------------------------------------------------------- #
 egnite_add_qml_module(
-  egnite-qml-rest
+  egnite-rest-qml
   URI
   egnite.rest
   VERSION
@@ -47,8 +45,7 @@ egnite_add_qml_module(
   egnite::egnite-rest)
 
 target_include_directories(
-  egnite-qml-rest
-  PUBLIC $<BUILD_INTERFACE:${EGNITE_SOURCE_DIR}/egnite_qml/include/>
-  INTERFACE $<INSTALL_INTERFACE:include>
-  PRIVATE ${EGNITE_SOURCE_DIR}/egnite_qml/src/)
+  egnite-rest-qml
+  PUBLIC $<BUILD_INTERFACE:${EGNITE_SOURCE_DIR}/imports/include/egnite/rest>
+  PRIVATE ${EGNITE_SOURCE_DIR}/imports/src/egnite/rest)
 # ----------------------------------------------------------------------- #

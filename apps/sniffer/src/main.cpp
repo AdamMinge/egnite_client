@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
       },
       Qt::QueuedConnection);
 
-  engine.addImportPath("./plugins");
+  engine.addImportPath(app.applicationDirPath() + "/plugins");
   engine.load(url);
   if (engine.rootObjects().isEmpty()) {
     QCoreApplication::exit(-1);

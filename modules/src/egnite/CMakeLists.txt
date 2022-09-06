@@ -14,7 +14,6 @@ add_subdirectory(core)
 add_subdirectory(serializer)
 add_subdirectory(cmd)
 add_subdirectory(rest)
-add_subdirectory(qml)
 # ----------------------------------------------------------------------- #
 # ---------------------------- Export Modules --------------------------- #
 # ----------------------------------------------------------------------- #
