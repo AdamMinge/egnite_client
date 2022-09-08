@@ -4,6 +4,7 @@
 /* ------------------------------------- Qt --------------------------------- */
 #include <QList>
 #include <QQmlListProperty>
+#include <QQmlPropertyMap>
 #include <QtQml>
 /* ---------------------------------- Standard ------------------------------ */
 #include <memory>
@@ -16,13 +17,22 @@
 class QmlClient : public egnite::rest::Client {
   Q_OBJECT
   QML_ELEMENT
+
   Q_PROPERTY(QQmlListProperty<QmlApi> api READ getApiList)
+  Q_PROPERTY(
+      QString version READ getVersion WRITE setVersion NOTIFY versionChanged)
 
  public:
   explicit QmlClient(QObject* parent = nullptr);
   ~QmlClient() override;
 
   [[nodiscard]] QQmlListProperty<QmlApi> getApiList();
+
+  void setVersion(const QString& version);
+  QString getVersion() const;
+
+ Q_SIGNALS:
+  void versionChanged(const QString& version);
 
  private:
   QList<QmlApi*> m_api_list;

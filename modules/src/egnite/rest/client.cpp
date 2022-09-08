@@ -13,8 +13,7 @@ namespace egnite::rest {
 
 Client::Client(QObject* parent)
     : Client(*new detail::ClientPrivate(QUrl{}, QVersionNumber{}, Headers{},
-                                        QUrlQuery{}, new DataSerializer(this),
-                                        new ReplyDecoratorManager(this)),
+                                        QUrlQuery{}),
              parent) {}
 
 Client::Client(detail::ClientPrivate& impl, QObject* parent)
@@ -100,15 +99,13 @@ namespace detail {
 
 ClientPrivate::ClientPrivate(const QUrl& url, const QVersionNumber& version,
                              const Headers& headers,
-                             const QUrlQuery& parameters,
-                             DataSerializer* data_serializer,
-                             ReplyDecoratorManager* reply_decorator_manager)
+                             const QUrlQuery& parameters)
     : m_base_url(url),
       m_version(version),
       m_headers(headers),
       m_parameters(parameters),
-      m_data_serializer(data_serializer),
-      m_reply_decorator_manager(reply_decorator_manager) {}
+      m_data_serializer(new DataSerializer),
+      m_reply_decorator_manager(new ReplyDecoratorManager) {}
 
 void ClientPrivate::setBaseUrl(const QUrl& url) { m_base_url = url; }
 
@@ -135,6 +132,7 @@ QUrlQuery ClientPrivate::getGlobalParameters() const { return m_parameters; }
 RequestBuilder ClientPrivate::getRequestBuilder() const {
   return RequestBuilder{}
       .setBaseUrl(m_base_url)
+      .setVersion(m_version)
       .addParameters(m_parameters)
       .addHeaders(m_headers);
 }
@@ -144,11 +142,11 @@ QNetworkAccessManager* ClientPrivate::getNetworkAccessManager() const {
 }
 
 DataSerializer* ClientPrivate::getDataSerializer() const {
-  return m_data_serializer;
+  return m_data_serializer.get();
 }
 
 ReplyDecoratorManager* ClientPrivate::getReplyDecoratorManager() const {
-  return m_reply_decorator_manager;
+  return m_reply_decorator_manager.get();
 }
 
 }  // namespace detail

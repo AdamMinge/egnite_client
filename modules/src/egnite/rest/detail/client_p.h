@@ -5,6 +5,7 @@
 #include <QtCore/private/qobject_p.h>
 
 #include <QNetworkAccessManager>
+#include <QScopedPointer>
 /* ------------------------------------ Local ------------------------------- */
 #include "egnite/rest/client.h"
 /* -------------------------------------------------------------------------- */
@@ -17,9 +18,7 @@ class ClientPrivate : public QObjectPrivate {
 
  public:
   explicit ClientPrivate(const QUrl& url, const QVersionNumber& version,
-                         const Headers& headers, const QUrlQuery& parameters,
-                         DataSerializer* data_serializer,
-                         ReplyDecoratorManager* reply_decorator_manager);
+                         const Headers& headers, const QUrlQuery& parameters);
 
   void setBaseUrl(const QUrl& url);
   [[nodiscard]] QUrl getBaseUrl() const;
@@ -44,8 +43,8 @@ class ClientPrivate : public QObjectPrivate {
   Headers m_headers;
   QUrlQuery m_parameters;
   QNetworkAccessManager* m_manager;
-  DataSerializer* m_data_serializer;
-  ReplyDecoratorManager* m_reply_decorator_manager;
+  QScopedPointer<DataSerializer> m_data_serializer;
+  QScopedPointer<ReplyDecoratorManager> m_reply_decorator_manager;
 };
 
 }  // namespace egnite::rest::detail

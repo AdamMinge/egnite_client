@@ -13,7 +13,8 @@ RequestBuilder::RequestBuilder()
 
 RequestBuilder::~RequestBuilder() = default;
 
-RequestBuilder::RequestBuilder(const RequestBuilder& other) {
+RequestBuilder::RequestBuilder(const RequestBuilder& other)
+    : m_impl(std::make_unique<detail::RequestBuilderPrivate>()) {
   *m_impl = *other.m_impl;
 }
 

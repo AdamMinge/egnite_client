@@ -3,16 +3,21 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QObject>
+#include <QPointer>
 #include <QQmlParserStatus>
 #include <QtQml>
-/* ---------------------------------- Standard ------------------------------ */
-#include <memory>
 /* -------------------------------------------------------------------------- */
+
+namespace egnite::rest {
+class Api;
+}
 
 class QmlApi : public QObject, public QQmlParserStatus {
   Q_OBJECT
   QML_ELEMENT
   Q_INTERFACES(QQmlParserStatus)
+
+  Q_PROPERTY(QString path READ getPath WRITE setPath NOTIFY pathChanged)
 
  public:
   explicit QmlApi(QObject* parent = nullptr);
@@ -20,6 +25,20 @@ class QmlApi : public QObject, public QQmlParserStatus {
 
   void classBegin() override;
   void componentComplete() override;
+
+  void setPath(const QString& path);
+  [[nodiscard]] QString getPath() const;
+
+ Q_SIGNALS:
+  void pathChanged(const QString& path);
+
+ private:
+  void revaluateApi();
+
+ private:
+  bool m_init;
+  QString m_path;
+  QPointer<egnite::rest::Api> m_api;
 };
 
 #endif  // EGNITE_QML_REST_API_H
