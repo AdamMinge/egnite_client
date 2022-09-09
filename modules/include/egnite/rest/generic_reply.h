@@ -47,6 +47,8 @@ template <typename DataType, typename ErrorType>
 GenericReplyBase<DataType, ErrorType>::GenericReplyBase(Reply* reply,
                                                         QObject* parent)
     : Reply(parent), m_reply(reply) {
+  m_reply->setParent(this);
+
   connect(m_reply, &Reply::completed, this, &Reply::completed);
   connect(m_reply, &Reply::succeeded, this, &Reply::succeeded);
   connect(m_reply, &Reply::failed, this, &Reply::failed);
@@ -57,9 +59,7 @@ GenericReplyBase<DataType, ErrorType>::GenericReplyBase(Reply* reply,
 }
 
 template <typename DataType, typename ErrorType>
-GenericReplyBase<DataType, ErrorType>::~GenericReplyBase() {
-  m_reply->deleteLater();
-}
+GenericReplyBase<DataType, ErrorType>::~GenericReplyBase() = default;
 
 template <typename DataType, typename ErrorType>
 void GenericReplyBase<DataType, ErrorType>::abort() {

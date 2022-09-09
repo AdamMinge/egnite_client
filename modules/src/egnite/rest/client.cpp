@@ -54,10 +54,7 @@ QVersionNumber Client::getVersion() const {
 
 void Client::setGlobalHeaders(const Headers& headers) {
   Q_D(detail::Client);
-  if (d->getGlobalHeaders() == headers) return;
-
   d->setGlobalHeaders(headers);
-  Q_EMIT globalHeadersChanged(headers);
 }
 
 Headers Client::getGlobalHeaders() const {
@@ -67,10 +64,7 @@ Headers Client::getGlobalHeaders() const {
 
 void Client::setGlobalParameters(const QUrlQuery& parameters) {
   Q_D(detail::Client);
-  if (d->getGlobalParameters() == parameters) return;
-
   d->setGlobalParameters(parameters);
-  Q_EMIT globalParametersChanged(parameters);
 }
 
 QUrlQuery Client::getGlobalParameters() const {
@@ -118,13 +112,21 @@ void ClientPrivate::setVersion(const QVersionNumber& version) {
 QVersionNumber ClientPrivate::getVersion() const { return m_version; }
 
 void ClientPrivate::setGlobalHeaders(const Headers& headers) {
+  Q_Q(Client);
+  if (m_headers == headers) return;
+
   m_headers = headers;
+  Q_EMIT q->globalHeadersChanged(m_headers);
 }
 
 Headers ClientPrivate::getGlobalHeaders() const { return m_headers; }
 
 void ClientPrivate::setGlobalParameters(const QUrlQuery& parameters) {
+  Q_Q(Client);
+  if (m_parameters == parameters) return;
+
   m_parameters = parameters;
+  Q_EMIT q->globalParametersChanged(m_parameters);
 }
 
 QUrlQuery ClientPrivate::getGlobalParameters() const { return m_parameters; }
