@@ -18,11 +18,16 @@ class ReplyLogDecoratorPrivate;
 
 class Reply;
 
+class ReplyDecorator {
+ public:
+  explicit ReplyDecorator();
+  virtual ~ReplyDecorator();
+
+  [[nodiscard]] virtual Reply* decorate(Reply* reply) const = 0;
+};
+
 class EGNITE_REST_API ReplyDecoratorManager : public QObject {
   Q_OBJECT
-
- public:
-  using Decorator = std::function<Reply*(Reply*)>;
 
  public:
   explicit ReplyDecoratorManager(QObject* parent = nullptr);
@@ -30,8 +35,8 @@ class EGNITE_REST_API ReplyDecoratorManager : public QObject {
 
   [[nodiscard]] Reply* decorate(Reply* reply) const;
 
-  void addDecorator(const QString& name, Decorator decorator);
-  void removeDecorator(const QString& name);
+  void addDecorator(ReplyDecorator* decorator, uint32_t priority);
+  void removeDecorator(ReplyDecorator* decorator);
   void removeAllDecorators();
 
  protected:
@@ -42,7 +47,7 @@ class EGNITE_REST_API ReplyDecoratorManager : public QObject {
   Q_DECLARE_PRIVATE(detail::ReplyDecoratorManager);
 };
 
-class EGNITE_REST_API ReplyLogDecorator {
+class EGNITE_REST_API ReplyLogDecorator : public ReplyDecorator {
  public:
   enum class Option {
     LogSucceeded = 0x1,
@@ -62,7 +67,7 @@ class EGNITE_REST_API ReplyLogDecorator {
 
   ~ReplyLogDecorator();
 
-  [[nodiscard]] Reply* operator()(Reply* reply) const;
+  [[nodiscard]] Reply* decorate(Reply* reply) const override;
 
   void setOptions(Options options);
   [[nodiscard]] Options getOptions() const;

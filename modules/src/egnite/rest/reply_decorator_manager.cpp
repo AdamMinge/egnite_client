@@ -8,7 +8,13 @@
 
 namespace egnite::rest {
 
-/* -------------------------- ReplyDecoratorManager-------------------------- */
+/* ----------------------------- ReplyDecorator ----------------------------- */
+
+ReplyDecorator::ReplyDecorator() = default;
+
+ReplyDecorator::~ReplyDecorator() = default;
+
+/* -------------------------- ReplyDecoratorManager ------------------------- */
 
 ReplyDecoratorManager::ReplyDecoratorManager(QObject* parent)
     : ReplyDecoratorManager(*new detail::ReplyDecoratorManagerPrivate(),
@@ -25,15 +31,15 @@ Reply* ReplyDecoratorManager::decorate(Reply* reply) const {
   return d->decorate(reply);
 }
 
-void ReplyDecoratorManager::addDecorator(const QString& name,
-                                         Decorator decorator) {
+void ReplyDecoratorManager::addDecorator(ReplyDecorator* decorator,
+                                         uint32_t priority) {
   Q_D(detail::ReplyDecoratorManager);
-  d->addDecorator(name, decorator);
+  d->addDecorator(decorator, priority);
 }
 
-void ReplyDecoratorManager::removeDecorator(const QString& name) {
+void ReplyDecoratorManager::removeDecorator(ReplyDecorator* decorator) {
   Q_D(detail::ReplyDecoratorManager);
-  d->removeDecorator(name);
+  d->removeDecorator(decorator);
 }
 
 void ReplyDecoratorManager::removeAllDecorators() {
@@ -53,7 +59,7 @@ ReplyLogDecorator::ReplyLogDecorator()
 
 ReplyLogDecorator::~ReplyLogDecorator() = default;
 
-Reply* ReplyLogDecorator::operator()(Reply* reply) const {
+Reply* ReplyLogDecorator::decorate(Reply* reply) const {
   return m_impl->decorate(reply);
 }
 
@@ -72,17 +78,21 @@ namespace detail {
 ReplyDecoratorManagerPrivate::ReplyDecoratorManagerPrivate() {}
 
 Reply* ReplyDecoratorManagerPrivate::decorate(Reply* reply) const {
-  for (auto& decorator : m_decorators) reply = decorator(reply);
+  for (auto& [priority, decorator] : m_decorators)
+    reply = decorator->decorate(reply);
   return reply;
 }
 
-void ReplyDecoratorManagerPrivate::addDecorator(
-    const QString& name, ReplyDecoratorManager::Decorator decorator) {
-  m_decorators.insert(name, decorator);
+void ReplyDecoratorManagerPrivate::addDecorator(ReplyDecorator* decorator,
+                                                uint32_t priority) {
+  m_decorators.insert(std::make_pair(priority, decorator));
 }
 
-void ReplyDecoratorManagerPrivate::removeDecorator(const QString& name) {
-  m_decorators.remove(name);
+void ReplyDecoratorManagerPrivate::removeDecorator(ReplyDecorator* decorator) {
+  std::erase_if(m_decorators, [decorator](const auto& item) {
+    const auto& [key, value] = item;
+    return value == decorator;
+  });
 }
 
 void ReplyDecoratorManagerPrivate::removeAllDecorators() {

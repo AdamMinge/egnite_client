@@ -110,27 +110,16 @@ rest::DataSerializer* JwtAuthenticatorReply::getDataSerializer() const {
 
 namespace detail {
 
-const QString JwtAuthenticatorPrivate::ReplyDecorator =
-    QByteArray{"__Egnite_Auth_JwtAuthenticatorPrivate_ReplyDecorator"};
-
 JwtAuthenticatorPrivate::JwtAuthenticatorPrivate(rest::Client* client,
                                                  const QString& path)
     : m_api(client->createApi(path)) {
-  Q_Q(JwtAuthenticator);
   auto decorator_manager = m_api->getClient()->getReplyDecoratorManager();
-  decorator_manager->addDecorator(
-      ReplyDecorator, [q](rest::Reply* reply) -> rest::Reply* {
-        auto reply_wrapper =
-            new JwtAuthenticatorReply(q, reply, reply->parent());
-        reply->setParent(reply_wrapper);
-
-        return reply_wrapper;
-      });
+  decorator_manager->addDecorator(this, 0x00FFFFFF);
 }
 
 JwtAuthenticatorPrivate::~JwtAuthenticatorPrivate() {
   auto decorator_manager = m_api->getClient()->getReplyDecoratorManager();
-  decorator_manager->removeDecorator(ReplyDecorator);
+  decorator_manager->removeDecorator(this);
 }
 
 void JwtAuthenticatorPrivate::login(const QString& username,
@@ -170,6 +159,15 @@ QByteArray JwtAuthenticatorPrivate::getAccessToken() const {
 
 QByteArray JwtAuthenticatorPrivate::getRefreshToken() const {
   return m_refresh_token;
+}
+
+rest::Reply* JwtAuthenticatorPrivate::decorate(rest::Reply* reply) const {
+  Q_Q(const JwtAuthenticator);
+  auto reply_wrapper = new JwtAuthenticatorReply(
+      const_cast<JwtAuthenticator*>(q), reply, reply->parent());
+  reply->setParent(reply_wrapper);
+
+  return reply_wrapper;
 }
 
 /* ------------------------- JwtAuthenticatorReplyPrivate ------------------- */

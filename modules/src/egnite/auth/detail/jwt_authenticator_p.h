@@ -7,6 +7,8 @@
 #include <QScopedPointer>
 /* ------------------------------------ Boost ------------------------------- */
 #include <boost/serialization/nvp.hpp>
+/* ----------------------------------- Egnite ------------------------------- */
+#include <egnite/rest/reply_decorator_manager.h>
 /* ------------------------------------ Local ------------------------------- */
 #include "egnite/auth/jwt_authenticator.h"
 /* -------------------------------------------------------------------------- */
@@ -41,12 +43,10 @@ struct LoginResponse {
   QByteArray refresh_token;
 };
 
-class JwtAuthenticatorPrivate : public QObjectPrivate {
+class JwtAuthenticatorPrivate : public QObjectPrivate,
+                                public rest::ReplyDecorator {
  public:
   Q_DECLARE_PUBLIC(JwtAuthenticator)
-
- public:
-  static const QString ReplyDecorator;
 
  public:
   explicit JwtAuthenticatorPrivate(rest::Client* client, const QString& path);
@@ -65,6 +65,8 @@ class JwtAuthenticatorPrivate : public QObjectPrivate {
 
   [[nodiscard]] QByteArray getAccessToken() const;
   [[nodiscard]] QByteArray getRefreshToken() const;
+
+  [[nodiscard]] rest::Reply* decorate(rest::Reply* reply) const override;
 
  private:
   QScopedPointer<rest::Api> m_api;

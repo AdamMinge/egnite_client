@@ -3,8 +3,9 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QtCore/private/qobject_p.h>
-
-#include <QHash>
+/* ---------------------------------- Standard ------------------------------ */
+#include <map>
+#include <vector>
 /* ------------------------------------ Local ------------------------------- */
 #include "egnite/rest/reply_decorator_manager.h"
 /* -------------------------------------------------------------------------- */
@@ -15,6 +16,8 @@ class Client;
 
 namespace detail {
 
+using ReplyDecoratorContainer = std::multimap<uint32_t, ReplyDecorator*>;
+
 class ReplyDecoratorManagerPrivate : public QObjectPrivate {
  public:
   Q_DECLARE_PUBLIC(ReplyDecoratorManager)
@@ -24,13 +27,12 @@ class ReplyDecoratorManagerPrivate : public QObjectPrivate {
 
   Reply* decorate(Reply* reply) const;
 
-  void addDecorator(const QString& name,
-                    ReplyDecoratorManager::Decorator decorator);
-  void removeDecorator(const QString& name);
+  void addDecorator(ReplyDecorator* decorator, uint32_t priority);
+  void removeDecorator(ReplyDecorator* decorator);
   void removeAllDecorators();
 
  private:
-  QHash<QString, ReplyDecoratorManager::Decorator> m_decorators;
+  ReplyDecoratorContainer m_decorators;
 };
 
 class ReplyLogDecoratorPrivate {
