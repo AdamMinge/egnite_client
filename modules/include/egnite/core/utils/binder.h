@@ -1,5 +1,5 @@
-#ifndef EGNITE_CORE_BINDER_H
-#define EGNITE_CORE_BINDER_H
+#ifndef EGNITE_CORE_UTILS_BINDER_H
+#define EGNITE_CORE_UTILS_BINDER_H
 
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/core/export.h"
@@ -161,4 +161,4 @@ struct overloaded : Ts... {
 
 }  // namespace egnite::core::utils
 
-#endif  // EGNITE_CORE_BINDER_H
+#endif  // EGNITE_CORE_UTILS_BINDER_H

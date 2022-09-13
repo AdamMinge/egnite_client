@@ -9,7 +9,7 @@
 /* ---------------------------------- Standard ------------------------------ */
 #include <variant>
 /* ----------------------------------- Egnite ------------------------------- */
-#include <egnite/core/utils/binder.h>
+#include <egnite/core/macros/binder.h>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/rest/export.h"
 #include "egnite/rest/global.h"
@@ -87,19 +87,13 @@ class EGNITE_REST_API Reply : public QObject {
   [[nodiscard]] virtual Client* getClient() const = 0;
   [[nodiscard]] virtual DataSerializer* getDataSerializer() const = 0;
 
-  template <typename Handler>
-  Reply* onCompleted(Handler&& handler, QObject* scope = nullptr);
-  template <typename Handler>
-  Reply* onSucceeded(Handler&& handler, QObject* scope = nullptr);
-  template <typename Handler>
-  Reply* onFailed(Handler&& handler, QObject* scope = nullptr);
-  template <typename Handler>
-  Reply* onError(Handler&& handler, QObject* scope = nullptr);
+  EGNITE_DEFINE_BINDER(Reply, onCompleted, completed);
+  EGNITE_DEFINE_BINDER(Reply, onSucceeded, succeeded);
+  EGNITE_DEFINE_BINDER(Reply, onFailed, failed);
+  EGNITE_DEFINE_BINDER(Reply, onError, error);
 
-  template <typename Handler>
-  Reply* onDownloadProgress(Handler&& handler, QObject* scope = nullptr);
-  template <typename Handler>
-  Reply* onUploadProgress(Handler&& handler, QObject* scope = nullptr);
+  EGNITE_DEFINE_BINDER(Reply, onDownloadProgress, downloadProgress);
+  EGNITE_DEFINE_BINDER(Reply, onUploadProgress, uploadProgress);
 
  Q_SIGNALS:
   void completed(int http_code, const Data& data);
@@ -136,54 +130,6 @@ class EGNITE_REST_API RawReply : public Reply {
  private:
   Q_DECLARE_PRIVATE(detail::RawReply)
 };
-
-template <typename Handler>
-Reply* Reply::onCompleted(Handler&& handler, QObject* scope) {
-  connect(this, &Reply::completed, scope ? scope : this,
-          core::utils::bindCallback<decltype(&Reply::completed)>(
-              std::forward<Handler>(handler)));
-  return this;
-}
-
-template <typename Handler>
-Reply* Reply::onSucceeded(Handler&& handler, QObject* scope) {
-  connect(this, &Reply::succeeded, scope ? scope : this,
-          core::utils::bindCallback<decltype(&Reply::succeeded)>(
-              std::forward<Handler>(handler)));
-  return this;
-}
-
-template <typename Handler>
-Reply* Reply::onFailed(Handler&& handler, QObject* scope) {
-  connect(this, &Reply::failed, scope ? scope : this,
-          core::utils::bindCallback<decltype(&Reply::failed)>(
-              std::forward<Handler>(handler)));
-  return this;
-}
-
-template <typename Handler>
-Reply* Reply::onError(Handler&& handler, QObject* scope) {
-  connect(this, &Reply::error, scope ? scope : this,
-          core::utils::bindCallback<decltype(&Reply::error)>(
-              std::forward<Handler>(handler)));
-  return this;
-}
-
-template <typename Handler>
-Reply* Reply::onDownloadProgress(Handler&& handler, QObject* scope) {
-  connect(this, &Reply::downloadProgress, scope ? scope : this,
-          core::utils::bindCallback<decltype(&Reply::downloadProgress)>(
-              std::forward<Handler>(handler)));
-  return this;
-}
-
-template <typename Handler>
-Reply* Reply::onUploadProgress(Handler&& handler, QObject* scope) {
-  connect(this, &Reply::uploadProgress, scope ? scope : this,
-          core::utils::bindCallback<decltype(&Reply::uploadProgress)>(
-              std::forward<Handler>(handler)));
-  return this;
-}
 
 }  // namespace egnite::rest
 

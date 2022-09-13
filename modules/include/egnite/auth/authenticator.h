@@ -3,6 +3,9 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QObject>
+#include <QUrlQuery>
+/* ----------------------------------- Egnite ------------------------------- */
+#include <egnite/rest/global.h>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/auth/export.h"
 /* -------------------------------------------------------------------------- */
@@ -22,6 +25,12 @@ class EGNITE_AUTH_API Authenticator : public QObject {
   ~Authenticator() override;
 
   [[nodiscard]] virtual rest::Client* getClient() const = 0;
+
+  virtual void setHeaders(const rest::Headers& headers) = 0;
+  [[nodiscard]] virtual rest::Headers getHeaders() const = 0;
+
+  virtual void setParameters(const QUrlQuery& parameters) = 0;
+  [[nodiscard]] virtual QUrlQuery getParameters() const = 0;
 
  protected:
   explicit Authenticator(QObject* parent = nullptr);

@@ -3,10 +3,8 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QtCore/private/qobject_p.h>
-
-#include <QScopedPointer>
-/* ------------------------------------ Boost ------------------------------- */
-#include <boost/serialization/nvp.hpp>
+/* --------------------------------- Standard ------------------------------- */
+#include <memory>
 /* ----------------------------------- Egnite ------------------------------- */
 #include <egnite/rest/reply_decorator_manager.h>
 /* ------------------------------------ Local ------------------------------- */
@@ -20,28 +18,6 @@ class Api;
 }
 
 namespace auth::detail {
-
-struct LoginRequest {
-  template <class Archive>
-  void serialize(Archive& ar, const unsigned int version) {
-    ar& boost::serialization::make_nvp("username", username);
-    ar& boost::serialization::make_nvp("password", password);
-  }
-
-  QString username;
-  QString password;
-};
-
-struct LoginResponse {
-  template <class Archive>
-  void serialize(Archive& ar, const unsigned int version) {
-    ar& boost::serialization::make_nvp("access", access_token);
-    ar& boost::serialization::make_nvp("refresh", refresh_token);
-  }
-
-  QByteArray access_token;
-  QByteArray refresh_token;
-};
 
 class JwtAuthenticatorPrivate : public QObjectPrivate,
                                 public rest::ReplyDecorator {
@@ -69,7 +45,7 @@ class JwtAuthenticatorPrivate : public QObjectPrivate,
   [[nodiscard]] rest::Reply* decorate(rest::Reply* reply) const override;
 
  private:
-  QScopedPointer<rest::Api> m_api;
+  std::unique_ptr<rest::Api> m_api;
   rest::Headers m_headers;
   QUrlQuery m_parameters;
   QByteArray m_access_token;
