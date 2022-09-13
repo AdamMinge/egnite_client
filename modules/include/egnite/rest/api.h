@@ -194,11 +194,20 @@ GenericReply<DataType, ErrorType>* Api::post(const QString& path,
                                              const QUrlQuery& parameters,
                                              const Headers& headers,
                                              QObject* parent) {
-  return new GenericReply<DataType, ErrorType>(
-      post(path,
-           getDataSerializer()->serialize(data, getRequestDataFormat(headers)),
-           parameters, headers),
-      parent);
+  auto serialized_data =
+      getDataSerializer()->serialize(data, getRequestDataFormat(headers));
+  auto reply = std::visit(
+      core::utils::overloaded{[&](std::nullopt_t) -> Reply* {
+                                return post(path, parameters, headers);
+                              },
+                              [&](QJsonValue& data) -> Reply* {
+                                return post(path, data, parameters, headers);
+                              },
+                              [&](QCborValue& data) -> Reply* {
+                                return post(path, data, parameters, headers);
+                              }},
+      serialized_data);
+  return new GenericReply<DataType, ErrorType>(reply, parent);
 }
 
 template <typename DataType, typename ErrorType>
@@ -216,11 +225,21 @@ GenericReply<DataType, ErrorType>* Api::put(const QString& path,
                                             const QUrlQuery& parameters,
                                             const Headers& headers,
                                             QObject* parent) {
-  return new GenericReply<DataType, ErrorType>(
-      put(path,
-          getDataSerializer()->serialize(data, getRequestDataFormat(headers)),
-          parameters, headers),
-      parent);
+  auto serialized_data =
+      getDataSerializer()->serialize(data, getRequestDataFormat(headers));
+  auto reply = std::visit(
+      core::utils::overloaded{[&](std::nullopt_t) -> Reply* {
+                                return put(path, parameters, headers);
+                              },
+                              [&](QJsonValue& data) -> Reply* {
+                                return put(path, data, parameters, headers);
+                              },
+                              [&](QCborValue& data) -> Reply* {
+                                return put(path, data, parameters, headers);
+                              }},
+      serialized_data);
+
+  return new GenericReply<DataType, ErrorType>(reply, parent);
 }
 
 template <typename DataType, typename ErrorType>

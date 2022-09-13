@@ -457,6 +457,7 @@ void serialize(Archive& ar, Object& object, const unsigned int version) {
 }  // namespace boost::serialization
 
 BOOST_CLASS_IMPLEMENTATION(QString, primitive_type)
+BOOST_CLASS_IMPLEMENTATION(QByteArray, primitive_type)
 BOOST_CLASS_IMPLEMENTATION(QUrl, primitive_type)
 BOOST_CLASS_IMPLEMENTATION(QUuid, primitive_type)
 

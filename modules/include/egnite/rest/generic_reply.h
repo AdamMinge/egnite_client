@@ -93,8 +93,7 @@ GenericReplyBase<DataType, ErrorType>*
 GenericReplyBase<DataType, ErrorType>::onCompleted(Handler&& handler,
                                                    QObject* scope) {
   onCompletedImpl(
-      core::utils::bindCallback<decltype(&GenericReplyBase::onCompletedImpl)>(
-          std::forward<Handler>(handler)),
+      core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
       scope);
   return this;
 }
@@ -104,10 +103,9 @@ template <typename Handler>
 GenericReplyBase<DataType, ErrorType>*
 GenericReplyBase<DataType, ErrorType>::onError(Handler&& handler,
                                                QObject* scope) {
-  onErrorImpl(
-      core::utils::bindCallback<decltype(&GenericReplyBase::onErrorImpl)>(
-          std::forward<Handler>(handler)),
-      scope);
+  onErrorImpl(core::utils::bindCallback<void(const QString&, Error)>(
+                  std::forward<Handler>(handler)),
+              scope);
   return this;
 }
 
@@ -153,10 +151,9 @@ template <typename Handler>
 GenericReply<DataType, ErrorType>*
 GenericReply<DataType, ErrorType>::onSucceeded(Handler&& handler,
                                                QObject* scope) {
-  onSucceededImpl(
-      core::utils::bindCallback<decltype(&GenericReply::onSucceededImpl)>(
-          std::forward<Handler>(handler)),
-      scope);
+  onSucceededImpl(core::utils::bindCallback<void(int, const DataType&)>(
+                      std::forward<Handler>(handler)),
+                  scope);
   return this;
 }
 
@@ -164,7 +161,7 @@ template <typename DataType, typename ErrorType>
 template <typename Handler>
 GenericReply<DataType, ErrorType>* GenericReply<DataType, ErrorType>::onFailed(
     Handler&& handler, QObject* scope) {
-  onFailedImpl(core::utils::bindCallback<decltype(&GenericReply::onFailedImpl)>(
+  onFailedImpl(core::utils::bindCallback<void(int, const ErrorType&)>(
                    std::forward<Handler>(handler)),
                scope);
   return this;
