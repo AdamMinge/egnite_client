@@ -124,14 +124,8 @@ JwtAuthenticatorPrivate::~JwtAuthenticatorPrivate() {
 
 void JwtAuthenticatorPrivate::login(const QString& username,
                                     const QString& password) {
-  Q_Q(JwtAuthenticator);
   const auto request =
       messages::LoginRequest{.username = username, .password = password};
-  auto reply = m_api->post<messages::LoginResponse, messages::LoginResponse>(
-      "path", request, m_parameters, m_headers, q);
-
-  reply->onSucceeded([](int code, const messages::LoginResponse& response) {})
-      ->onFailed([](int code, const messages::LoginResponse& response) {});
 }
 
 void JwtAuthenticatorPrivate::logout() {}
