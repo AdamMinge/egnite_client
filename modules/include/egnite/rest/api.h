@@ -20,7 +20,7 @@ class ApiPrivate;
 }
 
 class Client;
-class ReplyDecoratorManager;
+class ReplyDecorator;
 
 class EGNITE_REST_API Api : public QObject {
   Q_OBJECT
@@ -32,7 +32,7 @@ class EGNITE_REST_API Api : public QObject {
 
   [[nodiscard]] Client* getClient() const;
   [[nodiscard]] DataSerializer* getDataSerializer() const;
-  [[nodiscard]] ReplyDecoratorManager* getReplyDecoratorManager() const;
+  [[nodiscard]] ReplyDecorator* getReplyDecorator() const;
 
   [[nodiscard]] Api* createSubApi(const QString& path,
                                   QObject* parent = nullptr);

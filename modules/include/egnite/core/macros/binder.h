@@ -9,7 +9,7 @@
 
 #define EGNITE_DEFINE_BINDER(class, binder_name, signal_name)          \
   template <typename Handler>                                          \
-  class* binder_name(Handler&& handler, QObject* scope = nullptr) {    \
+  auto binder_name(Handler&& handler, QObject* scope = nullptr) {      \
     connect(this, &class ::signal_name, scope ? scope : this,          \
             core::utils::bindCallback<decltype(&class ::signal_name)>( \
                 std::forward<Handler>(handler)));                      \

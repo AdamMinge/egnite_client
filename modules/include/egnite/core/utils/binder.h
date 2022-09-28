@@ -3,20 +3,12 @@
 
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/core/export.h"
+#include "egnite/core/utils/capture.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::core::utils {
 
 namespace detail {
-
-/* ------------------------ Lambda perfect capture  ------------------------- */
-
-template <typename T>
-auto capture(T&& t) {
-  return std::conditional_t<std::is_lvalue_reference<T>::value,
-                            std::reference_wrapper<std::remove_reference_t<T>>,
-                            T>{std::forward<T>(t)};
-}
 
 /* ---------------------------- BindInfo default ---------------------------- */
 

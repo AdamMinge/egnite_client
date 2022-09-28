@@ -17,10 +17,6 @@
 
 namespace egnite::rest {
 
-namespace detail {
-class RawReplyPrivate;
-}
-
 class Api;
 class Client;
 class DataSerializer;
@@ -107,28 +103,6 @@ class EGNITE_REST_API Reply : public QObject {
  protected:
   explicit Reply(QObject* parent = nullptr);
   explicit Reply(QObjectPrivate& impl, QObject* parent = nullptr);
-};
-
-class EGNITE_REST_API RawReply : public Reply {
-  Q_OBJECT
-
-  friend Api;
-
- public:
-  ~RawReply() override;
-
-  void abort() override;
-  void retry() override;
-
-  [[nodiscard]] Api* getApi() const override;
-  [[nodiscard]] Client* getClient() const override;
-  [[nodiscard]] DataSerializer* getDataSerializer() const override;
-
- protected:
-  RawReply(Api* api, QNetworkReply* network_reply, QObject* parent = nullptr);
-
- private:
-  Q_DECLARE_PRIVATE(detail::RawReply)
 };
 
 }  // namespace egnite::rest

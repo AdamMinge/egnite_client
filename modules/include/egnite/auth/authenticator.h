@@ -3,9 +3,10 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QObject>
+#include <QString>
 #include <QUrlQuery>
-/* ----------------------------------- Egnite ------------------------------- */
-#include <egnite/rest/global.h>
+/* ------------------------------------ Boost ------------------------------- */
+#include <boost/serialization/nvp.hpp>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/auth/export.h"
 /* -------------------------------------------------------------------------- */
@@ -22,19 +23,25 @@ class EGNITE_AUTH_API Authenticator : public QObject {
   Q_OBJECT
 
  public:
+  struct ErrorResponse;
+
+ public:
   ~Authenticator() override;
 
   [[nodiscard]] virtual rest::Client* getClient() const = 0;
 
-  virtual void setHeaders(const rest::Headers& headers) = 0;
-  [[nodiscard]] virtual rest::Headers getHeaders() const = 0;
-
-  virtual void setParameters(const QUrlQuery& parameters) = 0;
-  [[nodiscard]] virtual QUrlQuery getParameters() const = 0;
-
  protected:
   explicit Authenticator(QObject* parent = nullptr);
   explicit Authenticator(QObjectPrivate& impl, QObject* parent = nullptr);
+};
+
+struct EGNITE_AUTH_API Authenticator::ErrorResponse {
+  template <class Archive>
+  void serialize(Archive& ar, const unsigned int version) {
+    ar& BOOST_NVP(detail);
+  }
+
+  QString detail;
 };
 
 }  // namespace auth

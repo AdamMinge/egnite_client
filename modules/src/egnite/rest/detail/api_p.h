@@ -34,7 +34,7 @@ class ApiPrivate : public QObjectPrivate {
 
   [[nodiscard]] Client* getClient() const;
   [[nodiscard]] DataSerializer* getDataSerializer() const;
-  [[nodiscard]] ReplyDecoratorManager* getReplyDecoratorManager() const;
+  [[nodiscard]] ReplyDecorator* getReplyDecorator() const;
   [[nodiscard]] QString getPath() const;
 
   [[nodiscard]] DataSerializer::Format getRequestDataFormat(

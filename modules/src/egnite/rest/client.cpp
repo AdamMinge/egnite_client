@@ -4,7 +4,7 @@
 #include "egnite/rest/api.h"
 #include "egnite/rest/data_serializer.h"
 #include "egnite/rest/detail/client_p.h"
-#include "egnite/rest/reply_decorator_manager.h"
+#include "egnite/rest/reply_decorator.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
@@ -82,9 +82,9 @@ DataSerializer* Client::getDataSerializer() const {
   return d->getDataSerializer();
 }
 
-ReplyDecoratorManager* Client::getReplyDecoratorManager() const {
+ReplyDecorator* Client::getReplyDecorator() const {
   Q_D(const detail::Client);
-  return d->getReplyDecoratorManager();
+  return d->getReplyDecorator();
 }
 
 /* ------------------------------ ClientPrivate ----------------------------- */
@@ -99,7 +99,7 @@ ClientPrivate::ClientPrivate(const QUrl& url, const QVersionNumber& version,
       m_headers(headers),
       m_parameters(parameters),
       m_data_serializer(new DataSerializer),
-      m_reply_decorator_manager(new ReplyDecoratorManager) {}
+      m_reply_decorator(new ReplyDecorator) {}
 
 void ClientPrivate::setBaseUrl(const QUrl& url) { m_base_url = url; }
 
@@ -147,8 +147,8 @@ DataSerializer* ClientPrivate::getDataSerializer() const {
   return m_data_serializer.get();
 }
 
-ReplyDecoratorManager* ClientPrivate::getReplyDecoratorManager() const {
-  return m_reply_decorator_manager.get();
+ReplyDecorator* ClientPrivate::getReplyDecorator() const {
+  return m_reply_decorator.get();
 }
 
 }  // namespace detail

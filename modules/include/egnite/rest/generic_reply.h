@@ -11,7 +11,8 @@ namespace egnite::rest {
 
 /* ----------------------------- GenericReplyBase --------------------------- */
 
-template <typename DataType, typename ErrorType>
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
 class GenericReplyBase : public Reply {
  public:
   void abort() override;
@@ -22,12 +23,15 @@ class GenericReplyBase : public Reply {
   [[nodiscard]] DataSerializer* getDataSerializer() const override;
 
   template <typename Handler>
-  GenericReplyBase<DataType, ErrorType>* onCompleted(Handler&& handler,
-                                                     QObject* scope = nullptr);
+  ChildGenericReply<DataType, ErrorType>* onCompleted(Handler&& handler,
+                                                      QObject* scope = nullptr);
 
   template <typename Handler>
-  GenericReplyBase<DataType, ErrorType>* onError(Handler&& handler,
-                                                 QObject* scope = nullptr);
+  ChildGenericReply<DataType, ErrorType>* onError(Handler&& handler,
+                                                  QObject* scope = nullptr);
+
+  EGNITE_DEFINE_BINDER(Reply, onDownloadProgress, downloadProgress);
+  EGNITE_DEFINE_BINDER(Reply, onUploadProgress, uploadProgress);
 
  protected:
   explicit GenericReplyBase(Reply* reply, QObject* parent = nullptr);
@@ -43,9 +47,10 @@ class GenericReplyBase : public Reply {
   Reply* m_reply;
 };
 
-template <typename DataType, typename ErrorType>
-GenericReplyBase<DataType, ErrorType>::GenericReplyBase(Reply* reply,
-                                                        QObject* parent)
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::GenericReplyBase(
+    Reply* reply, QObject* parent)
     : Reply(parent), m_reply(reply) {
   m_reply->setParent(this);
 
@@ -58,65 +63,77 @@ GenericReplyBase<DataType, ErrorType>::GenericReplyBase(Reply* reply,
   connect(m_reply, &Reply::uploadProgress, this, &Reply::uploadProgress);
 }
 
-template <typename DataType, typename ErrorType>
-GenericReplyBase<DataType, ErrorType>::~GenericReplyBase() = default;
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::~GenericReplyBase() =
+    default;
 
-template <typename DataType, typename ErrorType>
-void GenericReplyBase<DataType, ErrorType>::abort() {
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+void GenericReplyBase<DataType, ErrorType, ChildGenericReply>::abort() {
   m_reply->abort();
 }
 
-template <typename DataType, typename ErrorType>
-void GenericReplyBase<DataType, ErrorType>::retry() {
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+void GenericReplyBase<DataType, ErrorType, ChildGenericReply>::retry() {
   m_reply->retry();
 }
 
-template <typename DataType, typename ErrorType>
-Api* GenericReplyBase<DataType, ErrorType>::getApi() const {
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+Api* GenericReplyBase<DataType, ErrorType, ChildGenericReply>::getApi() const {
   return m_reply->getApi();
 }
 
-template <typename DataType, typename ErrorType>
-Client* GenericReplyBase<DataType, ErrorType>::getClient() const {
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+Client* GenericReplyBase<DataType, ErrorType, ChildGenericReply>::getClient()
+    const {
   return m_reply->getClient();
 }
 
-template <typename DataType, typename ErrorType>
-DataSerializer* GenericReplyBase<DataType, ErrorType>::getDataSerializer()
-    const {
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+DataSerializer* GenericReplyBase<DataType, ErrorType,
+                                 ChildGenericReply>::getDataSerializer() const {
   return m_reply->getDataSerializer();
 }
 
-template <typename DataType, typename ErrorType>
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
 template <typename Handler>
-GenericReplyBase<DataType, ErrorType>*
-GenericReplyBase<DataType, ErrorType>::onCompleted(Handler&& handler,
-                                                   QObject* scope) {
+ChildGenericReply<DataType, ErrorType>*
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onCompleted(
+    Handler&& handler, QObject* scope) {
   onCompletedImpl(
       core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
       scope);
-  return this;
+  return static_cast<ChildGenericReply<DataType, ErrorType>*>(this);
 }
 
-template <typename DataType, typename ErrorType>
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
 template <typename Handler>
-GenericReplyBase<DataType, ErrorType>*
-GenericReplyBase<DataType, ErrorType>::onError(Handler&& handler,
-                                               QObject* scope) {
+ChildGenericReply<DataType, ErrorType>*
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onError(
+    Handler&& handler, QObject* scope) {
   onErrorImpl(core::utils::bindCallback<void(const QString&, Error)>(
                   std::forward<Handler>(handler)),
               scope);
-  return this;
+  return static_cast<ChildGenericReply<DataType, ErrorType>*>(this);
 }
 
-template <typename DataType, typename ErrorType>
-void GenericReplyBase<DataType, ErrorType>::onCompletedImpl(
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+void GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onCompletedImpl(
     std::function<void(int)> handler, QObject* scope) {
   m_reply->onCompleted(std::move(handler), scope);
 }
 
-template <typename DataType, typename ErrorType>
-void GenericReplyBase<DataType, ErrorType>::onErrorImpl(
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+void GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onErrorImpl(
     std::function<void(const QString&, Error)> handler, QObject* scope) {
   m_reply->onError(std::move(handler), scope);
 }
@@ -124,7 +141,8 @@ void GenericReplyBase<DataType, ErrorType>::onErrorImpl(
 /* --------------------- GenericReply<DataType, ErrorType> ------------------ */
 
 template <typename DataType, typename ErrorType>
-class GenericReply : public GenericReplyBase<DataType, ErrorType> {
+class GenericReply
+    : public GenericReplyBase<DataType, ErrorType, GenericReply> {
   friend Api;
 
  public:
@@ -137,7 +155,7 @@ class GenericReply : public GenericReplyBase<DataType, ErrorType> {
                                               QObject* scope = nullptr);
 
  protected:
-  using GenericReplyBase<DataType, ErrorType>::GenericReplyBase;
+  using GenericReplyBase<DataType, ErrorType, GenericReply>::GenericReplyBase;
 
  private:
   void onSucceededImpl(std::function<void(int, const DataType&)> handler,
@@ -192,7 +210,8 @@ void GenericReply<DataType, ErrorType>::onFailedImpl(
 /* ------------------------ GenericReply<DataType, void> -------------------- */
 
 template <typename DataType>
-class GenericReply<DataType, void> : public GenericReplyBase<DataType, void> {
+class GenericReply<DataType, void>
+    : public GenericReplyBase<DataType, void, GenericReply> {
   friend Api;
 
  public:
@@ -205,7 +224,7 @@ class GenericReply<DataType, void> : public GenericReplyBase<DataType, void> {
                                          QObject* scope = nullptr);
 
  protected:
-  using GenericReplyBase<DataType, void>::GenericReplyBase;
+  using GenericReplyBase<DataType, void, GenericReply>::GenericReplyBase;
 
  private:
   void onSucceededImpl(std::function<void(int, const DataType&)> handler,
@@ -253,7 +272,8 @@ void GenericReply<DataType, void>::onFailedImpl(
 /* ----------------------- GenericReply<void, ErrorType> -------------------- */
 
 template <typename ErrorType>
-class GenericReply<void, ErrorType> : public GenericReplyBase<void, ErrorType> {
+class GenericReply<void, ErrorType>
+    : public GenericReplyBase<void, ErrorType, GenericReply> {
   friend Api;
 
  public:
@@ -266,7 +286,7 @@ class GenericReply<void, ErrorType> : public GenericReplyBase<void, ErrorType> {
                                           QObject* scope = nullptr);
 
  protected:
-  using GenericReplyBase<void, ErrorType>::GenericReplyBase;
+  using GenericReplyBase<void, ErrorType, GenericReply>::GenericReplyBase;
 
  private:
   void onSucceededImpl(std::function<void(int)> handler,

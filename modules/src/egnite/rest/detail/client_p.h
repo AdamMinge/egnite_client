@@ -35,7 +35,7 @@ class ClientPrivate : public QObjectPrivate {
   [[nodiscard]] RequestBuilder getRequestBuilder() const;
   [[nodiscard]] QNetworkAccessManager* getNetworkAccessManager() const;
   [[nodiscard]] DataSerializer* getDataSerializer() const;
-  [[nodiscard]] ReplyDecoratorManager* getReplyDecoratorManager() const;
+  [[nodiscard]] ReplyDecorator* getReplyDecorator() const;
 
  private:
   QUrl m_base_url;
@@ -44,7 +44,7 @@ class ClientPrivate : public QObjectPrivate {
   QUrlQuery m_parameters;
   QNetworkAccessManager* m_manager;
   QScopedPointer<DataSerializer> m_data_serializer;
-  QScopedPointer<ReplyDecoratorManager> m_reply_decorator_manager;
+  QScopedPointer<ReplyDecorator> m_reply_decorator;
 };
 
 }  // namespace egnite::rest::detail

@@ -12,8 +12,10 @@ set(include_root ${EGNITE_SOURCE_DIR}/modules/include/egnite/core)
 # ----------------------------------------------------------------------- #
 set(sources)
 
-set(includes ${include_root}/export.h ${include_root}/utils/binder.h
-             ${include_root}/macros/map.h ${include_root}/macros/binder.h)
+set(includes
+    ${include_root}/export.h ${include_root}/utils/binder.h
+    ${include_root}/utils/capture.h ${include_root}/macros/map.h
+    ${include_root}/macros/binder.h)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #

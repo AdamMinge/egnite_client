@@ -5,8 +5,6 @@
 #include <QtCore/private/qobject_p.h>
 /* --------------------------------- Standard ------------------------------- */
 #include <memory>
-/* ----------------------------------- Egnite ------------------------------- */
-#include <egnite/rest/reply_decorator_manager.h>
 /* ------------------------------------ Local ------------------------------- */
 #include "egnite/auth/jwt_authenticator.h"
 /* -------------------------------------------------------------------------- */
@@ -19,35 +17,38 @@ class Api;
 
 namespace auth::detail {
 
-class JwtAuthenticatorPrivate : public QObjectPrivate,
-                                public rest::ReplyDecorator {
+class JwtAuthenticatorPrivate : public QObjectPrivate {
  public:
   Q_DECLARE_PUBLIC(JwtAuthenticator)
+
+ public:
+  static const QByteArray TokenHeader;
+  static const QByteArray TokenPrefix;
+  static const JwtAuthenticator::Routing DefaultRouting;
 
  public:
   explicit JwtAuthenticatorPrivate(rest::Client* client, const QString& path);
   ~JwtAuthenticatorPrivate() override;
 
   void login(const QString& username, const QString& password);
+  void refresh();
   void logout();
 
   [[nodiscard]] rest::Client* getClient() const;
 
-  void setHeaders(const rest::Headers& headers);
-  [[nodiscard]] rest::Headers getHeaders() const;
-
-  void setParameters(const QUrlQuery& parameters);
-  [[nodiscard]] QUrlQuery getParameters() const;
-
   [[nodiscard]] QByteArray getAccessToken() const;
   [[nodiscard]] QByteArray getRefreshToken() const;
 
-  [[nodiscard]] rest::Reply* decorate(rest::Reply* reply) const override;
+  void setRouting(const JwtAuthenticator::Routing& routing);
+  [[nodiscard]] JwtAuthenticator::Routing getRouting() const;
+
+ private:
+  void updateAccessToken(const QByteArray& token);
+  void updateRefreshToken(const QByteArray& token);
 
  private:
   std::unique_ptr<rest::Api> m_api;
-  rest::Headers m_headers;
-  QUrlQuery m_parameters;
+  JwtAuthenticator::Routing m_routing;
   QByteArray m_access_token;
   QByteArray m_refresh_token;
 };

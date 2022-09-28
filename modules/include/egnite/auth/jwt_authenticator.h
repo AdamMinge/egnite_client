@@ -2,10 +2,8 @@
 #define EGNITE_AUTH_JWT_AUTHENTICATOR_H
 
 /* ------------------------------------ Qt ---------------------------------- */
-#include <QByteArray>
 #include <QObject>
-/* ------------------------------------ Boost ------------------------------- */
-#include <boost/serialization/nvp.hpp>
+#include <QUrl>
 /* ----------------------------------- Egnite ------------------------------- */
 #include <egnite/rest/reply.h>
 /* ----------------------------------- Local -------------------------------- */
@@ -19,42 +17,18 @@ class JwtAuthenticatorPrivate;
 class JwtAuthenticatorReplyPrivate;
 }  // namespace detail
 
-namespace messages {
-
-struct LoginRequest {
-  template <class Archive>
-  void serialize(Archive& ar, const unsigned int version) {
-    boost::serialization::serialize(ar, *this, version);
-    ar& BOOST_NVP(username);
-    ar& BOOST_NVP(password);
-  }
-
-  QString username;
-  QString password;
-};
-
-struct LoginResponse {
-  template <class Archive>
-  void serialize(Archive& ar, const unsigned int version) {
-    ar& BOOST_NVP(access);
-    ar& BOOST_NVP(refresh);
-  }
-
-  QByteArray access;
-  QByteArray refresh;
-};
-
-}  // namespace messages
-
 class EGNITE_AUTH_API JwtAuthenticator : public Authenticator {
   Q_OBJECT
 
  public:
-  Q_PROPERTY(rest::Headers headers READ getHeaders WRITE setHeaders NOTIFY
-                 headersChanged)
-  Q_PROPERTY(QUrlQuery parameters READ getParameters WRITE setParameters NOTIFY
-                 parametersChanged)
+  struct Routing;
+  struct ObtainTokenRequest;
+  struct ObtainTokenResponse;
+  struct TokenBlacklistRequest;
+  struct TokenRefreshRequest;
+  struct TokenRefreshResponse;
 
+ public:
   Q_PROPERTY(
       QByteArray accessToken READ getAccessToken NOTIFY accessTokenChanged)
   Q_PROPERTY(
@@ -66,36 +40,37 @@ class EGNITE_AUTH_API JwtAuthenticator : public Authenticator {
   ~JwtAuthenticator() override;
 
   void login(const QString& username, const QString& password);
+  void refresh();
   void logout();
 
   [[nodiscard]] rest::Client* getClient() const override;
 
-  void setHeaders(const rest::Headers& headers) override;
-  [[nodiscard]] rest::Headers getHeaders() const override;
-
-  void setParameters(const QUrlQuery& parameters) override;
-  [[nodiscard]] QUrlQuery getParameters() const override;
-
   [[nodiscard]] QByteArray getAccessToken() const;
   [[nodiscard]] QByteArray getRefreshToken() const;
+
+  void setRouting(const Routing& routing);
+  [[nodiscard]] Routing getRouting() const;
 
   EGNITE_DEFINE_BINDER(JwtAuthenticator, onLoginSucceeded, loginSucceeded);
   EGNITE_DEFINE_BINDER(JwtAuthenticator, onLoginFailed, loginFailed);
   EGNITE_DEFINE_BINDER(JwtAuthenticator, onLogoutSucceeded, logoutSucceeded);
   EGNITE_DEFINE_BINDER(JwtAuthenticator, onLogoutFailed, logoutFailed);
+  EGNITE_DEFINE_BINDER(JwtAuthenticator, onRefreshSucceeded, refreshSucceeded);
+  EGNITE_DEFINE_BINDER(JwtAuthenticator, onRefreshFailed, refreshFailed);
 
  Q_SIGNALS:
-  void headersChanged(const egnite::rest::Headers& headers);
-  void parametersChanged(const QUrlQuery& parameters);
-
   void accessTokenChanged(const QByteArray& token);
   void refreshTokenChanged(const QByteArray& token);
 
-  void loginSucceeded();
-  void loginFailed();
+  void routingChanged(const Routing& routing);
 
+  void loginSucceeded();
   void logoutSucceeded();
-  void logoutFailed();
+  void refreshSucceeded();
+
+  void loginFailed(const QString& detail);
+  void logoutFailed(const QString& detail);
+  void refreshFailed(const QString& detail);
 
  protected:
   explicit JwtAuthenticator(detail::JwtAuthenticatorPrivate& impl,
@@ -103,6 +78,64 @@ class EGNITE_AUTH_API JwtAuthenticator : public Authenticator {
 
  private:
   Q_DECLARE_PRIVATE(detail::JwtAuthenticator)
+};
+
+struct EGNITE_AUTH_API JwtAuthenticator::Routing {
+  auto operator<=>(const Routing&) const = default;
+
+  QString obtain;
+  QString refresh;
+  QString blacklist;
+};
+
+struct EGNITE_AUTH_API JwtAuthenticator::ObtainTokenRequest {
+  template <class Archive>
+  void serialize(Archive& ar, const unsigned int version) {
+    boost::serialization::serialize(ar, *this, version);
+    ar& BOOST_NVP(username);
+    ar& BOOST_NVP(password);
+  }
+
+  QString username;
+  QString password;
+};
+
+struct EGNITE_AUTH_API JwtAuthenticator::ObtainTokenResponse {
+  template <class Archive>
+  void serialize(Archive& ar, const unsigned int version) {
+    ar& BOOST_NVP(access);
+    ar& BOOST_NVP(refresh);
+  }
+
+  QByteArray access;
+  QByteArray refresh;
+};
+
+struct EGNITE_AUTH_API JwtAuthenticator::TokenBlacklistRequest {
+  template <class Archive>
+  void serialize(Archive& ar, const unsigned int version) {
+    ar& BOOST_NVP(refresh);
+  }
+
+  QByteArray refresh;
+};
+
+struct EGNITE_AUTH_API JwtAuthenticator::TokenRefreshRequest {
+  template <class Archive>
+  void serialize(Archive& ar, const unsigned int version) {
+    ar& BOOST_NVP(refresh);
+  }
+
+  QByteArray refresh;
+};
+
+struct EGNITE_AUTH_API JwtAuthenticator::TokenRefreshResponse {
+  template <class Archive>
+  void serialize(Archive& ar, const unsigned int version) {
+    ar& BOOST_NVP(access);
+  }
+
+  QByteArray access;
 };
 
 class EGNITE_AUTH_API JwtAuthenticatorReply : public rest::Reply {

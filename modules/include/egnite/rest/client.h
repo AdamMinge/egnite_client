@@ -20,7 +20,7 @@ class ClientPrivate;
 
 class Api;
 class DataSerializer;
-class ReplyDecoratorManager;
+class ReplyDecorator;
 
 class EGNITE_REST_API Client : public QObject {
   Q_OBJECT
@@ -55,7 +55,7 @@ class EGNITE_REST_API Client : public QObject {
 
   [[nodiscard]] RequestBuilder getRequestBuilder() const;
   [[nodiscard]] DataSerializer* getDataSerializer() const;
-  [[nodiscard]] ReplyDecoratorManager* getReplyDecoratorManager() const;
+  [[nodiscard]] ReplyDecorator* getReplyDecorator() const;
 
  Q_SIGNALS:
   void baseUrlChanged(const QUrl& url);
