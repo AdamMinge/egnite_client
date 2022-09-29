@@ -120,7 +120,9 @@ JwtAuthenticatorPrivate::JwtAuthenticatorPrivate(rest::Client* client,
     : m_api(client->createApi(path)), m_routing(DefaultRouting) {
   Q_Q(JwtAuthenticator);
   auto reply_decorator = m_api->getClient()->getReplyDecorator();
-  reply_decorator->registerFactory<JwtAuthenticatorReply>(0x00FFFFFF, q);
+  reply_decorator->registerFactoryWithFilter<JwtAuthenticatorReply>(
+      0x00FFFFFF, [this](auto reply) { return reply->getApi() != m_api.get(); },
+      q);
 }
 
 JwtAuthenticatorPrivate::~JwtAuthenticatorPrivate() {

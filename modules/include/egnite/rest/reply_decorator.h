@@ -30,9 +30,13 @@ class EGNITE_REST_API ReplyDecorator : public QObject {
 
   template <ChildReply Type, typename... Args>
   void registerFactory(uint32_t priority, Args&&... args);
+  template <ChildReply Type, typename... Args>
+  void registerFactoryWithFilter(uint32_t priority,
+                                 std::function<bool(Reply*)> filter,
+                                 Args&&... args);
+
   template <ChildReply Type>
   void unregisterFactory();
-
   void unregisterAllFactories();
 
  protected:
@@ -50,8 +54,18 @@ class EGNITE_REST_API ReplyDecorator : public QObject {
 
 template <ChildReply Type, typename... Args>
 void ReplyDecorator::registerFactory(uint32_t priority, Args&&... args) {
+  registerFactoryWithFilter<Type, Args...>(
+      priority, [](Reply*) { return true; }, std::forward<Args>(args)...);
+}
+
+template <ChildReply Type, typename... Args>
+void ReplyDecorator::registerFactoryWithFilter(
+    uint32_t priority, std::function<bool(Reply*)> filter, Args&&... args) {
   registerFactory(QMetaType::fromType<Type>().id(), priority,
-                  [... args = std::forward<Args>(args)](Reply* reply) {
+                  [... args = std::forward<Args>(args),
+                   filter = std::move(filter)](Reply* reply) -> Reply* {
+                    if (!filter(reply)) return reply;
+
                     auto decorated_reply = new Type(std::forward<Args>(args)...,
                                                     reply, reply->parent());
                     reply->setParent(decorated_reply);
