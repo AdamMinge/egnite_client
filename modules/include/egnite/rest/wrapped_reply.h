@@ -1,5 +1,5 @@
-#ifndef EGNITE_REST_RAW_REPLY_H
-#define EGNITE_REST_RAW_REPLY_H
+#ifndef EGNITE_REST_WRAPPED_REPLY_H
+#define EGNITE_REST_WRAPPED_REPLY_H
 
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/rest/export.h"
@@ -9,16 +9,14 @@
 namespace egnite::rest {
 
 namespace detail {
-class RawReplyPrivate;
+class WrappedReplyPrivate;
 }
 
-class EGNITE_REST_API RawReply : public Reply {
+class EGNITE_REST_API WrappedReply : public Reply {
   Q_OBJECT
 
-  friend Api;
-
  public:
-  ~RawReply() override;
+  ~WrappedReply() override;
 
   void abort() override;
   void retry() override;
@@ -31,12 +29,12 @@ class EGNITE_REST_API RawReply : public Reply {
   [[nodiscard]] bool isAutoDelete() const override;
 
  protected:
-  RawReply(Api* api, QNetworkReply* network_reply, QObject* parent = nullptr);
+  WrappedReply(Reply* reply, QObject* parent = nullptr);
 
  private:
-  Q_DECLARE_PRIVATE(detail::RawReply)
+  Q_DECLARE_PRIVATE(detail::WrappedReply)
 };
 
 }  // namespace egnite::rest
 
-#endif  // EGNITE_REST_RAW_REPLY_H
+#endif  // EGNITE_REST_WRAPPED_REPLY_H

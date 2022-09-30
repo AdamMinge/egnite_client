@@ -83,6 +83,9 @@ class EGNITE_REST_API Reply : public QObject {
   [[nodiscard]] virtual Client* getClient() const = 0;
   [[nodiscard]] virtual DataSerializer* getDataSerializer() const = 0;
 
+  virtual void setAutoDelete(bool enable) = 0;
+  [[nodiscard]] virtual bool isAutoDelete() const = 0;
+
   EGNITE_DEFINE_BINDER(Reply, onCompleted, completed);
   EGNITE_DEFINE_BINDER(Reply, onSucceeded, succeeded);
   EGNITE_DEFINE_BINDER(Reply, onFailed, failed);
@@ -99,6 +102,8 @@ class EGNITE_REST_API Reply : public QObject {
 
   void downloadProgress(qint64 bytes_received, qint64 bytes_total);
   void uploadProgress(qint64 bytes_sent, qint64 bytes_total);
+
+  void autoDeleteChanged(bool enable);
 
  protected:
   explicit Reply(QObject* parent = nullptr);

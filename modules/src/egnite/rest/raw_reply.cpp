@@ -16,10 +16,7 @@ namespace egnite::rest {
 /* --------------------------------- RawReply ------------------------------- */
 
 RawReply::RawReply(Api* api, QNetworkReply* network_reply, QObject* parent)
-    : Reply(*new detail::RawReplyPrivate(api, network_reply), parent) {
-  connect(this, &RawReply::succeeded, this, &RawReply::completed);
-  connect(this, &RawReply::failed, this, &RawReply::completed);
-}
+    : Reply(*new detail::RawReplyPrivate(api, network_reply), parent) {}
 
 RawReply::~RawReply() = default;
 
@@ -46,6 +43,16 @@ Client* RawReply::getClient() const {
 DataSerializer* RawReply::getDataSerializer() const {
   Q_D(const detail::RawReply);
   return d->getDataSerializer();
+}
+
+void RawReply::setAutoDelete(bool enable) {
+  Q_D(detail::RawReply);
+  d->setAutoDelete(enable);
+}
+
+bool RawReply::isAutoDelete() const {
+  Q_D(const detail::RawReply);
+  return d->isAutoDelete();
 }
 
 /* --------------------------- RawReplyPrivate -------------------------- */
@@ -172,7 +179,7 @@ const QByteArray RawReplyPrivate::ContentTypeCbor =
     QByteArray{"application/cbor"};
 
 RawReplyPrivate::RawReplyPrivate(Api* api, QNetworkReply* network_reply)
-    : m_api(api), m_network_reply(network_reply) {
+    : m_api(api), m_network_reply(network_reply), m_auto_delete(false) {
   connectReply();
 }
 
@@ -201,6 +208,27 @@ Client* RawReplyPrivate::getClient() const { return m_api->getClient(); }
 DataSerializer* RawReplyPrivate::getDataSerializer() const {
   return m_api->getClient()->getDataSerializer();
 }
+
+void RawReplyPrivate::setAutoDelete(bool enable) {
+  Q_Q(RawReply);
+  if (m_auto_delete == enable) return;
+
+  m_auto_delete = enable;
+
+  if (m_auto_delete) {
+    QObject::connect(q, &Reply::succeeded, q, &QObject::deleteLater);
+    QObject::connect(q, &Reply::error, q, &QObject::deleteLater);
+    QObject::connect(q, &Reply::failed, q, &QObject::deleteLater);
+  } else {
+    QObject::disconnect(q, &Reply::succeeded, q, &QObject::deleteLater);
+    QObject::disconnect(q, &Reply::error, q, &QObject::deleteLater);
+    QObject::disconnect(q, &Reply::failed, q, &QObject::deleteLater);
+  }
+
+  Q_EMIT q->autoDeleteChanged(m_auto_delete);
+}
+
+bool RawReplyPrivate::isAutoDelete() const { return m_auto_delete; }
 
 QNetworkReply* RawReplyPrivate::send(QNetworkAccessManager* manager,
                                      const QNetworkRequest& request,

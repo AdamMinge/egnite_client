@@ -66,43 +66,21 @@ JwtAuthenticator::Routing JwtAuthenticator::getRouting() const {
 JwtAuthenticatorReply::JwtAuthenticatorReply(JwtAuthenticator* authenticator,
                                              rest::Reply* reply,
                                              QObject* parent)
-    : JwtAuthenticatorReply(
-          *new detail::JwtAuthenticatorReplyPrivate(authenticator, reply),
-          parent) {}
-
-JwtAuthenticatorReply::JwtAuthenticatorReply(
-    detail::JwtAuthenticatorReplyPrivate& impl, QObject* parent)
-    : Reply(impl, parent) {
-  connect(this, &rest::Reply::succeeded, this, &rest::Reply::completed);
-  connect(this, &rest::Reply::failed, this, &rest::Reply::completed);
+    : rest::WrappedReply(reply, parent) {
+  disconnect(reply, &rest::Reply::failed, this, &rest::Reply::failed);
+  reply->onFailed([this, authenticator](int code, const rest::Data& data) {
+    if (code == 401) {
+      authenticator
+          ->onRefreshFailed([this, code, data]() { Q_EMIT failed(code, data); })
+          ->onRefreshSucceeded([this]() { retry(); });
+      authenticator->refresh();
+    } else {
+      Q_EMIT failed(code, data);
+    }
+  });
 }
 
 JwtAuthenticatorReply::~JwtAuthenticatorReply() = default;
-
-void JwtAuthenticatorReply::abort() {
-  Q_D(detail::JwtAuthenticatorReply);
-  d->abort();
-}
-
-void JwtAuthenticatorReply::retry() {
-  Q_D(detail::JwtAuthenticatorReply);
-  d->retry();
-}
-
-rest::Api* JwtAuthenticatorReply::getApi() const {
-  Q_D(const detail::JwtAuthenticatorReply);
-  return d->getApi();
-}
-
-rest::Client* JwtAuthenticatorReply::getClient() const {
-  Q_D(const detail::JwtAuthenticatorReply);
-  return d->getClient();
-}
-
-rest::DataSerializer* JwtAuthenticatorReply::getDataSerializer() const {
-  Q_D(const detail::JwtAuthenticatorReply);
-  return d->getDataSerializer();
-}
 
 /* --------------------------- JwtAuthenticatorPrivate ---------------------- */
 
@@ -138,8 +116,9 @@ void JwtAuthenticatorPrivate::login(const QString& username,
 
   auto reply = m_api->post<JwtAuthenticator::ObtainTokenResponse,
                            Authenticator::ErrorResponse>(m_routing.obtain,
-                                                         request, {}, {}, q);
+                                                         request, {}, {});
 
+  reply->setAutoDelete(true);
   reply
       ->onSucceeded(
           [q, this](int code,
@@ -161,8 +140,9 @@ void JwtAuthenticatorPrivate::refresh() {
 
   auto reply = m_api->post<JwtAuthenticator::TokenRefreshResponse,
                            Authenticator::ErrorResponse>(m_routing.refresh,
-                                                         request, {}, {}, q);
+                                                         request, {}, {});
 
+  reply->setAutoDelete(true);
   reply
       ->onSucceeded(
           [q, this](int code,
@@ -182,8 +162,9 @@ void JwtAuthenticatorPrivate::logout() {
       JwtAuthenticator::TokenBlacklistRequest{.refresh = m_refresh_token};
 
   auto reply = m_api->post<void, Authenticator::ErrorResponse>(
-      m_routing.blacklist, request, {}, {}, q);
+      m_routing.blacklist, request, {}, {});
 
+  reply->setAutoDelete(true);
   reply
       ->onSucceeded([q, this](int code) {
         updateAccessToken(QByteArray{});
@@ -233,50 +214,6 @@ void JwtAuthenticatorPrivate::updateAccessToken(const QByteArray& token) {
 
 void JwtAuthenticatorPrivate::updateRefreshToken(const QByteArray& token) {
   m_refresh_token = token;
-}
-
-/* ------------------------- JwtAuthenticatorReplyPrivate ------------------- */
-
-JwtAuthenticatorReplyPrivate::JwtAuthenticatorReplyPrivate(
-    JwtAuthenticator* authenticator, rest::Reply* reply)
-    : m_authenticator(authenticator), m_reply(reply) {
-  Q_Q(JwtAuthenticatorReply);
-
-  QObject::connect(m_reply, &rest::Reply::succeeded, q,
-                   &rest::Reply::succeeded);
-  QObject::connect(m_reply, &rest::Reply::error, q, &rest::Reply::error);
-
-  QObject::connect(m_reply, &rest::Reply::downloadProgress, q,
-                   &rest::Reply::downloadProgress);
-  QObject::connect(m_reply, &rest::Reply::uploadProgress, q,
-                   &rest::Reply::uploadProgress);
-
-  m_reply->onFailed([this, q](int code, const rest::Data& data) {
-    if (code == 401) {
-      m_authenticator
-          ->onRefreshFailed([q, code, data]() { Q_EMIT q->failed(code, data); })
-          ->onRefreshSucceeded([q]() { q->retry(); });
-      m_authenticator->refresh();
-    } else {
-      Q_EMIT q->failed(code, data);
-    }
-  });
-}
-
-void JwtAuthenticatorReplyPrivate::abort() { m_reply->abort(); }
-
-void JwtAuthenticatorReplyPrivate::retry() { m_reply->retry(); }
-
-rest::Api* JwtAuthenticatorReplyPrivate::getApi() const {
-  return m_reply->getApi();
-}
-
-rest::Client* JwtAuthenticatorReplyPrivate::getClient() const {
-  return m_reply->getClient();
-}
-
-rest::DataSerializer* JwtAuthenticatorReplyPrivate::getDataSerializer() const {
-  return m_reply->getDataSerializer();
 }
 
 }  // namespace detail

@@ -38,6 +38,9 @@ class RawReplyPrivate : public QObjectPrivate {
   [[nodiscard]] Client* getClient() const;
   [[nodiscard]] DataSerializer* getDataSerializer() const;
 
+  void setAutoDelete(bool enable);
+  [[nodiscard]] bool isAutoDelete() const;
+
  public:
   static QNetworkReply* send(QNetworkAccessManager* manager,
                              const QNetworkRequest& request,
@@ -57,6 +60,7 @@ class RawReplyPrivate : public QObjectPrivate {
  private:
   Api* m_api;
   QPointer<QNetworkReply> m_network_reply;
+  bool m_auto_delete;
 };
 
 }  // namespace egnite::rest::detail

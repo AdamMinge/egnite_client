@@ -53,25 +53,6 @@ class JwtAuthenticatorPrivate : public QObjectPrivate {
   QByteArray m_refresh_token;
 };
 
-class JwtAuthenticatorReplyPrivate : public QObjectPrivate {
-  Q_DECLARE_PUBLIC(JwtAuthenticatorReply)
-
- public:
-  JwtAuthenticatorReplyPrivate(JwtAuthenticator* authenticator,
-                               rest::Reply* reply);
-
-  void abort();
-  void retry();
-
-  [[nodiscard]] rest::Api* getApi() const;
-  [[nodiscard]] rest::Client* getClient() const;
-  [[nodiscard]] rest::DataSerializer* getDataSerializer() const;
-
- private:
-  JwtAuthenticator* m_authenticator;
-  rest::Reply* m_reply;
-};
-
 }  // namespace auth::detail
 
 }  // namespace egnite

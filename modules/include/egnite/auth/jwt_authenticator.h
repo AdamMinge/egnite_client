@@ -5,7 +5,7 @@
 #include <QObject>
 #include <QUrl>
 /* ----------------------------------- Egnite ------------------------------- */
-#include <egnite/rest/reply.h>
+#include <egnite/rest/wrapped_reply.h>
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/auth/authenticator.h"
 /* -------------------------------------------------------------------------- */
@@ -138,27 +138,13 @@ struct EGNITE_AUTH_API JwtAuthenticator::TokenRefreshResponse {
   QByteArray access;
 };
 
-class EGNITE_AUTH_API JwtAuthenticatorReply : public rest::Reply {
+class EGNITE_AUTH_API JwtAuthenticatorReply : public rest::WrappedReply {
   Q_OBJECT
 
  public:
   JwtAuthenticatorReply(JwtAuthenticator* authenticator, rest::Reply* reply,
                         QObject* parent = nullptr);
   ~JwtAuthenticatorReply() override;
-
-  void abort() override;
-  void retry() override;
-
-  [[nodiscard]] rest::Api* getApi() const override;
-  [[nodiscard]] rest::Client* getClient() const override;
-  [[nodiscard]] rest::DataSerializer* getDataSerializer() const override;
-
- protected:
-  explicit JwtAuthenticatorReply(detail::JwtAuthenticatorReplyPrivate& impl,
-                                 QObject* parent = nullptr);
-
- private:
-  Q_DECLARE_PRIVATE(detail::JwtAuthenticatorReply)
 };
 
 }  // namespace egnite::auth
