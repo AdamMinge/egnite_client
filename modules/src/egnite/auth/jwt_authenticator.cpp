@@ -15,11 +15,19 @@ namespace egnite::auth {
 JwtAuthenticator::JwtAuthenticator(rest::Client* client, const QString& subpath,
                                    QObject* parent)
     : JwtAuthenticator(*new detail::JwtAuthenticatorPrivate(client, subpath),
-                       parent) {}
+                       parent) {
+  Q_D(detail::JwtAuthenticator);
+  d->registerDecorator();
+}
 
 JwtAuthenticator::JwtAuthenticator(detail::JwtAuthenticatorPrivate& impl,
                                    QObject* parent)
     : Authenticator(impl, parent) {}
+
+JwtAuthenticator::~JwtAuthenticator() {
+  Q_D(detail::JwtAuthenticator);
+  d->unregisterDecorator();
+}
 
 void JwtAuthenticator::login(const QString& username, const QString& password) {
   Q_D(detail::JwtAuthenticator);
@@ -89,13 +97,14 @@ namespace detail {
 const QByteArray JwtAuthenticatorPrivate::TokenHeader =
     QByteArray{"Authorization"};
 const QByteArray JwtAuthenticatorPrivate::TokenPrefix = QByteArray{"Bearer"};
-const JwtAuthenticator::Routing JwtAuthenticatorPrivate::DefaultRouting =
-    JwtAuthenticator::Routing{
-        .obtain = "", .refresh = "/refresh", .blacklist = "/blacklist"};
 
 JwtAuthenticatorPrivate::JwtAuthenticatorPrivate(rest::Client* client,
                                                  const QString& path)
-    : m_api(client->createApi(path)), m_routing(DefaultRouting) {
+    : m_api(client->createApi(path)) {}
+
+JwtAuthenticatorPrivate::~JwtAuthenticatorPrivate() = default;
+
+void JwtAuthenticatorPrivate::registerDecorator() {
   Q_Q(JwtAuthenticator);
   auto reply_decorator = m_api->getClient()->getReplyDecorator();
   reply_decorator->registerFactoryWithFilter<JwtAuthenticatorReply>(
@@ -103,7 +112,7 @@ JwtAuthenticatorPrivate::JwtAuthenticatorPrivate(rest::Client* client,
       q);
 }
 
-JwtAuthenticatorPrivate::~JwtAuthenticatorPrivate() {
+void JwtAuthenticatorPrivate::unregisterDecorator() {
   auto reply_decorator = m_api->getClient()->getReplyDecorator();
   reply_decorator->unregisterFactory<JwtAuthenticatorReply>();
 }
@@ -114,9 +123,9 @@ void JwtAuthenticatorPrivate::login(const QString& username,
   const auto request = JwtAuthenticator::ObtainTokenRequest{
       .username = username, .password = password};
 
-  auto reply = m_api->post<JwtAuthenticator::ObtainTokenResponse,
-                           Authenticator::ErrorResponse>(m_routing.obtain,
-                                                         request, {}, {});
+  auto reply =
+      m_api->post<JwtAuthenticator::ObtainTokenResponse,
+                  Authenticator::ErrorResponse>(m_routing.obtain, request);
 
   reply->setAutoDelete(true);
   reply
@@ -138,9 +147,9 @@ void JwtAuthenticatorPrivate::refresh() {
   const auto request =
       JwtAuthenticator::TokenRefreshRequest{.refresh = m_refresh_token};
 
-  auto reply = m_api->post<JwtAuthenticator::TokenRefreshResponse,
-                           Authenticator::ErrorResponse>(m_routing.refresh,
-                                                         request, {}, {});
+  auto reply =
+      m_api->post<JwtAuthenticator::TokenRefreshResponse,
+                  Authenticator::ErrorResponse>(m_routing.refresh, request);
 
   reply->setAutoDelete(true);
   reply
@@ -162,7 +171,7 @@ void JwtAuthenticatorPrivate::logout() {
       JwtAuthenticator::TokenBlacklistRequest{.refresh = m_refresh_token};
 
   auto reply = m_api->post<void, Authenticator::ErrorResponse>(
-      m_routing.blacklist, request, {}, {});
+      m_routing.blacklist, request);
 
   reply->setAutoDelete(true);
   reply

@@ -42,7 +42,7 @@ class ClientPrivate : public QObjectPrivate {
   QVersionNumber m_version;
   Headers m_headers;
   QUrlQuery m_parameters;
-  QNetworkAccessManager* m_manager;
+  QScopedPointer<QNetworkAccessManager> m_manager;
   QScopedPointer<DataSerializer> m_data_serializer;
   QScopedPointer<ReplyDecorator> m_reply_decorator;
 };

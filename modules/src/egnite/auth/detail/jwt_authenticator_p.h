@@ -24,11 +24,13 @@ class JwtAuthenticatorPrivate : public QObjectPrivate {
  public:
   static const QByteArray TokenHeader;
   static const QByteArray TokenPrefix;
-  static const JwtAuthenticator::Routing DefaultRouting;
 
  public:
   explicit JwtAuthenticatorPrivate(rest::Client* client, const QString& path);
   ~JwtAuthenticatorPrivate() override;
+
+  void registerDecorator();
+  void unregisterDecorator();
 
   void login(const QString& username, const QString& password);
   void refresh();

@@ -27,6 +27,8 @@ class WrappedReplyPrivate : public QObjectPrivate {
   void setAutoDelete(bool enable);
   [[nodiscard]] bool isAutoDelete() const;
 
+  void connectReply();
+
  private:
   Reply* m_reply;
   bool m_auto_delete;

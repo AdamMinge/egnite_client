@@ -81,6 +81,13 @@ class EGNITE_AUTH_API JwtAuthenticator : public Authenticator {
 };
 
 struct EGNITE_AUTH_API JwtAuthenticator::Routing {
+  Q_GADGET
+  Q_PROPERTY(QString obtain MEMBER obtain)
+  Q_PROPERTY(QString refresh MEMBER refresh)
+  Q_PROPERTY(QString blacklist MEMBER blacklist)
+
+ public:
+  Routing() = default;
   auto operator<=>(const Routing&) const = default;
 
   QString obtain;
@@ -89,52 +96,46 @@ struct EGNITE_AUTH_API JwtAuthenticator::Routing {
 };
 
 struct EGNITE_AUTH_API JwtAuthenticator::ObtainTokenRequest {
-  template <class Archive>
-  void serialize(Archive& ar, const unsigned int version) {
-    boost::serialization::serialize(ar, *this, version);
-    ar& BOOST_NVP(username);
-    ar& BOOST_NVP(password);
-  }
+  Q_GADGET
+  Q_PROPERTY(QString username MEMBER username)
+  Q_PROPERTY(QString password MEMBER password)
 
+ public:
   QString username;
   QString password;
 };
 
 struct EGNITE_AUTH_API JwtAuthenticator::ObtainTokenResponse {
-  template <class Archive>
-  void serialize(Archive& ar, const unsigned int version) {
-    ar& BOOST_NVP(access);
-    ar& BOOST_NVP(refresh);
-  }
+  Q_GADGET
+  Q_PROPERTY(QByteArray access MEMBER access)
+  Q_PROPERTY(QByteArray refresh MEMBER refresh)
 
+ public:
   QByteArray access;
   QByteArray refresh;
 };
 
 struct EGNITE_AUTH_API JwtAuthenticator::TokenBlacklistRequest {
-  template <class Archive>
-  void serialize(Archive& ar, const unsigned int version) {
-    ar& BOOST_NVP(refresh);
-  }
+  Q_GADGET
+  Q_PROPERTY(QByteArray refresh MEMBER refresh)
 
+ public:
   QByteArray refresh;
 };
 
 struct EGNITE_AUTH_API JwtAuthenticator::TokenRefreshRequest {
-  template <class Archive>
-  void serialize(Archive& ar, const unsigned int version) {
-    ar& BOOST_NVP(refresh);
-  }
+  Q_GADGET
+  Q_PROPERTY(QByteArray refresh MEMBER refresh)
 
+ public:
   QByteArray refresh;
 };
 
 struct EGNITE_AUTH_API JwtAuthenticator::TokenRefreshResponse {
-  template <class Archive>
-  void serialize(Archive& ar, const unsigned int version) {
-    ar& BOOST_NVP(access);
-  }
+  Q_GADGET
+  Q_PROPERTY(QByteArray access MEMBER access)
 
+ public:
   QByteArray access;
 };
 

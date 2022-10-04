@@ -9,8 +9,6 @@ QmlClient::QmlClient(QObject* parent) : egnite::rest::Client(parent) {
 
 QmlClient::~QmlClient() = default;
 
-QQmlListProperty<QmlApi> QmlClient::getApiList() { return {this, &m_api_list}; }
-
 void QmlClient::setVersion(const QString& version) {
   auto version_number = QVersionNumber::fromString(version);
   Q_ASSERT(!version_number.isNull());

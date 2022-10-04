@@ -9,7 +9,11 @@ namespace egnite::rest {
 /* ------------------------------- WrappedReply ----------------------------- */
 
 WrappedReply::WrappedReply(Reply* reply, QObject* parent)
-    : Reply(*new detail::WrappedReplyPrivate(reply), parent) {}
+    : Reply(*new detail::WrappedReplyPrivate(reply), parent) {
+  Q_D(detail::WrappedReply);
+  reply->setParent(this);
+  d->connectReply();
+}
 
 WrappedReply::~WrappedReply() = default;
 
@@ -53,20 +57,7 @@ bool WrappedReply::isAutoDelete() const {
 namespace detail {
 
 WrappedReplyPrivate::WrappedReplyPrivate(Reply* reply)
-    : m_reply(reply), m_auto_delete(false) {
-  Q_Q(WrappedReply);
-
-  m_reply->setParent(q);
-
-  QObject::connect(m_reply, &Reply::completed, q, &Reply::completed);
-  QObject::connect(m_reply, &Reply::succeeded, q, &Reply::succeeded);
-  QObject::connect(m_reply, &Reply::failed, q, &Reply::failed);
-  QObject::connect(m_reply, &Reply::error, q, &Reply::error);
-
-  QObject::connect(m_reply, &Reply::downloadProgress, q,
-                   &Reply::downloadProgress);
-  QObject::connect(m_reply, &Reply::uploadProgress, q, &Reply::uploadProgress);
-}
+    : m_reply(reply), m_auto_delete(false) {}
 
 WrappedReplyPrivate::~WrappedReplyPrivate() = default;
 
@@ -102,6 +93,19 @@ void WrappedReplyPrivate::setAutoDelete(bool enable) {
 }
 
 bool WrappedReplyPrivate::isAutoDelete() const { return m_auto_delete; }
+
+void WrappedReplyPrivate::connectReply() {
+  Q_Q(WrappedReply);
+
+  QObject::connect(m_reply, &Reply::completed, q, &Reply::completed);
+  QObject::connect(m_reply, &Reply::succeeded, q, &Reply::succeeded);
+  QObject::connect(m_reply, &Reply::failed, q, &Reply::failed);
+  QObject::connect(m_reply, &Reply::error, q, &Reply::error);
+
+  QObject::connect(m_reply, &Reply::downloadProgress, q,
+                   &Reply::downloadProgress);
+  QObject::connect(m_reply, &Reply::uploadProgress, q, &Reply::uploadProgress);
+}
 
 }  // namespace detail
 

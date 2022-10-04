@@ -29,12 +29,6 @@ class GenericReplyBase : public WrappedReply {
  protected:
   explicit GenericReplyBase(Reply* reply, QObject* parent = nullptr);
   ~GenericReplyBase() override;
-
- private:
-  void onCompletedImpl(std::function<void(int)> handler,
-                       QObject* scope = nullptr);
-  void onErrorImpl(std::function<void(const QString&, Error)> handler,
-                   QObject* scope = nullptr);
 };
 
 template <typename DataType, typename ErrorType,
@@ -54,7 +48,7 @@ template <typename Handler>
 ChildGenericReply<DataType, ErrorType>*
 GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onCompleted(
     Handler&& handler, QObject* scope) {
-  onCompletedImpl(
+  WrappedReply::onCompleted(
       core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
       scope);
   return static_cast<ChildGenericReply<DataType, ErrorType>*>(this);
@@ -66,24 +60,10 @@ template <typename Handler>
 ChildGenericReply<DataType, ErrorType>*
 GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onError(
     Handler&& handler, QObject* scope) {
-  onErrorImpl(core::utils::bindCallback<void(const QString&, Error)>(
-                  std::forward<Handler>(handler)),
-              scope);
+  WrappedReply::onError(core::utils::bindCallback<void(const QString&, Error)>(
+                            std::forward<Handler>(handler)),
+                        scope);
   return static_cast<ChildGenericReply<DataType, ErrorType>*>(this);
-}
-
-template <typename DataType, typename ErrorType,
-          template <typename, typename> typename ChildGenericReply>
-void GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onCompletedImpl(
-    std::function<void(int)> handler, QObject* scope) {
-  WrappedReply::onCompleted(std::move(handler), scope);
-}
-
-template <typename DataType, typename ErrorType,
-          template <typename, typename> typename ChildGenericReply>
-void GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onErrorImpl(
-    std::function<void(const QString&, Error)> handler, QObject* scope) {
-  WrappedReply::onError(std::move(handler), scope);
 }
 
 /* --------------------- GenericReply<DataType, ErrorType> ------------------ */
@@ -104,12 +84,6 @@ class GenericReply
 
  protected:
   using GenericReplyBase<DataType, ErrorType, GenericReply>::GenericReplyBase;
-
- private:
-  void onSucceededImpl(std::function<void(int, const DataType&)> handler,
-                       QObject* scope = nullptr);
-  void onFailedImpl(std::function<void(int, const ErrorType&)> handler,
-                    QObject* scope = nullptr);
 };
 
 template <typename DataType, typename ErrorType>
@@ -117,9 +91,15 @@ template <typename Handler>
 GenericReply<DataType, ErrorType>*
 GenericReply<DataType, ErrorType>::onSucceeded(Handler&& handler,
                                                QObject* scope) {
-  onSucceededImpl(core::utils::bindCallback<void(int, const DataType&)>(
-                      std::forward<Handler>(handler)),
-                  scope);
+  WrappedReply::onSucceeded(
+      [this, xFn = core::utils::bindCallback<void(int, const DataType&)>(
+                 std::forward<Handler>(handler))](int http_code,
+                                                  const Data& data) {
+        DataSerializer* serializer = this->getDataSerializer();
+        xFn(http_code, serializer->deserialize<DataType>(data));
+      },
+      scope);
+
   return this;
 }
 
@@ -127,32 +107,16 @@ template <typename DataType, typename ErrorType>
 template <typename Handler>
 GenericReply<DataType, ErrorType>* GenericReply<DataType, ErrorType>::onFailed(
     Handler&& handler, QObject* scope) {
-  onFailedImpl(core::utils::bindCallback<void(int, const ErrorType&)>(
-                   std::forward<Handler>(handler)),
-               scope);
-  return this;
-}
-
-template <typename DataType, typename ErrorType>
-void GenericReply<DataType, ErrorType>::onSucceededImpl(
-    std::function<void(int, const DataType&)> handler, QObject* scope) {
-  WrappedReply::onSucceeded(
-      [this, xFn = std::move(handler)](int http_code, const Data& data) {
-        DataSerializer* serializer = this->getDataSerializer();
-        xFn(http_code, serializer->deserialize<DataType>(data));
-      },
-      scope);
-}
-
-template <typename DataType, typename ErrorType>
-void GenericReply<DataType, ErrorType>::onFailedImpl(
-    std::function<void(int, const ErrorType&)> handler, QObject* scope) {
   WrappedReply::onFailed(
-      [this, xFn = std::move(handler)](int http_code, const Data& data) {
+      [this, xFn = core::utils::bindCallback<void(int, const ErrorType&)>(
+                 std::forward<Handler>(handler))](int http_code,
+                                                  const Data& data) {
         DataSerializer* serializer = this->getDataSerializer();
         xFn(http_code, serializer->deserialize<ErrorType>(data));
       },
       scope);
+
+  return this;
 }
 
 /* ------------------------ GenericReply<DataType, void> -------------------- */
@@ -173,20 +137,21 @@ class GenericReply<DataType, void>
 
  protected:
   using GenericReplyBase<DataType, void, GenericReply>::GenericReplyBase;
-
- private:
-  void onSucceededImpl(std::function<void(int, const DataType&)> handler,
-                       QObject* scope = nullptr);
-  void onFailedImpl(std::function<void(int)> handler, QObject* scope = nullptr);
 };
 
 template <typename DataType>
 template <typename Handler>
 GenericReply<DataType, void>* GenericReply<DataType, void>::onSucceeded(
     Handler&& handler, QObject* scope) {
-  onSucceededImpl(core::utils::bindCallback<void(int, const DataType&)>(
-                      std::forward<Handler>(handler)),
-                  scope);
+  WrappedReply::onSucceeded(
+      [this, xFn = core::utils::bindCallback<void(int, const DataType&)>(
+                 std::forward<Handler>(handler))](int http_code,
+                                                  const Data& data) {
+        DataSerializer* serializer = this->getDataSerializer();
+        xFn(http_code, serializer->deserialize<DataType>(data));
+      },
+      scope);
+
   return this;
 }
 
@@ -194,27 +159,11 @@ template <typename DataType>
 template <typename Handler>
 GenericReply<DataType, void>* GenericReply<DataType, void>::onFailed(
     Handler&& handler, QObject* scope) {
-  onFailedImpl(
+  WrappedReply::onFailed(
       core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
       scope);
+
   return this;
-}
-
-template <typename DataType>
-void GenericReply<DataType, void>::onSucceededImpl(
-    std::function<void(int, const DataType&)> handler, QObject* scope) {
-  WrappedReply::onSucceeded(
-      [this, xFn = std::move(handler)](int http_code, const Data& data) {
-        DataSerializer* serializer = this->getDataSerializer();
-        xFn(http_code, serializer->deserialize<DataType>(data));
-      },
-      scope);
-}
-
-template <typename DataType>
-void GenericReply<DataType, void>::onFailedImpl(
-    std::function<void(int)> handler, QObject* scope) {
-  WrappedReply::onFailed(std::move(handler), scope);
 }
 
 /* ----------------------- GenericReply<void, ErrorType> -------------------- */
@@ -235,21 +184,16 @@ class GenericReply<void, ErrorType>
 
  protected:
   using GenericReplyBase<void, ErrorType, GenericReply>::GenericReplyBase;
-
- private:
-  void onSucceededImpl(std::function<void(int)> handler,
-                       QObject* scope = nullptr);
-  void onFailedImpl(std::function<void(int, const ErrorType&)> handler,
-                    QObject* scope = nullptr);
 };
 
 template <typename ErrorType>
 template <typename Handler>
 GenericReply<void, ErrorType>* GenericReply<void, ErrorType>::onSucceeded(
     Handler&& handler, QObject* scope) {
-  onSucceededImpl(
+  WrappedReply::onSucceeded(
       core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
       scope);
+
   return this;
 }
 
@@ -257,27 +201,16 @@ template <typename ErrorType>
 template <typename Handler>
 GenericReply<void, ErrorType>* GenericReply<void, ErrorType>::onFailed(
     Handler&& handler, QObject* scope) {
-  onFailedImpl(core::utils::bindCallback<void(int, const ErrorType&)>(
-                   std::forward<Handler>(handler)),
-               scope);
-  return this;
-}
-
-template <typename ErrorType>
-void GenericReply<void, ErrorType>::onSucceededImpl(
-    std::function<void(int)> handler, QObject* scope) {
-  WrappedReply::onSucceeded(std::move(handler), scope);
-}
-
-template <typename ErrorType>
-void GenericReply<void, ErrorType>::onFailedImpl(
-    std::function<void(int, const ErrorType&)> handler, QObject* scope) {
   WrappedReply::onFailed(
-      [this, xFn = std::move(handler)](int http_code, const Data& data) {
+      [this, xFn = core::utils::bindCallback<void(int, const ErrorType&)>(
+                 std::forward<Handler>(handler))](int http_code,
+                                                  const Data& data) {
         DataSerializer* serializer = this->getDataSerializer();
         xFn(http_code, serializer->deserialize<ErrorType>(data));
       },
       scope);
+
+  return this;
 }
 
 }  // namespace egnite::rest

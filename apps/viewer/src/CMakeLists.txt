@@ -51,7 +51,7 @@ egnite_add_qml_executable(
   egnite::egnite-cmd)
 
 target_include_directories(
-  sniffer
+  viewer
   PUBLIC $<BUILD_INTERFACE:${include_root}>
   PRIVATE ${source_root})
 # ----------------------------------------------------------------------- #

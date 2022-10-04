@@ -1,12 +1,11 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "api.h"
-
-#include "client.h"
 /* ----------------------------------- Egnite ------------------------------- */
 #include <egnite/rest/api.h>
 /* -------------------------------------------------------------------------- */
 
-QmlApi::QmlApi(QObject* parent) : QObject(parent), m_init(false) {}
+QmlApi::QmlApi(QObject* parent)
+    : QObject(parent), m_init(false), m_client(nullptr), m_api(nullptr) {}
 
 QmlApi::~QmlApi() = default;
 
@@ -28,12 +27,20 @@ void QmlApi::setPath(const QString& path) {
 
 QString QmlApi::getPath() const { return m_path; }
 
+void QmlApi::setClient(egnite::rest::Client* client) {
+  if (m_client == client) return;
+
+  m_client = client;
+  revaluateApi();
+
+  Q_EMIT clientChanged(m_client);
+}
+
+egnite::rest::Client* QmlApi::getClient() const { return m_client; }
+
 void QmlApi::revaluateApi() {
-  if (!m_init) return;
+  if (!m_init || !m_client) return;
   if (m_api) m_api->deleteLater();
 
-  auto client = qobject_cast<QmlClient*>(parent());
-  Q_ASSERT(client);
-
-  m_api = client->createApi(m_path, this);
+  m_api = m_client->createApi(m_path, this);
 }

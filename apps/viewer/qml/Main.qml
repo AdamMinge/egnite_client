@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Controls.Material
 
 import egnite.rest 1.0
+import egnite.auth 1.0
 
 QtObject {
 
@@ -11,11 +12,19 @@ QtObject {
     property var rest_client: QmlClient {
         baseUrl: "http://localhost/api"
         version: "1"
-
-        api: [
-
-        ]
     }
+
+    property var rest_authenticator: QmlJwtAuthenticator {
+        client: rest_client
+        path: "token"
+
+        routing {
+            obtain: ""
+            refresh: "refresh"
+            blacklist: "blacklist"
+        }
+    }
+
 
     property var auth_window: AuthWindow{
 

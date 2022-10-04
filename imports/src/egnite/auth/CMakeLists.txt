@@ -10,9 +10,9 @@ set(include_root ${EGNITE_SOURCE_DIR}/imports/include/egnite/auth)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(sources)
+set(sources ${source_root}/jwt_authenticator.cpp)
 
-set(includes)
+set(includes ${include_root}/jwt_authenticator.h)
 
 set(resources)
 

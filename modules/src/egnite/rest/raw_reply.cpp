@@ -16,7 +16,10 @@ namespace egnite::rest {
 /* --------------------------------- RawReply ------------------------------- */
 
 RawReply::RawReply(Api* api, QNetworkReply* network_reply, QObject* parent)
-    : Reply(*new detail::RawReplyPrivate(api, network_reply), parent) {}
+    : Reply(*new detail::RawReplyPrivate(api, network_reply), parent) {
+  Q_D(detail::RawReply);
+  d->connectReply();
+}
 
 RawReply::~RawReply() = default;
 
@@ -179,9 +182,7 @@ const QByteArray RawReplyPrivate::ContentTypeCbor =
     QByteArray{"application/cbor"};
 
 RawReplyPrivate::RawReplyPrivate(Api* api, QNetworkReply* network_reply)
-    : m_api(api), m_network_reply(network_reply), m_auto_delete(false) {
-  connectReply();
-}
+    : m_api(api), m_network_reply(network_reply), m_auto_delete(false) {}
 
 RawReplyPrivate::~RawReplyPrivate() {
   if (m_network_reply) m_network_reply->deleteLater();
@@ -256,10 +257,10 @@ void RawReplyPrivate::replyFinished() {
 }
 
 void RawReplyPrivate::connectReply() {
-  connect(m_network_reply, &QNetworkReply::finished, this,
-          &RawReplyPrivate::replyFinished);
-
   Q_Q(Reply);
+
+  QObject::connect(m_network_reply, &QNetworkReply::finished, q,
+                   [this]() { replyFinished(); });
   QObject::connect(m_network_reply, &QNetworkReply::downloadProgress, q,
                    &Reply::downloadProgress);
   QObject::connect(m_network_reply, &QNetworkReply::uploadProgress, q,

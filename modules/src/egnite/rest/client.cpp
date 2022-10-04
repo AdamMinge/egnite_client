@@ -98,6 +98,7 @@ ClientPrivate::ClientPrivate(const QUrl& url, const QVersionNumber& version,
       m_version(version),
       m_headers(headers),
       m_parameters(parameters),
+      m_manager(new QNetworkAccessManager),
       m_data_serializer(new DataSerializer),
       m_reply_decorator(new ReplyDecorator) {}
 
@@ -140,7 +141,7 @@ RequestBuilder ClientPrivate::getRequestBuilder() const {
 }
 
 QNetworkAccessManager* ClientPrivate::getNetworkAccessManager() const {
-  return m_manager;
+  return m_manager.get();
 }
 
 DataSerializer* ClientPrivate::getDataSerializer() const {

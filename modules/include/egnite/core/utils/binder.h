@@ -27,7 +27,8 @@ struct DstBindInfo<TDstRet (TDstClass::*)(TDstArgs...) const> {
                          const> {
     template <typename TFn>
     static inline auto bind(TFn&& fn) {
-      return [xFn = capture(fn)](TDstArgs... args, TDstMissArgs... missArgs) {
+      return [xFn = capture(std::forward<TFn>(fn))](TDstArgs... args,
+                                                    TDstMissArgs... missArgs) {
         std::invoke(xFn, args...);
       };
     }
@@ -37,7 +38,8 @@ struct DstBindInfo<TDstRet (TDstClass::*)(TDstArgs...) const> {
   struct SrcBindInfo<TSrcRet (TSrcClass::*)(TDstArgs..., TDstMissArgs...)> {
     template <typename TFn>
     static inline auto bind(TFn&& fn) {
-      return [xFn = capture(fn)](TDstArgs... args, TDstMissArgs... missArgs) {
+      return [xFn = capture(std::forward<TFn>(fn))](TDstArgs... args,
+                                                    TDstMissArgs... missArgs) {
         std::invoke(xFn, args...);
       };
     }
@@ -47,7 +49,8 @@ struct DstBindInfo<TDstRet (TDstClass::*)(TDstArgs...) const> {
   struct SrcBindInfo<TSrcRet (*)(TDstArgs..., TDstMissArgs...)> {
     template <typename TFn>
     static inline auto bind(TFn&& fn) {
-      return [xFn = capture(fn)](TDstArgs... args, TDstMissArgs... missArgs) {
+      return [xFn = capture(std::forward<TFn>(fn))](TDstArgs... args,
+                                                    TDstMissArgs... missArgs) {
         std::invoke(xFn, args...);
       };
     }
@@ -66,7 +69,8 @@ struct DstBindInfo<TDstRet (TDstClass::*)(TDstArgs...)> {
                          const> {
     template <typename TFn>
     static inline auto bind(TFn&& fn) {
-      return [xFn = capture(fn)](TDstArgs... args, TDstMissArgs... missArgs) {
+      return [xFn = capture(std::forward<TFn>(fn))](TDstArgs... args,
+                                                    TDstMissArgs... missArgs) {
         std::invoke(xFn, args...);
       };
     }
@@ -76,7 +80,8 @@ struct DstBindInfo<TDstRet (TDstClass::*)(TDstArgs...)> {
   struct SrcBindInfo<TSrcRet (TSrcClass::*)(TDstArgs..., TDstMissArgs...)> {
     template <typename TFn>
     static inline auto bind(TFn&& fn) {
-      return [xFn = capture(fn)](TDstArgs... args, TDstMissArgs... missArgs) {
+      return [xFn = capture(std::forward<TFn>(fn))](TDstArgs... args,
+                                                    TDstMissArgs... missArgs) {
         std::invoke(xFn, args...);
       };
     }
@@ -86,7 +91,8 @@ struct DstBindInfo<TDstRet (TDstClass::*)(TDstArgs...)> {
   struct SrcBindInfo<TSrcRet (*)(TDstArgs..., TDstMissArgs...)> {
     template <typename TFn>
     static inline auto bind(TFn&& fn) {
-      return [xFn = capture(fn)](TDstArgs... args, TDstMissArgs... missArgs) {
+      return [xFn = capture(std::forward<TFn>(fn))](TDstArgs... args,
+                                                    TDstMissArgs... missArgs) {
         std::invoke(xFn, args...);
       };
     }
@@ -105,7 +111,8 @@ struct DstBindInfo<TDstRet (*)(TDstArgs...)> {
                          const> {
     template <typename TFn>
     static inline auto bind(TFn&& fn) {
-      return [xFn = capture(fn)](TDstArgs... args, TDstMissArgs... missArgs) {
+      return [xFn = capture(std::forward<TFn>(fn))](TDstArgs... args,
+                                                    TDstMissArgs... missArgs) {
         std::invoke(xFn, args...);
       };
     }
@@ -115,7 +122,8 @@ struct DstBindInfo<TDstRet (*)(TDstArgs...)> {
   struct SrcBindInfo<TSrcRet (TSrcClass::*)(TDstArgs..., TDstMissArgs...)> {
     template <typename TFn>
     static inline auto bind(TFn&& fn) {
-      return [xFn = capture(fn)](TDstArgs... args, TDstMissArgs... missArgs) {
+      return [xFn = capture(std::forward<TFn>(fn))](TDstArgs... args,
+                                                    TDstMissArgs... missArgs) {
         std::invoke(xFn, args...);
       };
     }
@@ -125,7 +133,8 @@ struct DstBindInfo<TDstRet (*)(TDstArgs...)> {
   struct SrcBindInfo<TSrcRet (*)(TDstArgs..., TDstMissArgs...)> {
     template <typename TFn>
     static inline auto bind(TFn&& fn) {
-      return [xFn = capture(fn)](TDstArgs... args, TDstMissArgs... missArgs) {
+      return [xFn = capture(std::forward<TFn>(fn))](TDstArgs... args,
+                                                    TDstMissArgs... missArgs) {
         std::invoke(xFn, args...);
       };
     }

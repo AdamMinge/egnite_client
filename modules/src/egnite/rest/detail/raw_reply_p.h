@@ -41,6 +41,8 @@ class RawReplyPrivate : public QObjectPrivate {
   void setAutoDelete(bool enable);
   [[nodiscard]] bool isAutoDelete() const;
 
+  void connectReply();
+
  public:
   static QNetworkReply* send(QNetworkAccessManager* manager,
                              const QNetworkRequest& request,
@@ -48,7 +50,6 @@ class RawReplyPrivate : public QObjectPrivate {
 
  private:
   void replyFinished();
-  void connectReply();
 
   [[nodiscard]] QByteArray parseContentType(ParseError& parse_error);
   [[nodiscard]] Data parseData(const QByteArray& content_type,
