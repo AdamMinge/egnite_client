@@ -238,6 +238,7 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
                                   const QUrlQuery& parameters,
                                   const Headers& headers) const {
   auto request = m_client->getRequestBuilder()
+                     .addPath(m_path)
                      .addPath(path)
                      .addParameters(parameters)
                      .addHeaders(headers)
@@ -252,6 +253,7 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
                                   const Headers& headers) const {
   auto request =
       m_client->getRequestBuilder()
+          .addPath(m_path)
           .addPath(path)
           .addParameters(parameters)
           .addHeaders(headers)
@@ -269,6 +271,7 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
                                   const Headers& headers) const {
   auto request =
       m_client->getRequestBuilder()
+          .addPath(m_path)
           .addPath(path)
           .addParameters(parameters)
           .addHeaders(headers)

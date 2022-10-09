@@ -90,7 +90,7 @@ void RequestBuilderPrivate::setVersion(const QVersionNumber& version) {
 }
 
 void RequestBuilderPrivate::addPath(const QString& path) {
-  m_paths.append(path);
+  if (!path.isEmpty()) m_paths.append(path);
 }
 
 void RequestBuilderPrivate::addParameters(const QUrlQuery& parameters) {

@@ -49,21 +49,21 @@ LoggerReply<Logger>::~LoggerReply() = default;
 template <typename Logger>
 void LoggerReply<Logger>::logCompleted(int http_code, const Data& data) {
   logTheme("Completed");
-  m_logger << "\t" << QString("http_code: %1").arg(http_code);
+  m_logger << "\t" << QString("http_code: %1").arg(http_code) << "\n";
   logData(data);
 }
 
 template <typename Logger>
 void LoggerReply<Logger>::logSucceeded(int http_code, const Data& data) {
   logTheme("Succeeded");
-  m_logger << "\t" << QString("http_code: %1").arg(http_code);
+  m_logger << "\t" << QString("http_code: %1").arg(http_code) << "\n";
   logData(data);
 }
 
 template <typename Logger>
 void LoggerReply<Logger>::logFailed(int http_code, const Data& data) {
   logTheme("Failed");
-  m_logger << "\t" << QString("http code: %1").arg(http_code);
+  m_logger << "\t" << QString("http code: %1").arg(http_code) << "\n";
   logData(data);
 }
 

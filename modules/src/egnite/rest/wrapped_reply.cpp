@@ -97,7 +97,6 @@ bool WrappedReplyPrivate::isAutoDelete() const { return m_auto_delete; }
 void WrappedReplyPrivate::connectReply() {
   Q_Q(WrappedReply);
 
-  QObject::connect(m_reply, &Reply::completed, q, &Reply::completed);
   QObject::connect(m_reply, &Reply::succeeded, q, &Reply::succeeded);
   QObject::connect(m_reply, &Reply::failed, q, &Reply::failed);
   QObject::connect(m_reply, &Reply::error, q, &Reply::error);
