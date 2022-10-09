@@ -29,9 +29,6 @@ class JwtAuthenticatorPrivate : public QObjectPrivate {
   explicit JwtAuthenticatorPrivate(rest::Client* client, const QString& path);
   ~JwtAuthenticatorPrivate() override;
 
-  void registerDecorator();
-  void unregisterDecorator();
-
   void login(const QString& username, const QString& password);
   void refresh();
   void logout();

@@ -2,9 +2,14 @@
 #define EGNITE_QML_REST_CLIENT_H
 
 /* ------------------------------------- Qt --------------------------------- */
+#include <QList>
 #include <QtQml>
 /* ----------------------------------- Egnite ------------------------------- */
 #include <egnite/rest/client.h>
+#include <egnite/rest/logger_reply.h>
+#include <egnite/rest/reply_decorator.h>
+/* ----------------------------------- Local -------------------------------- */
+#include "reply_decorator.h"
 /* -------------------------------------------------------------------------- */
 
 class QmlClient : public egnite::rest::Client {
@@ -13,16 +18,22 @@ class QmlClient : public egnite::rest::Client {
 
   Q_PROPERTY(
       QString version READ getVersion WRITE setVersion NOTIFY versionChanged)
+  Q_PROPERTY(QmlReplyDecorator *replyDecorator READ getReplyDecorator)
 
  public:
-  explicit QmlClient(QObject* parent = nullptr);
+  explicit QmlClient(QObject *parent = nullptr);
   ~QmlClient() override;
 
-  void setVersion(const QString& version);
+  void setVersion(const QString &version);
   QString getVersion() const;
 
+  QmlReplyDecorator *getReplyDecorator() const;
+
  Q_SIGNALS:
-  void versionChanged(const QString& version);
+  void versionChanged(const QString &version);
+
+ private:
+  QmlReplyDecorator *m_reply_decorator;
 };
 
 #endif  // EGNITE_QML_REST_CLIENT_H

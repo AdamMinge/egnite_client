@@ -283,11 +283,11 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
 QByteArray ApiPrivate::convertData(const Data& body) {
   return std::visit(
       core::utils::overloaded{
-          [&](std::nullopt_t) -> QByteArray { return QByteArray{}; },
-          [&](const QJsonValue& body) -> QByteArray {
+          [](std::nullopt_t) -> QByteArray { return QByteArray{}; },
+          [](const QJsonValue& body) -> QByteArray {
             return ApiPrivate::convertData(body);
           },
-          [&](const QCborValue& body) -> QByteArray {
+          [](const QCborValue& body) -> QByteArray {
             return ApiPrivate::convertData(body);
           }},
       body);

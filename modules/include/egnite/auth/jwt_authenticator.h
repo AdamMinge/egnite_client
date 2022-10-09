@@ -14,7 +14,6 @@ namespace egnite::auth {
 
 namespace detail {
 class JwtAuthenticatorPrivate;
-class JwtAuthenticatorReplyPrivate;
 }  // namespace detail
 
 class EGNITE_AUTH_API JwtAuthenticator : public Authenticator {

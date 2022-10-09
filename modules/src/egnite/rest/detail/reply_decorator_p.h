@@ -3,21 +3,13 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QtCore/private/qobject_p.h>
-/* ---------------------------------- Standard ------------------------------ */
-#include <vector>
+
+#include <QList>
 /* ------------------------------------ Local ------------------------------- */
 #include "egnite/rest/reply_decorator.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest::detail {
-
-struct ReplyFactory {
-  int id;
-  uint32_t priority;
-  std::function<Reply*(Reply*)> factory;
-
-  Reply* operator()(Reply* reply) const { return factory(reply); }
-};
 
 class ReplyDecoratorPrivate : public QObjectPrivate {
  public:
@@ -28,13 +20,16 @@ class ReplyDecoratorPrivate : public QObjectPrivate {
 
   Reply* decorate(Reply* reply) const;
 
-  void registerFactory(int id, uint32_t priority,
-                       std::function<Reply*(Reply*)> factory);
-  void unregisterFactory(int id);
-  void unregisterAllFactories();
+  ReplyDecoratorFactory* at(qsizetype i) const;
+  qsizetype count() const;
+  void clear();
+
+  void append(ReplyDecoratorFactory* factory);
+  void prepend(ReplyDecoratorFactory* factory);
+  void remove(ReplyDecoratorFactory* factory);
 
  private:
-  std::vector<ReplyFactory> m_factories;
+  QList<ReplyDecoratorFactory*> m_factories;
 };
 
 }  // namespace egnite::rest::detail

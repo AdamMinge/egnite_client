@@ -12,6 +12,12 @@ QtObject {
     property var rest_client: QmlClient {
         baseUrl: "http://localhost/api"
         version: "1"
+
+        replyDecorator {
+            factories: [
+                QmlDebugReplyFactory{}
+            ]
+        }
     }
 
     property var rest_authenticator: QmlJwtAuthenticator {
@@ -24,7 +30,6 @@ QtObject {
             blacklist: "blacklist"
         }
     }
-
 
     property var auth_window: AuthWindow{
 

@@ -28,12 +28,14 @@ set(sources
 
 set(includes
     ${include_root}/export.h
+    ${include_root}/global.h
     ${include_root}/api.h
     ${include_root}/client.h
     ${include_root}/reply.h
     ${include_root}/raw_reply.h
     ${include_root}/wrapped_reply.h
     ${include_root}/generic_reply.h
+    ${include_root}/logger_reply.h
     ${include_root}/reply_decorator.h
     ${include_root}/request_builder.h
     ${include_root}/data_serializer.h)

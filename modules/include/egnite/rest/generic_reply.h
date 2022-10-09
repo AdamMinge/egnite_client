@@ -3,7 +3,6 @@
 
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/rest/data_serializer.h"
-#include "egnite/rest/export.h"
 #include "egnite/rest/wrapped_reply.h"
 /* -------------------------------------------------------------------------- */
 

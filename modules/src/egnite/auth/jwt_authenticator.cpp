@@ -15,19 +15,13 @@ namespace egnite::auth {
 JwtAuthenticator::JwtAuthenticator(rest::Client* client, const QString& subpath,
                                    QObject* parent)
     : JwtAuthenticator(*new detail::JwtAuthenticatorPrivate(client, subpath),
-                       parent) {
-  Q_D(detail::JwtAuthenticator);
-  d->registerDecorator();
-}
+                       parent) {}
 
 JwtAuthenticator::JwtAuthenticator(detail::JwtAuthenticatorPrivate& impl,
                                    QObject* parent)
     : Authenticator(impl, parent) {}
 
-JwtAuthenticator::~JwtAuthenticator() {
-  Q_D(detail::JwtAuthenticator);
-  d->unregisterDecorator();
-}
+JwtAuthenticator::~JwtAuthenticator() {}
 
 void JwtAuthenticator::login(const QString& username, const QString& password) {
   Q_D(detail::JwtAuthenticator);
@@ -103,19 +97,6 @@ JwtAuthenticatorPrivate::JwtAuthenticatorPrivate(rest::Client* client,
     : m_api(client->createApi(path)) {}
 
 JwtAuthenticatorPrivate::~JwtAuthenticatorPrivate() = default;
-
-void JwtAuthenticatorPrivate::registerDecorator() {
-  Q_Q(JwtAuthenticator);
-  auto reply_decorator = m_api->getClient()->getReplyDecorator();
-  reply_decorator->registerFactoryWithFilter<JwtAuthenticatorReply>(
-      0x00FFFFFF, [this](auto reply) { return reply->getApi() != m_api.get(); },
-      q);
-}
-
-void JwtAuthenticatorPrivate::unregisterDecorator() {
-  auto reply_decorator = m_api->getClient()->getReplyDecorator();
-  reply_decorator->unregisterFactory<JwtAuthenticatorReply>();
-}
 
 void JwtAuthenticatorPrivate::login(const QString& username,
                                     const QString& password) {

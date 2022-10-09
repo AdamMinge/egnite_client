@@ -8,36 +8,61 @@
 
 namespace egnite::rest {
 
+/* --------------------------- ReplyDecoratorFactory ------------------------ */
+
+ReplyDecoratorFactory::ReplyDecoratorFactory(QObject* parent)
+    : QObject(parent) {}
+
+ReplyDecoratorFactory::ReplyDecoratorFactory(QObjectPrivate& impl,
+                                             QObject* parent)
+    : QObject(impl, parent) {}
+
+ReplyDecoratorFactory::~ReplyDecoratorFactory() = default;
+
 /* ------------------------------ ReplyDecorator ---------------------------- */
 
 ReplyDecorator::ReplyDecorator(QObject* parent)
     : ReplyDecorator(*new detail::ReplyDecoratorPrivate(), parent) {}
 
-ReplyDecorator::~ReplyDecorator() = default;
-
 ReplyDecorator::ReplyDecorator(detail::ReplyDecoratorPrivate& impl,
                                QObject* parent)
     : QObject(impl, parent) {}
+
+ReplyDecorator::~ReplyDecorator() = default;
 
 Reply* ReplyDecorator::decorate(Reply* reply) const {
   Q_D(const detail::ReplyDecorator);
   return d->decorate(reply);
 }
 
-void ReplyDecorator::registerFactory(int id, uint32_t priority,
-                                     std::function<Reply*(Reply*)> factory) {
-  Q_D(detail::ReplyDecorator);
-  d->registerFactory(id, priority, std::move(factory));
+ReplyDecoratorFactory* ReplyDecorator::at(qsizetype i) const {
+  Q_D(const detail::ReplyDecorator);
+  return d->at(i);
 }
 
-void ReplyDecorator::unregisterFactory(int id) {
-  Q_D(detail::ReplyDecorator);
-  d->unregisterFactory(id);
+qsizetype ReplyDecorator::count() const {
+  Q_D(const detail::ReplyDecorator);
+  return d->count();
 }
 
-void ReplyDecorator::unregisterAllFactories() {
+void ReplyDecorator::clear() {
   Q_D(detail::ReplyDecorator);
-  d->unregisterAllFactories();
+  d->clear();
+}
+
+void ReplyDecorator::append(ReplyDecoratorFactory* factory) {
+  Q_D(detail::ReplyDecorator);
+  d->append(factory);
+}
+
+void ReplyDecorator::prepend(ReplyDecoratorFactory* factory) {
+  Q_D(detail::ReplyDecorator);
+  d->prepend(factory);
+}
+
+void ReplyDecorator::remove(ReplyDecoratorFactory* factory) {
+  Q_D(detail::ReplyDecorator);
+  d->remove(factory);
 }
 
 /* -------------------------- ReplyDecoratorPrivate ------------------------- */
@@ -47,27 +72,29 @@ namespace detail {
 ReplyDecoratorPrivate::ReplyDecoratorPrivate() {}
 
 Reply* ReplyDecoratorPrivate::decorate(Reply* reply) const {
-  for (auto& factory : m_factories) reply = factory(reply);
+  for (auto& factory : m_factories) reply = factory->create(reply);
   return reply;
 }
 
-void ReplyDecoratorPrivate::registerFactory(
-    int id, uint32_t priority, std::function<Reply*(Reply*)> factory) {
-  auto reply_factory = ReplyFactory{
-      .id = id, .priority = priority, .factory = std::move(factory)};
-  m_factories.insert(
-      std::upper_bound(m_factories.begin(), m_factories.end(), reply_factory,
-                       [](const auto& inserted, const auto& current) {
-                         return inserted.priority < current.priority;
-                       }),
-      std::move(reply_factory));
+ReplyDecoratorFactory* ReplyDecoratorPrivate::at(qsizetype i) const {
+  return m_factories.at(i);
 }
 
-void ReplyDecoratorPrivate::unregisterFactory(int id) {
-  std::erase_if(m_factories, [id](const auto& item) { return item.id == id; });
+qsizetype ReplyDecoratorPrivate::count() const { return m_factories.count(); }
+
+void ReplyDecoratorPrivate::clear() { m_factories.clear(); }
+
+void ReplyDecoratorPrivate::append(ReplyDecoratorFactory* factory) {
+  m_factories.append(factory);
 }
 
-void ReplyDecoratorPrivate::unregisterAllFactories() { m_factories.clear(); }
+void ReplyDecoratorPrivate::prepend(ReplyDecoratorFactory* factory) {
+  m_factories.prepend(factory);
+}
+
+void ReplyDecoratorPrivate::remove(ReplyDecoratorFactory* factory) {
+  m_factories.removeAll(factory);
+}
 
 }  // namespace detail
 
