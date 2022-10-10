@@ -2,12 +2,9 @@
 #define EGNITE_QML_REST_CLIENT_H
 
 /* ------------------------------------- Qt --------------------------------- */
-#include <QList>
 #include <QtQml>
 /* ----------------------------------- Egnite ------------------------------- */
 #include <egnite/rest/client.h>
-#include <egnite/rest/logger_reply.h>
-#include <egnite/rest/reply_decorator.h>
 /* ----------------------------------- Local -------------------------------- */
 #include "reply_decorator.h"
 /* -------------------------------------------------------------------------- */

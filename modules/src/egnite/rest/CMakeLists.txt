@@ -17,6 +17,7 @@ set(sources
     ${source_root}/raw_reply.cpp
     ${source_root}/wrapped_reply.cpp
     ${source_root}/reply_decorator.cpp
+    ${source_root}/reply_decorator_factory.cpp
     ${source_root}/request_builder.cpp
     ${source_root}/data_serializer.cpp
     ${source_root}/detail/api_p.h
@@ -37,6 +38,7 @@ set(includes
     ${include_root}/generic_reply.h
     ${include_root}/logger_reply.h
     ${include_root}/reply_decorator.h
+    ${include_root}/reply_decorator_factory.h
     ${include_root}/request_builder.h
     ${include_root}/data_serializer.h)
 # ----------------------------------------------------------------------- #

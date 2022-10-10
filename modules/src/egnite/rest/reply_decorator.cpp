@@ -1,23 +1,12 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "egnite/rest/reply_decorator.h"
 
-#include "egnite/rest/detail/api_p.h"
 #include "egnite/rest/detail/reply_decorator_p.h"
 #include "egnite/rest/reply.h"
+#include "egnite/rest/reply_decorator_factory.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
-
-/* --------------------------- ReplyDecoratorFactory ------------------------ */
-
-ReplyDecoratorFactory::ReplyDecoratorFactory(QObject* parent)
-    : QObject(parent) {}
-
-ReplyDecoratorFactory::ReplyDecoratorFactory(QObjectPrivate& impl,
-                                             QObject* parent)
-    : QObject(impl, parent) {}
-
-ReplyDecoratorFactory::~ReplyDecoratorFactory() = default;
 
 /* ------------------------------ ReplyDecorator ---------------------------- */
 

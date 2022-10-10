@@ -3,35 +3,13 @@
 
 /* ------------------------------------- Qt --------------------------------- */
 #include <QtQml>
-/* ------------------------------------- Qt --------------------------------- */
-#include <egnite/rest/logger_reply.h>
-#include <egnite/rest/reply_decorator.h>
 /* -------------------------------------------------------------------------- */
 
-class QmlReplyFactory : public QObject {
-  Q_OBJECT
-  QML_ELEMENT
+namespace egnite::rest {
+class ReplyDecorator;
+}
 
- public:
-  explicit QmlReplyFactory(QObject* parent = nullptr);
-  ~QmlReplyFactory() override;
-
-  virtual egnite::rest::ReplyDecoratorFactory* getFactory() const = 0;
-};
-
-class QmlDebugReplyFactory : public QmlReplyFactory {
-  Q_OBJECT
-  QML_ELEMENT
-
- public:
-  explicit QmlDebugReplyFactory(QObject* parent = nullptr);
-  ~QmlDebugReplyFactory() override;
-
-  egnite::rest::ReplyDecoratorFactory* getFactory() const override;
-
- private:
-  egnite::rest::ReplyDecoratorFactory* m_factory;
-};
+class QmlReplyFactory;
 
 class QmlReplyDecorator : public QObject {
   Q_OBJECT

@@ -11,10 +11,10 @@ set(include_root ${EGNITE_SOURCE_DIR}/imports/include/egnite/rest)
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
 set(sources ${source_root}/client.cpp ${source_root}/api.cpp
-            ${source_root}/reply_decorator.cpp)
+            ${source_root}/reply_decorator.cpp ${source_root}/reply_factory.cpp)
 
 set(includes ${include_root}/client.h ${include_root}/api.h
-             ${include_root}/reply_decorator.h)
+             ${include_root}/reply_decorator.h ${include_root}/reply_factory.h)
 
 set(resources)
 
