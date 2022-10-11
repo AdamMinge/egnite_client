@@ -10,9 +10,11 @@ set(include_root ${EGNITE_SOURCE_DIR}/imports/include/egnite/auth)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(sources ${source_root}/jwt_authenticator.cpp)
+set(sources ${source_root}/jwt_authenticator.cpp
+            ${source_root}/jwt_authenticator_reply.cpp)
 
-set(includes ${include_root}/jwt_authenticator.h)
+set(includes ${include_root}/jwt_authenticator.h
+             ${include_root}/jwt_authenticator_reply.h)
 
 set(resources)
 
@@ -42,7 +44,8 @@ egnite_add_qml_module(
   RESOURCES
   ${resources}
   DEPENDENCIES
-  egnite::egnite-auth)
+  egnite::egnite-auth
+  egnite::egnite-rest-qml)
 
 target_include_directories(
   egnite-auth-qml

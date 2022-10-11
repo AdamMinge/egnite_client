@@ -3,7 +3,7 @@
 
 #include "egnite/rest/client.h"
 #include "egnite/rest/detail/api_p.h"
-#include "egnite/rest/detail/raw_reply_p.h"
+#include "egnite/rest/detail/reply_p.h"
 #include "egnite/rest/reply_decorator.h"
 /* ------------------------------------- Qt --------------------------------- */
 #include <QJsonArray>
@@ -13,19 +13,32 @@
 
 namespace egnite::rest {
 
+/* ---------------------------------- IApi ---------------------------------- */
+
+IApi::IApi(QObject* parent) : QObject(parent) {}
+
+IApi::IApi(QObjectPrivate& impl, QObject* parent) : QObject(impl, parent) {}
+
+IApi::~IApi() = default;
+
 /* ---------------------------------- Api ----------------------------------- */
 
-Api::Api(Client* client, QNetworkAccessManager* manager, const QString& subpath,
-         QObject* parent)
+Api::Api(IClient* client, QNetworkAccessManager* manager,
+         const QString& subpath, QObject* parent)
     : Api(*new detail::ApiPrivate(client, manager, subpath), parent) {}
 
-Api::Api(detail::ApiPrivate& impl, QObject* parent) : QObject(impl, parent) {}
+Api::Api(detail::ApiPrivate& impl, QObject* parent) : IApi(impl, parent) {}
 
 Api::~Api() = default;
 
-Client* Api::getClient() const {
+IClient* Api::getClient() const {
   Q_D(const detail::Api);
   return d->getClient();
+}
+
+IReplyDecorator* Api::getReplyDecorator() const {
+  Q_D(const detail::Api);
+  return d->getReplyDecorator();
 }
 
 DataSerializer* Api::getDataSerializer() const {
@@ -33,21 +46,16 @@ DataSerializer* Api::getDataSerializer() const {
   return d->getDataSerializer();
 }
 
-ReplyDecorator* Api::getReplyDecorator() const {
-  Q_D(const detail::Api);
-  return d->getReplyDecorator();
-}
-
-Api* Api::createSubApi(const QString& path, QObject* parent) {
+IApi* Api::createSubApi(const QString& path, QObject* parent) {
   Q_D(const detail::Api);
   return d->getClient()->createApi(QString("%1/%2").arg(d->getPath(), path),
                                    parent);
 }
 
-Reply* Api::get(const QString& path, const QUrlQuery& parameters,
-                const Headers& headers, QObject* parent) const {
+IReply* Api::get(const QString& path, const QUrlQuery& parameters,
+                 const Headers& headers, QObject* parent) const {
   Q_D(const detail::Api);
-  auto reply = new RawReply(
+  auto reply = new Reply(
       const_cast<Api*>(this),
       d->create(detail::ApiPrivate::GetVerb, path, parameters, headers),
       parent);
@@ -55,10 +63,10 @@ Reply* Api::get(const QString& path, const QUrlQuery& parameters,
   return getReplyDecorator()->decorate(reply);
 }
 
-Reply* Api::head(const QString& path, const QUrlQuery& parameters,
-                 const Headers& headers, QObject* parent) const {
+IReply* Api::head(const QString& path, const QUrlQuery& parameters,
+                  const Headers& headers, QObject* parent) const {
   Q_D(const detail::Api);
-  auto reply = new RawReply(
+  auto reply = new Reply(
       const_cast<Api*>(this),
       d->create(detail::ApiPrivate::HeadVerb, path, parameters, headers),
       parent);
@@ -66,10 +74,10 @@ Reply* Api::head(const QString& path, const QUrlQuery& parameters,
   return getReplyDecorator()->decorate(reply);
 }
 
-Reply* Api::deleteResource(const QString& path, const QUrlQuery& parameters,
-                           const Headers& headers, QObject* parent) const {
+IReply* Api::deleteResource(const QString& path, const QUrlQuery& parameters,
+                            const Headers& headers, QObject* parent) const {
   Q_D(const detail::Api);
-  auto reply = new RawReply(
+  auto reply = new Reply(
       const_cast<Api*>(this),
       d->create(detail::ApiPrivate::DeleteVerb, path, parameters, headers),
       parent);
@@ -77,10 +85,10 @@ Reply* Api::deleteResource(const QString& path, const QUrlQuery& parameters,
   return getReplyDecorator()->decorate(reply);
 }
 
-Reply* Api::post(const QString& path, const QUrlQuery& parameters,
-                 const Headers& headers, QObject* parent) const {
+IReply* Api::post(const QString& path, const QUrlQuery& parameters,
+                  const Headers& headers, QObject* parent) const {
   Q_D(const detail::Api);
-  auto reply = new RawReply(
+  auto reply = new Reply(
       const_cast<Api*>(this),
       d->create(detail::ApiPrivate::PostVerb, path, parameters, headers),
       parent);
@@ -88,11 +96,11 @@ Reply* Api::post(const QString& path, const QUrlQuery& parameters,
   return getReplyDecorator()->decorate(reply);
 }
 
-Reply* Api::post(const QString& path, const QJsonValue& data,
-                 const QUrlQuery& parameters, const Headers& headers,
-                 QObject* parent) const {
+IReply* Api::post(const QString& path, const QJsonValue& data,
+                  const QUrlQuery& parameters, const Headers& headers,
+                  QObject* parent) const {
   Q_D(const detail::Api);
-  auto reply = new RawReply(
+  auto reply = new Reply(
       const_cast<Api*>(this),
       d->create(detail::ApiPrivate::PostVerb, path, data, parameters, headers),
       parent);
@@ -100,11 +108,11 @@ Reply* Api::post(const QString& path, const QJsonValue& data,
   return getReplyDecorator()->decorate(reply);
 }
 
-Reply* Api::post(const QString& path, const QCborValue& data,
-                 const QUrlQuery& parameters, const Headers& headers,
-                 QObject* parent) const {
+IReply* Api::post(const QString& path, const QCborValue& data,
+                  const QUrlQuery& parameters, const Headers& headers,
+                  QObject* parent) const {
   Q_D(const detail::Api);
-  auto reply = new RawReply(
+  auto reply = new Reply(
       const_cast<Api*>(this),
       d->create(detail::ApiPrivate::PostVerb, path, data, parameters, headers),
       parent);
@@ -112,10 +120,10 @@ Reply* Api::post(const QString& path, const QCborValue& data,
   return getReplyDecorator()->decorate(reply);
 }
 
-Reply* Api::put(const QString& path, const QUrlQuery& parameters,
-                const Headers& headers, QObject* parent) const {
+IReply* Api::put(const QString& path, const QUrlQuery& parameters,
+                 const Headers& headers, QObject* parent) const {
   Q_D(const detail::Api);
-  auto reply = new RawReply(
+  auto reply = new Reply(
       const_cast<Api*>(this),
       d->create(detail::ApiPrivate::PutVerb, path, parameters, headers),
       parent);
@@ -123,11 +131,11 @@ Reply* Api::put(const QString& path, const QUrlQuery& parameters,
   return getReplyDecorator()->decorate(reply);
 }
 
-Reply* Api::put(const QString& path, const QJsonValue& data,
-                const QUrlQuery& parameters, const Headers& headers,
-                QObject* parent) const {
+IReply* Api::put(const QString& path, const QJsonValue& data,
+                 const QUrlQuery& parameters, const Headers& headers,
+                 QObject* parent) const {
   Q_D(const detail::Api);
-  auto reply = new RawReply(
+  auto reply = new Reply(
       const_cast<Api*>(this),
       d->create(detail::ApiPrivate::PutVerb, path, data, parameters, headers),
       parent);
@@ -135,11 +143,11 @@ Reply* Api::put(const QString& path, const QJsonValue& data,
   return getReplyDecorator()->decorate(reply);
 }
 
-Reply* Api::put(const QString& path, const QCborValue& data,
-                const QUrlQuery& parameters, const Headers& headers,
-                QObject* parent) const {
+IReply* Api::put(const QString& path, const QCborValue& data,
+                 const QUrlQuery& parameters, const Headers& headers,
+                 QObject* parent) const {
   Q_D(const detail::Api);
-  auto reply = new RawReply(
+  auto reply = new Reply(
       const_cast<Api*>(this),
       d->create(detail::ApiPrivate::PutVerb, path, data, parameters, headers),
       parent);
@@ -147,10 +155,10 @@ Reply* Api::put(const QString& path, const QCborValue& data,
   return getReplyDecorator()->decorate(reply);
 }
 
-Reply* Api::patch(const QString& path, const QUrlQuery& parameters,
-                  const Headers& headers, QObject* parent) const {
+IReply* Api::patch(const QString& path, const QUrlQuery& parameters,
+                   const Headers& headers, QObject* parent) const {
   Q_D(const detail::Api);
-  auto reply = new RawReply(
+  auto reply = new Reply(
       const_cast<Api*>(this),
       d->create(detail::ApiPrivate::PatchVerb, path, parameters, headers),
       parent);
@@ -158,11 +166,11 @@ Reply* Api::patch(const QString& path, const QUrlQuery& parameters,
   return getReplyDecorator()->decorate(reply);
 }
 
-Reply* Api::patch(const QString& path, const QJsonValue& data,
-                  const QUrlQuery& parameters, const Headers& headers,
-                  QObject* parent) const {
+IReply* Api::patch(const QString& path, const QJsonValue& data,
+                   const QUrlQuery& parameters, const Headers& headers,
+                   QObject* parent) const {
   Q_D(const detail::Api);
-  auto reply = new RawReply(
+  auto reply = new Reply(
       const_cast<Api*>(this),
       d->create(detail::ApiPrivate::PatchVerb, path, data, parameters, headers),
       parent);
@@ -170,11 +178,11 @@ Reply* Api::patch(const QString& path, const QJsonValue& data,
   return getReplyDecorator()->decorate(reply);
 }
 
-Reply* Api::patch(const QString& path, const QCborValue& data,
-                  const QUrlQuery& parameters, const Headers& headers,
-                  QObject* parent) const {
+IReply* Api::patch(const QString& path, const QCborValue& data,
+                   const QUrlQuery& parameters, const Headers& headers,
+                   QObject* parent) const {
   Q_D(const detail::Api);
-  auto reply = new RawReply(
+  auto reply = new Reply(
       const_cast<Api*>(this),
       d->create(detail::ApiPrivate::PatchVerb, path, data, parameters, headers),
       parent);
@@ -198,18 +206,18 @@ const QByteArray ApiPrivate::PatchVerb = QByteArray{"PATCH"};
 const QByteArray ApiPrivate::DeleteVerb = QByteArray{"DELETE"};
 const QByteArray ApiPrivate::HeadVerb = QByteArray{"HEAD"};
 
-ApiPrivate::ApiPrivate(Client* client, QNetworkAccessManager* manager,
+ApiPrivate::ApiPrivate(IClient* client, QNetworkAccessManager* manager,
                        const QString& path)
     : m_client(client), m_manager(manager), m_path(path) {}
 
-Client* ApiPrivate::getClient() const { return m_client; }
+IClient* ApiPrivate::getClient() const { return m_client; }
+
+IReplyDecorator* ApiPrivate::getReplyDecorator() const {
+  return m_client->getReplyDecorator();
+}
 
 DataSerializer* ApiPrivate::getDataSerializer() const {
   return m_client->getDataSerializer();
-}
-
-ReplyDecorator* ApiPrivate::getReplyDecorator() const {
-  return m_client->getReplyDecorator();
 }
 
 QString ApiPrivate::getPath() const { return m_path; }
@@ -225,9 +233,9 @@ QString ApiPrivate::getPath() const { return m_path; }
       content_types.size() > 1) {
     content_type = content_types.first().trimmed();
 
-    if (content_type == RawReplyPrivate::ContentTypeJson)
+    if (content_type == ReplyPrivate::ContentTypeJson)
       return DataSerializer::Format::Json;
-    if (content_type == RawReplyPrivate::ContentTypeCbor)
+    if (content_type == ReplyPrivate::ContentTypeCbor)
       return DataSerializer::Format::Cbor;
   }
 
@@ -244,7 +252,7 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
                      .addHeaders(headers)
                      .build();
 
-  return RawReplyPrivate::send(m_manager, request, verb, {});
+  return ReplyPrivate::send(m_manager, request, verb, {});
 }
 
 QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
@@ -257,12 +265,11 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
           .addPath(path)
           .addParameters(parameters)
           .addHeaders(headers)
-          .addHeader(RawReplyPrivate::ContentType,
-                     RawReplyPrivate::ContentTypeJson)
-          .addHeader(RawReplyPrivate::Accept, RawReplyPrivate::ContentTypeJson)
+          .addHeader(ReplyPrivate::ContentType, ReplyPrivate::ContentTypeJson)
+          .addHeader(ReplyPrivate::Accept, ReplyPrivate::ContentTypeJson)
           .build();
 
-  return RawReplyPrivate::send(m_manager, request, verb, convertData(data));
+  return ReplyPrivate::send(m_manager, request, verb, convertData(data));
 }
 
 QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
@@ -275,12 +282,11 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
           .addPath(path)
           .addParameters(parameters)
           .addHeaders(headers)
-          .addHeader(RawReplyPrivate::ContentType,
-                     RawReplyPrivate::ContentTypeCbor)
-          .addHeader(RawReplyPrivate::Accept, RawReplyPrivate::ContentTypeCbor)
+          .addHeader(ReplyPrivate::ContentType, ReplyPrivate::ContentTypeCbor)
+          .addHeader(ReplyPrivate::Accept, ReplyPrivate::ContentTypeCbor)
           .build();
 
-  return RawReplyPrivate::send(m_manager, request, verb, convertData(data));
+  return ReplyPrivate::send(m_manager, request, verb, convertData(data));
 }
 
 QByteArray ApiPrivate::convertData(const Data& body) {

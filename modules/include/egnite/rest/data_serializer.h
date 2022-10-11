@@ -18,6 +18,8 @@
 
 namespace egnite::rest {
 
+/* ------------------------------- DataSerializer --------------------------- */
+
 class EGNITE_REST_API DataSerializer : public QObject {
   Q_OBJECT
 

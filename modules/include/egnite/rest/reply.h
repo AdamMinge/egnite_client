@@ -11,17 +11,25 @@
 /* ----------------------------------- Egnite ------------------------------- */
 #include <egnite/core/macros/binder.h>
 /* ----------------------------------- Local -------------------------------- */
+#include "egnite/rest/data_serializer.h"
 #include "egnite/rest/export.h"
 #include "egnite/rest/global.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
 
-class Api;
-class Client;
+namespace detail {
+class ReplyPrivate;
+class WrappedReplyPrivate;
+}  // namespace detail
+
+class IApi;
+class IClient;
 class DataSerializer;
 
-class EGNITE_REST_API Reply : public QObject {
+/* ----------------------------------- IReply ------------------------------- */
+
+class EGNITE_REST_API IReply : public QObject {
   Q_OBJECT
 
  public:
@@ -74,25 +82,25 @@ class EGNITE_REST_API Reply : public QObject {
   Q_ENUM(Error)
 
  public:
-  ~Reply() override;
+  ~IReply() override;
 
   virtual void abort() = 0;
   virtual void retry() = 0;
 
-  [[nodiscard]] virtual Api* getApi() const = 0;
-  [[nodiscard]] virtual Client* getClient() const = 0;
+  [[nodiscard]] virtual IApi* getApi() const = 0;
+  [[nodiscard]] virtual IClient* getClient() const = 0;
   [[nodiscard]] virtual DataSerializer* getDataSerializer() const = 0;
 
   virtual void setAutoDelete(bool enable) = 0;
   [[nodiscard]] virtual bool isAutoDelete() const = 0;
 
-  EGNITE_DEFINE_BINDER(Reply, onCompleted, completed);
-  EGNITE_DEFINE_BINDER(Reply, onSucceeded, succeeded);
-  EGNITE_DEFINE_BINDER(Reply, onFailed, failed);
-  EGNITE_DEFINE_BINDER(Reply, onError, error);
+  EGNITE_DEFINE_BINDER(IReply, onCompleted, completed);
+  EGNITE_DEFINE_BINDER(IReply, onSucceeded, succeeded);
+  EGNITE_DEFINE_BINDER(IReply, onFailed, failed);
+  EGNITE_DEFINE_BINDER(IReply, onError, error);
 
-  EGNITE_DEFINE_BINDER(Reply, onDownloadProgress, downloadProgress);
-  EGNITE_DEFINE_BINDER(Reply, onUploadProgress, uploadProgress);
+  EGNITE_DEFINE_BINDER(IReply, onDownloadProgress, downloadProgress);
+  EGNITE_DEFINE_BINDER(IReply, onUploadProgress, uploadProgress);
 
  Q_SIGNALS:
   void completed(int http_code, const Data& data);
@@ -106,9 +114,365 @@ class EGNITE_REST_API Reply : public QObject {
   void autoDeleteChanged(bool enable);
 
  protected:
-  explicit Reply(QObject* parent = nullptr);
-  explicit Reply(QObjectPrivate& impl, QObject* parent = nullptr);
+  explicit IReply(QObject* parent = nullptr);
+  explicit IReply(QObjectPrivate& impl, QObject* parent = nullptr);
 };
+
+/* ------------------------------------ Reply ------------------------------- */
+
+class EGNITE_REST_API Reply : public IReply {
+  Q_OBJECT
+
+ public:
+  Reply(IApi* api, QNetworkReply* network_reply, QObject* parent = nullptr);
+  ~Reply() override;
+
+  void abort() override;
+  void retry() override;
+
+  [[nodiscard]] IApi* getApi() const override;
+  [[nodiscard]] IClient* getClient() const override;
+  [[nodiscard]] DataSerializer* getDataSerializer() const override;
+
+  void setAutoDelete(bool enable) override;
+  [[nodiscard]] bool isAutoDelete() const override;
+
+ private:
+  Q_DECLARE_PRIVATE(detail::Reply)
+};
+
+/* -------------------------------- WrappedReply ---------------------------- */
+
+class EGNITE_REST_API WrappedReply : public IReply {
+  Q_OBJECT
+
+ public:
+  ~WrappedReply() override;
+
+  void abort() override;
+  void retry() override;
+
+  [[nodiscard]] IApi* getApi() const override;
+  [[nodiscard]] IClient* getClient() const override;
+  [[nodiscard]] DataSerializer* getDataSerializer() const override;
+
+  void setAutoDelete(bool enable) override;
+  [[nodiscard]] bool isAutoDelete() const override;
+
+ protected:
+  WrappedReply(IReply* reply, QObject* parent = nullptr);
+
+ private:
+  Q_DECLARE_PRIVATE(detail::WrappedReply)
+};
+
+/* ----------------------------- GenericReplyBase --------------------------- */
+
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+class GenericReplyBase : public WrappedReply {
+ public:
+  template <typename Handler>
+  ChildGenericReply<DataType, ErrorType>* onCompleted(Handler&& handler,
+                                                      QObject* scope = nullptr);
+
+  template <typename Handler>
+  ChildGenericReply<DataType, ErrorType>* onError(Handler&& handler,
+                                                  QObject* scope = nullptr);
+
+  EGNITE_DEFINE_BINDER(IReply, onDownloadProgress, downloadProgress);
+  EGNITE_DEFINE_BINDER(IReply, onUploadProgress, uploadProgress);
+
+ protected:
+  explicit GenericReplyBase(IReply* reply, QObject* parent = nullptr);
+  ~GenericReplyBase() override;
+};
+
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::GenericReplyBase(
+    IReply* reply, QObject* parent)
+    : WrappedReply(reply, parent) {}
+
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::~GenericReplyBase() =
+    default;
+
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+template <typename Handler>
+ChildGenericReply<DataType, ErrorType>*
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onCompleted(
+    Handler&& handler, QObject* scope) {
+  WrappedReply::onCompleted(
+      core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
+      scope);
+  return static_cast<ChildGenericReply<DataType, ErrorType>*>(this);
+}
+
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+template <typename Handler>
+ChildGenericReply<DataType, ErrorType>*
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onError(
+    Handler&& handler, QObject* scope) {
+  WrappedReply::onError(core::utils::bindCallback<void(const QString&, Error)>(
+                            std::forward<Handler>(handler)),
+                        scope);
+  return static_cast<ChildGenericReply<DataType, ErrorType>*>(this);
+}
+
+/* --------------------- GenericReply<DataType, ErrorType> ------------------ */
+
+template <typename DataType, typename ErrorType>
+class GenericReply
+    : public GenericReplyBase<DataType, ErrorType, GenericReply> {
+ public:
+  explicit GenericReply(IReply* reply, QObject* parent = nullptr);
+
+  template <typename Handler>
+  GenericReply<DataType, ErrorType>* onSucceeded(Handler&& handler,
+                                                 QObject* scope = nullptr);
+
+  template <typename Handler>
+  GenericReply<DataType, ErrorType>* onFailed(Handler&& handler,
+                                              QObject* scope = nullptr);
+};
+
+template <typename DataType, typename ErrorType>
+GenericReply<DataType, ErrorType>::GenericReply(IReply* reply, QObject* parent)
+    : GenericReplyBase<DataType, ErrorType, GenericReply>(reply, parent) {}
+
+template <typename DataType, typename ErrorType>
+template <typename Handler>
+GenericReply<DataType, ErrorType>*
+GenericReply<DataType, ErrorType>::onSucceeded(Handler&& handler,
+                                               QObject* scope) {
+  WrappedReply::onSucceeded(
+      [this, xFn = core::utils::bindCallback<void(int, const DataType&)>(
+                 std::forward<Handler>(handler))](int http_code,
+                                                  const Data& data) {
+        DataSerializer* serializer = this->getDataSerializer();
+        xFn(http_code, serializer->deserialize<DataType>(data));
+      },
+      scope);
+
+  return this;
+}
+
+template <typename DataType, typename ErrorType>
+template <typename Handler>
+GenericReply<DataType, ErrorType>* GenericReply<DataType, ErrorType>::onFailed(
+    Handler&& handler, QObject* scope) {
+  WrappedReply::onFailed(
+      [this, xFn = core::utils::bindCallback<void(int, const ErrorType&)>(
+                 std::forward<Handler>(handler))](int http_code,
+                                                  const Data& data) {
+        DataSerializer* serializer = this->getDataSerializer();
+        xFn(http_code, serializer->deserialize<ErrorType>(data));
+      },
+      scope);
+
+  return this;
+}
+
+/* ------------------------ GenericReply<DataType, void> -------------------- */
+
+template <typename DataType>
+class GenericReply<DataType, void>
+    : public GenericReplyBase<DataType, void, GenericReply> {
+ public:
+  explicit GenericReply(IReply* reply, QObject* parent = nullptr);
+
+  template <typename Handler>
+  GenericReply<DataType, void>* onSucceeded(Handler&& handler,
+                                            QObject* scope = nullptr);
+
+  template <typename Handler>
+  GenericReply<DataType, void>* onFailed(Handler&& handler,
+                                         QObject* scope = nullptr);
+};
+
+template <typename DataType>
+GenericReply<DataType, void>::GenericReply(IReply* reply, QObject* parent)
+    : GenericReplyBase<DataType, void, GenericReply>(reply, parent) {}
+
+template <typename DataType>
+template <typename Handler>
+GenericReply<DataType, void>* GenericReply<DataType, void>::onSucceeded(
+    Handler&& handler, QObject* scope) {
+  WrappedReply::onSucceeded(
+      [this, xFn = core::utils::bindCallback<void(int, const DataType&)>(
+                 std::forward<Handler>(handler))](int http_code,
+                                                  const Data& data) {
+        DataSerializer* serializer = this->getDataSerializer();
+        xFn(http_code, serializer->deserialize<DataType>(data));
+      },
+      scope);
+
+  return this;
+}
+
+template <typename DataType>
+template <typename Handler>
+GenericReply<DataType, void>* GenericReply<DataType, void>::onFailed(
+    Handler&& handler, QObject* scope) {
+  WrappedReply::onFailed(
+      core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
+      scope);
+
+  return this;
+}
+
+/* ----------------------- GenericReply<void, ErrorType> -------------------- */
+
+template <typename ErrorType>
+class GenericReply<void, ErrorType>
+    : public GenericReplyBase<void, ErrorType, GenericReply> {
+ public:
+  explicit GenericReply(IReply* reply, QObject* parent = nullptr);
+
+  template <typename Handler>
+  GenericReply<void, ErrorType>* onSucceeded(Handler&& handler,
+                                             QObject* scope = nullptr);
+
+  template <typename Handler>
+  GenericReply<void, ErrorType>* onFailed(Handler&& handler,
+                                          QObject* scope = nullptr);
+};
+
+template <typename ErrorType>
+GenericReply<void, ErrorType>::GenericReply(IReply* reply, QObject* parent)
+    : GenericReplyBase<void, ErrorType, GenericReply>(reply, parent) {}
+
+template <typename ErrorType>
+template <typename Handler>
+GenericReply<void, ErrorType>* GenericReply<void, ErrorType>::onSucceeded(
+    Handler&& handler, QObject* scope) {
+  WrappedReply::onSucceeded(
+      core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
+      scope);
+
+  return this;
+}
+
+template <typename ErrorType>
+template <typename Handler>
+GenericReply<void, ErrorType>* GenericReply<void, ErrorType>::onFailed(
+    Handler&& handler, QObject* scope) {
+  WrappedReply::onFailed(
+      [this, xFn = core::utils::bindCallback<void(int, const ErrorType&)>(
+                 std::forward<Handler>(handler))](int http_code,
+                                                  const Data& data) {
+        DataSerializer* serializer = this->getDataSerializer();
+        xFn(http_code, serializer->deserialize<ErrorType>(data));
+      },
+      scope);
+
+  return this;
+}
+
+/* -------------------------------- LoggerReply ----------------------------- */
+
+template <typename Logger>
+class LoggerReply : public WrappedReply {
+ public:
+  explicit LoggerReply(Logger logger, IReply* reply, QObject* parent = nullptr);
+  ~LoggerReply() override;
+
+ protected:
+  void logCompleted(int http_code, const Data& data);
+  void logSucceeded(int http_code, const Data& data);
+  void logFailed(int http_code, const Data& data);
+  void logError(const QString& error_str, Error error_type);
+
+  void logDownloadProgress(qint64 bytes_received, qint64 bytes_total);
+  void logUploadProgress(qint64 bytes_sent, qint64 bytes_total);
+
+ private:
+  void logTheme(const QString& action);
+  void logData(const Data& data);
+
+ private:
+  Logger m_logger;
+};
+
+template <typename Logger>
+LoggerReply<Logger>::LoggerReply(Logger logger, IReply* reply, QObject* parent)
+    : WrappedReply(reply, parent), m_logger(logger) {
+  onCompleted([this](int code, const Data& data) { logCompleted(code, data); });
+  onSucceeded([this](int code, const Data& data) { logSucceeded(code, data); });
+  onFailed([this](int code, const Data& data) { logFailed(code, data); });
+  onError([this](const QString& str, Error type) { logError(str, type); });
+  onDownloadProgress([this](qint64 r, qint64 t) { logDownloadProgress(r, t); });
+  onUploadProgress([this](qint64 s, qint64 t) { logUploadProgress(s, t); });
+}
+
+template <typename Logger>
+LoggerReply<Logger>::~LoggerReply() = default;
+
+template <typename Logger>
+void LoggerReply<Logger>::logCompleted(int http_code, const Data& data) {
+  logTheme("Completed");
+  m_logger << "\t" << QString("http_code: %1").arg(http_code) << "\n";
+  logData(data);
+}
+
+template <typename Logger>
+void LoggerReply<Logger>::logSucceeded(int http_code, const Data& data) {
+  logTheme("Succeeded");
+  m_logger << "\t" << QString("http_code: %1").arg(http_code) << "\n";
+  logData(data);
+}
+
+template <typename Logger>
+void LoggerReply<Logger>::logFailed(int http_code, const Data& data) {
+  logTheme("Failed");
+  m_logger << "\t" << QString("http code: %1").arg(http_code) << "\n";
+  logData(data);
+}
+
+template <typename Logger>
+void LoggerReply<Logger>::logError(const QString& error_str, Error error_type) {
+  logTheme("Error");
+  m_logger << "\t" << QString("detail: %1").arg(error_str) << "\n"
+           << "\t" << QString("type: %1").arg(static_cast<size_t>(error_type))
+           << "\n";
+}
+
+template <typename Logger>
+void LoggerReply<Logger>::logDownloadProgress(qint64 bytes_received,
+                                              qint64 bytes_total) {
+  logTheme("Download Progress");
+  m_logger << "\t" << QString("bytes received: %1").arg(bytes_received) << "\n"
+           << "\t" << QString("bytes total: %1").arg(bytes_total) << "\n";
+}
+
+template <typename Logger>
+void LoggerReply<Logger>::logUploadProgress(qint64 bytes_sent,
+                                            qint64 bytes_total) {
+  logTheme("Upload Progress");
+  m_logger << "\t" << QString("bytes sent: %1").arg(bytes_sent) << "\n"
+           << "\t" << QString("bytes total: %1").arg(bytes_total) << "\n";
+}
+
+template <typename Logger>
+void LoggerReply<Logger>::logTheme(const QString& action) {
+  m_logger << QString("%1 Reply ").arg(action) << "[" << this << "]: \n";
+}
+
+template <typename Logger>
+void LoggerReply<Logger>::logData(const Data& data) {
+  m_logger << "\t"
+           << "data: ";
+  std::visit(core::utils::overloaded{
+                 [this](std::nullopt_t) { m_logger << "null"; },
+                 [this](const QJsonValue& body) { m_logger << body; },
+                 [this](const QCborValue& body) { m_logger << body; }},
+             data);
+  m_logger << "\n";
+}
 
 }  // namespace egnite::rest
 

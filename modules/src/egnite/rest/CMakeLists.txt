@@ -14,16 +14,13 @@ set(sources
     ${source_root}/api.cpp
     ${source_root}/client.cpp
     ${source_root}/reply.cpp
-    ${source_root}/raw_reply.cpp
-    ${source_root}/wrapped_reply.cpp
     ${source_root}/reply_decorator.cpp
-    ${source_root}/reply_decorator_factory.cpp
+    ${source_root}/reply_factory.cpp
     ${source_root}/request_builder.cpp
     ${source_root}/data_serializer.cpp
     ${source_root}/detail/api_p.h
     ${source_root}/detail/client_p.h
-    ${source_root}/detail/raw_reply_p.h
-    ${source_root}/detail/wrapped_reply_p.h
+    ${source_root}/detail/reply_p.h
     ${source_root}/detail/reply_decorator_p.h
     ${source_root}/detail/request_builder_p.h)
 
@@ -33,12 +30,8 @@ set(includes
     ${include_root}/api.h
     ${include_root}/client.h
     ${include_root}/reply.h
-    ${include_root}/raw_reply.h
-    ${include_root}/wrapped_reply.h
-    ${include_root}/generic_reply.h
-    ${include_root}/logger_reply.h
     ${include_root}/reply_decorator.h
-    ${include_root}/reply_decorator_factory.h
+    ${include_root}/reply_factory.h
     ${include_root}/request_builder.h
     ${include_root}/data_serializer.h)
 # ----------------------------------------------------------------------- #

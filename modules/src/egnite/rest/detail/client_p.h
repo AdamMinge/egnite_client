@@ -12,6 +12,8 @@
 
 namespace egnite::rest::detail {
 
+/* -------------------------------- ClientPrivate --------------------------- */
+
 class ClientPrivate : public QObjectPrivate {
  public:
   Q_DECLARE_PUBLIC(Client)
@@ -32,10 +34,10 @@ class ClientPrivate : public QObjectPrivate {
   void setGlobalParameters(const QUrlQuery& parameters);
   [[nodiscard]] QUrlQuery getGlobalParameters() const;
 
-  [[nodiscard]] RequestBuilder getRequestBuilder() const;
   [[nodiscard]] QNetworkAccessManager* getNetworkAccessManager() const;
+  [[nodiscard]] RequestBuilder getRequestBuilder() const;
   [[nodiscard]] DataSerializer* getDataSerializer() const;
-  [[nodiscard]] ReplyDecorator* getReplyDecorator() const;
+  [[nodiscard]] IReplyDecorator* getReplyDecorator() const;
 
  private:
   QUrl m_base_url;
@@ -44,7 +46,7 @@ class ClientPrivate : public QObjectPrivate {
   QUrlQuery m_parameters;
   QScopedPointer<QNetworkAccessManager> m_manager;
   QScopedPointer<DataSerializer> m_data_serializer;
-  QScopedPointer<ReplyDecorator> m_reply_decorator;
+  QScopedPointer<IReplyDecorator> m_reply_decorator;
 };
 
 }  // namespace egnite::rest::detail

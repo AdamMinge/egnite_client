@@ -3,22 +3,26 @@
 
 /* ------------------------------------- Qt --------------------------------- */
 #include <QtQml>
+/* ----------------------------------- Egnite ------------------------------- */
+#include <egnite/rest/reply_factory.h>
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
-class ReplyDecoratorFactory;
+class DebugReplyFactory;
 }
 
-class QmlReplyFactory : public QObject {
+/* ------------------------------ QmlReplyFactory --------------------------- */
+
+class QmlReplyFactory : public egnite::rest::IReplyFactory {
   Q_OBJECT
   QML_ELEMENT
 
  public:
   explicit QmlReplyFactory(QObject* parent = nullptr);
   ~QmlReplyFactory() override;
-
-  virtual egnite::rest::ReplyDecoratorFactory* getFactory() const = 0;
 };
+
+/* ---------------------------- QmlDebugReplyFactory ------------------------ */
 
 class QmlDebugReplyFactory : public QmlReplyFactory {
   Q_OBJECT
@@ -28,10 +32,10 @@ class QmlDebugReplyFactory : public QmlReplyFactory {
   explicit QmlDebugReplyFactory(QObject* parent = nullptr);
   ~QmlDebugReplyFactory() override;
 
-  egnite::rest::ReplyDecoratorFactory* getFactory() const override;
+  egnite::rest::IReply* create(egnite::rest::IReply* reply) override;
 
  private:
-  egnite::rest::ReplyDecoratorFactory* m_factory;
+  egnite::rest::DebugReplyFactory* m_factory;
 };
 
 #endif  // EGNITE_QML_REST_REPLY_DECORATOR_H

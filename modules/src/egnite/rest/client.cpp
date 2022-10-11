@@ -9,6 +9,15 @@
 
 namespace egnite::rest {
 
+/* --------------------------------- IClient -------------------------------- */
+
+IClient::IClient(QObject* parent) : QObject(parent) {}
+
+IClient::IClient(QObjectPrivate& impl, QObject* parent)
+    : QObject(impl, parent) {}
+
+IClient::~IClient() = default;
+
 /* --------------------------------- Client --------------------------------- */
 
 Client::Client(QObject* parent)
@@ -17,11 +26,11 @@ Client::Client(QObject* parent)
              parent) {}
 
 Client::Client(detail::ClientPrivate& impl, QObject* parent)
-    : QObject(impl, parent) {}
+    : IClient(impl, parent) {}
 
 Client::~Client() = default;
 
-Api* Client::createApi(const QString& path, QObject* parent) {
+IApi* Client::createApi(const QString& path, QObject* parent) {
   Q_D(detail::Client);
   return new Api(this, d->getNetworkAccessManager(), path, parent);
 }
@@ -82,7 +91,7 @@ DataSerializer* Client::getDataSerializer() const {
   return d->getDataSerializer();
 }
 
-ReplyDecorator* Client::getReplyDecorator() const {
+IReplyDecorator* Client::getReplyDecorator() const {
   Q_D(const detail::Client);
   return d->getReplyDecorator();
 }
@@ -132,6 +141,10 @@ void ClientPrivate::setGlobalParameters(const QUrlQuery& parameters) {
 
 QUrlQuery ClientPrivate::getGlobalParameters() const { return m_parameters; }
 
+QNetworkAccessManager* ClientPrivate::getNetworkAccessManager() const {
+  return m_manager.get();
+}
+
 RequestBuilder ClientPrivate::getRequestBuilder() const {
   return RequestBuilder{}
       .setBaseUrl(m_base_url)
@@ -140,15 +153,11 @@ RequestBuilder ClientPrivate::getRequestBuilder() const {
       .addHeaders(m_headers);
 }
 
-QNetworkAccessManager* ClientPrivate::getNetworkAccessManager() const {
-  return m_manager.get();
-}
-
 DataSerializer* ClientPrivate::getDataSerializer() const {
   return m_data_serializer.get();
 }
 
-ReplyDecorator* ClientPrivate::getReplyDecorator() const {
+IReplyDecorator* ClientPrivate::getReplyDecorator() const {
   return m_reply_decorator.get();
 }
 

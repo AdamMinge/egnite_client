@@ -18,11 +18,14 @@ namespace detail {
 class ClientPrivate;
 }
 
-class Api;
-class DataSerializer;
-class ReplyDecorator;
+class IApi;
+class IReplyDecorator;
 
-class EGNITE_REST_API Client : public QObject {
+class DataSerializer;
+
+/* ---------------------------------- IClient ------------------------------- */
+
+class EGNITE_REST_API IClient : public QObject {
   Q_OBJECT
 
  public:
@@ -36,32 +39,65 @@ class EGNITE_REST_API Client : public QObject {
                  setGlobalParameters NOTIFY globalParametersChanged)
 
  public:
-  explicit Client(QObject* parent = nullptr);
-  ~Client() override;
+  ~IClient() override;
 
-  [[nodiscard]] Api* createApi(const QString& path, QObject* parent = nullptr);
+  [[nodiscard]] virtual IApi* createApi(const QString& path,
+                                        QObject* parent = nullptr) = 0;
 
-  void setBaseUrl(const QUrl& url);
-  [[nodiscard]] QUrl getBaseUrl() const;
+  virtual void setBaseUrl(const QUrl& url) = 0;
+  [[nodiscard]] virtual QUrl getBaseUrl() const = 0;
 
-  void setVersion(const QVersionNumber& version);
-  [[nodiscard]] QVersionNumber getVersion() const;
+  virtual void setVersion(const QVersionNumber& version) = 0;
+  [[nodiscard]] virtual QVersionNumber getVersion() const = 0;
 
-  void setGlobalHeaders(const Headers& headers);
-  [[nodiscard]] Headers getGlobalHeaders() const;
+  virtual void setGlobalHeaders(const Headers& headers) = 0;
+  [[nodiscard]] virtual Headers getGlobalHeaders() const = 0;
 
-  void setGlobalParameters(const QUrlQuery& parameters);
-  [[nodiscard]] QUrlQuery getGlobalParameters() const;
+  virtual void setGlobalParameters(const QUrlQuery& parameters) = 0;
+  [[nodiscard]] virtual QUrlQuery getGlobalParameters() const = 0;
 
-  [[nodiscard]] RequestBuilder getRequestBuilder() const;
-  [[nodiscard]] DataSerializer* getDataSerializer() const;
-  [[nodiscard]] ReplyDecorator* getReplyDecorator() const;
+  [[nodiscard]] virtual RequestBuilder getRequestBuilder() const = 0;
+  [[nodiscard]] virtual DataSerializer* getDataSerializer() const = 0;
+  [[nodiscard]] virtual IReplyDecorator* getReplyDecorator() const = 0;
 
  Q_SIGNALS:
   void baseUrlChanged(const QUrl& url);
   void versionChanged(const QVersionNumber& version);
   void globalHeadersChanged(const egnite::rest::Headers& headers);
   void globalParametersChanged(const QUrlQuery& parameters);
+
+ protected:
+  explicit IClient(QObject* parent = nullptr);
+  explicit IClient(QObjectPrivate& impl, QObject* parent = nullptr);
+};
+
+/* ---------------------------------- Client -------------------------------- */
+
+class EGNITE_REST_API Client : public IClient {
+  Q_OBJECT
+
+ public:
+  explicit Client(QObject* parent = nullptr);
+  ~Client() override;
+
+  [[nodiscard]] IApi* createApi(const QString& path,
+                                QObject* parent = nullptr) override;
+
+  void setBaseUrl(const QUrl& url) override;
+  [[nodiscard]] QUrl getBaseUrl() const override;
+
+  void setVersion(const QVersionNumber& version) override;
+  [[nodiscard]] QVersionNumber getVersion() const override;
+
+  void setGlobalHeaders(const Headers& headers) override;
+  [[nodiscard]] Headers getGlobalHeaders() const override;
+
+  void setGlobalParameters(const QUrlQuery& parameters) override;
+  [[nodiscard]] QUrlQuery getGlobalParameters() const override;
+
+  [[nodiscard]] RequestBuilder getRequestBuilder() const override;
+  [[nodiscard]] DataSerializer* getDataSerializer() const override;
+  [[nodiscard]] IReplyDecorator* getReplyDecorator() const override;
 
  protected:
   explicit Client(detail::ClientPrivate& impl, QObject* parent = nullptr);

@@ -10,11 +10,9 @@
 #include "egnite/rest/api.h"
 /* -------------------------------------------------------------------------- */
 
-namespace egnite::rest {
+namespace egnite::rest::detail {
 
-class Client;
-
-namespace detail {
+/* ---------------------------------- ApiPrivate ---------------------------- */
 
 class ApiPrivate : public QObjectPrivate {
  public:
@@ -29,12 +27,12 @@ class ApiPrivate : public QObjectPrivate {
   static const QByteArray HeadVerb;
 
  public:
-  explicit ApiPrivate(Client* client, QNetworkAccessManager* manager,
+  explicit ApiPrivate(IClient* client, QNetworkAccessManager* manager,
                       const QString& path);
 
-  [[nodiscard]] Client* getClient() const;
+  [[nodiscard]] IClient* getClient() const;
+  [[nodiscard]] IReplyDecorator* getReplyDecorator() const;
   [[nodiscard]] DataSerializer* getDataSerializer() const;
-  [[nodiscard]] ReplyDecorator* getReplyDecorator() const;
   [[nodiscard]] QString getPath() const;
 
   [[nodiscard]] DataSerializer::Format getRequestDataFormat(
@@ -56,13 +54,11 @@ class ApiPrivate : public QObjectPrivate {
   [[nodiscard]] static QByteArray convertData(const QCborValue& body);
 
  private:
-  Client* m_client;
+  IClient* m_client;
   QNetworkAccessManager* m_manager;
   QString m_path;
 };
 
-}  // namespace detail
-
-}  // namespace egnite::rest
+}  // namespace egnite::rest::detail
 
 #endif  // EGNITE_REST_API_P_H

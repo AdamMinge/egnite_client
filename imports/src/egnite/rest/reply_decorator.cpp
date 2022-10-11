@@ -4,12 +4,12 @@
 #include "reply_factory.h"
 /* ----------------------------------- Egnite ------------------------------- */
 #include <egnite/rest/reply_decorator.h>
-#include <egnite/rest/reply_decorator_factory.h>
+#include <egnite/rest/reply_factory.h>
 /* -------------------------------------------------------------------------- */
 
 QmlReplyDecorator::QmlReplyDecorator(egnite::rest::ReplyDecorator* decorator,
                                      QObject* parent)
-    : QObject(parent), m_decorator(decorator) {}
+    : egnite::rest::IReplyDecorator(parent), m_decorator(decorator) {}
 
 QmlReplyDecorator::~QmlReplyDecorator() = default;
 
@@ -21,7 +21,7 @@ QQmlListProperty<QmlReplyFactory> QmlReplyDecorator::getFactories() {
 }
 
 void QmlReplyDecorator::appendFactory(QmlReplyFactory* factory) {
-  m_decorator->append(factory->getFactory());
+  m_decorator->append(factory);
 }
 
 qsizetype QmlReplyDecorator::factoriesCount() const {

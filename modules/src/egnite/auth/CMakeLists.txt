@@ -11,11 +11,11 @@ set(include_root ${EGNITE_SOURCE_DIR}/modules/include/egnite/auth)
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
 set(sources
-    ${source_root}/authenticator.cpp ${source_root}/jwt_authenticator.cpp
-    ${source_root}/detail/jwt_authenticator_p.h)
+    ${source_root}/authenticator.cpp ${source_root}/reply.cpp
+    ${source_root}/reply_factory.cpp ${source_root}/detail/authenticator_p.h)
 
 set(includes ${include_root}/export.h ${include_root}/authenticator.h
-             ${include_root}/jwt_authenticator.h)
+             ${include_root}/reply.h ${include_root}/reply_factory.h)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #

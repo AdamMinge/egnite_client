@@ -1,5 +1,5 @@
-#ifndef EGNITE_REST_RAW_REPLY_P_H
-#define EGNITE_REST_RAW_REPLY_P_H
+#ifndef EGNITE_REST_REPLY_P_H
+#define EGNITE_REST_REPLY_P_H
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QtCore/private/qobject_p.h>
@@ -9,14 +9,16 @@
 #include <QNetworkRequest>
 #include <QPointer>
 /* ------------------------------------ Local ------------------------------- */
-#include "egnite/rest/raw_reply.h"
+#include "egnite/rest/reply.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest::detail {
 
-class RawReplyPrivate : public QObjectPrivate {
+/* -------------------------------- ReplyPrivate ---------------------------- */
+
+class ReplyPrivate : public QObjectPrivate {
  public:
-  Q_DECLARE_PUBLIC(RawReply)
+  Q_DECLARE_PUBLIC(Reply)
 
  public:
   static const QByteArray PropertyBody;
@@ -25,17 +27,17 @@ class RawReplyPrivate : public QObjectPrivate {
   static const QByteArray ContentTypeJson;
   static const QByteArray ContentTypeCbor;
 
-  using ParseError = std::optional<std::pair<RawReply::Error, QString>>;
+  using ParseError = std::optional<std::pair<IReply::Error, QString>>;
 
  public:
-  explicit RawReplyPrivate(Api* api, QNetworkReply* network_reply);
-  ~RawReplyPrivate() override;
+  explicit ReplyPrivate(IApi* api, QNetworkReply* network_reply);
+  ~ReplyPrivate() override;
 
   void abort();
   void retry();
 
-  [[nodiscard]] Api* getApi() const;
-  [[nodiscard]] Client* getClient() const;
+  [[nodiscard]] IApi* getApi() const;
+  [[nodiscard]] IClient* getClient() const;
   [[nodiscard]] DataSerializer* getDataSerializer() const;
 
   void setAutoDelete(bool enable);
@@ -59,11 +61,38 @@ class RawReplyPrivate : public QObjectPrivate {
   void processReply(const Data& data, const ParseError& parse_error);
 
  private:
-  Api* m_api;
+  IApi* m_api;
   QPointer<QNetworkReply> m_network_reply;
+  bool m_auto_delete;
+};
+
+/* ----------------------------- WrappedReplyPrivate ------------------------ */
+
+class WrappedReplyPrivate : public QObjectPrivate {
+ public:
+  Q_DECLARE_PUBLIC(WrappedReply)
+
+ public:
+  explicit WrappedReplyPrivate(IReply* reply);
+  ~WrappedReplyPrivate() override;
+
+  void abort();
+  void retry();
+
+  [[nodiscard]] IApi* getApi() const;
+  [[nodiscard]] IClient* getClient() const;
+  [[nodiscard]] DataSerializer* getDataSerializer() const;
+
+  void setAutoDelete(bool enable);
+  [[nodiscard]] bool isAutoDelete() const;
+
+  void connectReply();
+
+ private:
+  IReply* m_reply;
   bool m_auto_delete;
 };
 
 }  // namespace egnite::rest::detail
 
-#endif  // EGNITE_REST_RAW_REPLY_P_H
+#endif  // EGNITE_REST_REPLY_P_H

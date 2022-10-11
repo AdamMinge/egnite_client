@@ -3,15 +3,13 @@
 
 /* ------------------------------------- Qt --------------------------------- */
 #include <QtQml>
+/* ----------------------------------- Egnite ------------------------------- */
+#include <egnite/rest/reply_decorator.h>
 /* -------------------------------------------------------------------------- */
-
-namespace egnite::rest {
-class ReplyDecorator;
-}
 
 class QmlReplyFactory;
 
-class QmlReplyDecorator : public QObject {
+class QmlReplyDecorator : public egnite::rest::IReplyDecorator {
   Q_OBJECT
   QML_ELEMENT
 

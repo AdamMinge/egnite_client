@@ -11,6 +11,8 @@
 
 namespace egnite::rest::detail {
 
+/* ---------------------------- ReplyDecoratorPrivate ----------------------- */
+
 class ReplyDecoratorPrivate : public QObjectPrivate {
  public:
   Q_DECLARE_PUBLIC(ReplyDecorator)
@@ -18,18 +20,18 @@ class ReplyDecoratorPrivate : public QObjectPrivate {
  public:
   explicit ReplyDecoratorPrivate();
 
-  Reply* decorate(Reply* reply) const;
+  IReply* decorate(IReply* reply) const;
 
-  ReplyDecoratorFactory* at(qsizetype i) const;
+  IReplyFactory* at(qsizetype i) const;
   qsizetype count() const;
   void clear();
 
-  void append(ReplyDecoratorFactory* factory);
-  void prepend(ReplyDecoratorFactory* factory);
-  void remove(ReplyDecoratorFactory* factory);
+  void append(IReplyFactory* factory);
+  void prepend(IReplyFactory* factory);
+  void remove(IReplyFactory* factory);
 
  private:
-  QList<ReplyDecoratorFactory*> m_factories;
+  QList<IReplyFactory*> m_factories;
 };
 
 }  // namespace egnite::rest::detail

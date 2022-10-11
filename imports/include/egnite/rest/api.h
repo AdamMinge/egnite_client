@@ -19,7 +19,7 @@ class QmlApi : public QObject, public QQmlParserStatus {
   Q_INTERFACES(QQmlParserStatus)
 
   Q_PROPERTY(QString path READ getPath WRITE setPath NOTIFY pathChanged)
-  Q_PROPERTY(egnite::rest::Client* client READ getClient WRITE setClient NOTIFY
+  Q_PROPERTY(egnite::rest::IClient* client READ getClient WRITE setClient NOTIFY
                  clientChanged)
 
  public:
@@ -32,12 +32,12 @@ class QmlApi : public QObject, public QQmlParserStatus {
   void setPath(const QString& path);
   [[nodiscard]] QString getPath() const;
 
-  void setClient(egnite::rest::Client* client);
-  [[nodiscard]] egnite::rest::Client* getClient() const;
+  void setClient(egnite::rest::IClient* client);
+  [[nodiscard]] egnite::rest::IClient* getClient() const;
 
  Q_SIGNALS:
   void pathChanged(const QString& path);
-  void clientChanged(egnite::rest::Client* client);
+  void clientChanged(egnite::rest::IClient* client);
 
  private:
   void revaluateApi();
@@ -45,7 +45,7 @@ class QmlApi : public QObject, public QQmlParserStatus {
  private:
   bool m_init;
   QString m_path;
-  egnite::rest::Client* m_client;
+  egnite::rest::IClient* m_client;
   egnite::rest::Api* m_api;
 };
 

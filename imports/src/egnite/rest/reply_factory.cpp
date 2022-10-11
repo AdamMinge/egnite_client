@@ -1,38 +1,25 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "reply_factory.h"
 /* ----------------------------------- Egnite ------------------------------- */
-#include <egnite/rest/logger_reply.h>
-#include <egnite/rest/reply_decorator_factory.h>
+#include <egnite/rest/reply_factory.h>
 /* -------------------------------------------------------------------------- */
 
-/* ------------------------------ QmlReplyFactory --------------------------- */
+/* ------------------------------- QmlReplyFactory -------------------------- */
 
-QmlReplyFactory::QmlReplyFactory(QObject* parent) : QObject(parent) {}
+QmlReplyFactory::QmlReplyFactory(QObject* parent)
+    : egnite::rest::IReplyFactory(parent) {}
 
 QmlReplyFactory::~QmlReplyFactory() = default;
 
 /* ---------------------------- QmlDebugReplyFactory ------------------------ */
 
-class DebugReplyDecoratorFactory : public egnite::rest::ReplyDecoratorFactory {
- public:
-  explicit DebugReplyDecoratorFactory(QObject* parent = nullptr)
-      : egnite::rest::ReplyDecoratorFactory(parent) {}
-
-  [[nodiscard]] egnite::rest::Reply* create(
-      egnite::rest::Reply* reply) override {
-    auto decorated_reply = new egnite::rest::LoggerReply<QDebug>(
-        qDebug().nospace(), reply, reply->parent());
-    reply->setParent(decorated_reply);
-    return decorated_reply;
-  }
-};
-
 QmlDebugReplyFactory::QmlDebugReplyFactory(QObject* parent)
     : QmlReplyFactory(parent),
-      m_factory(new DebugReplyDecoratorFactory(this)) {}
+      m_factory(new egnite::rest::DebugReplyFactory(this)) {}
 
 QmlDebugReplyFactory::~QmlDebugReplyFactory() = default;
 
-egnite::rest::ReplyDecoratorFactory* QmlDebugReplyFactory::getFactory() const {
-  return m_factory;
+egnite::rest::IReply* QmlDebugReplyFactory::create(
+    egnite::rest::IReply* reply) {
+  return m_factory->create(reply);
 }

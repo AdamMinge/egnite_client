@@ -13,25 +13,50 @@ namespace detail {
 class ReplyDecoratorPrivate;
 }  // namespace detail
 
-class Reply;
-class ReplyDecoratorFactory;
+class IReply;
+class IReplyFactory;
 
-class EGNITE_REST_API ReplyDecorator : public QObject {
+/* ------------------------------- IReplyDecorator -------------------------- */
+
+class EGNITE_REST_API IReplyDecorator : public QObject {
+  Q_OBJECT
+
+ public:
+  ~IReplyDecorator() override;
+
+  [[nodiscard]] virtual IReply* decorate(IReply* reply) const = 0;
+
+  virtual IReplyFactory* at(qsizetype i) const = 0;
+  virtual qsizetype count() const = 0;
+  virtual void clear() = 0;
+
+  virtual void append(IReplyFactory* factory) = 0;
+  virtual void prepend(IReplyFactory* factory) = 0;
+  virtual void remove(IReplyFactory* factory) = 0;
+
+ protected:
+  explicit IReplyDecorator(QObject* parent = nullptr);
+  explicit IReplyDecorator(QObjectPrivate& impl, QObject* parent = nullptr);
+};
+
+/* ------------------------------- ReplyDecorator --------------------------- */
+
+class EGNITE_REST_API ReplyDecorator : public IReplyDecorator {
   Q_OBJECT
 
  public:
   explicit ReplyDecorator(QObject* parent = nullptr);
   ~ReplyDecorator() override;
 
-  [[nodiscard]] Reply* decorate(Reply* reply) const;
+  [[nodiscard]] IReply* decorate(IReply* reply) const override;
 
-  ReplyDecoratorFactory* at(qsizetype i) const;
-  qsizetype count() const;
-  void clear();
+  IReplyFactory* at(qsizetype i) const override;
+  qsizetype count() const override;
+  void clear() override;
 
-  void append(ReplyDecoratorFactory* factory);
-  void prepend(ReplyDecoratorFactory* factory);
-  void remove(ReplyDecoratorFactory* factory);
+  void append(IReplyFactory* factory) override;
+  void prepend(IReplyFactory* factory) override;
+  void remove(IReplyFactory* factory) override;
 
  protected:
   ReplyDecorator(detail::ReplyDecoratorPrivate& impl,

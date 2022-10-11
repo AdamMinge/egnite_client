@@ -22,6 +22,8 @@ class JsonOArchivePrivate;
 class JsonIArchivePrivate;
 }  // namespace detail
 
+/* -------------------------------- JsonOArchive ---------------------------- */
+
 class EGNITE_SERIALIZER_API JsonOArchive
     : public boost::archive::detail::common_oarchive<JsonOArchive> {
   friend class boost::archive::save_access;
@@ -82,6 +84,8 @@ class EGNITE_SERIALIZER_API JsonOArchive
  private:
   std::unique_ptr<detail::JsonOArchivePrivate> m_impl;
 };
+
+/* -------------------------------- JsonIArchive ---------------------------- */
 
 class EGNITE_SERIALIZER_API JsonIArchive
     : public boost::archive::detail::common_iarchive<JsonIArchive> {

@@ -7,6 +7,8 @@
 
 namespace egnite::rest::detail {
 
+/* ---------------------------- RequestBuilderPrivate ----------------------- */
+
 class RequestBuilderPrivate {
  public:
   explicit RequestBuilderPrivate();

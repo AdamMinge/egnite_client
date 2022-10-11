@@ -21,6 +21,8 @@ class CborOArchivePrivate;
 class CborIArchivePrivate;
 }  // namespace detail
 
+/* -------------------------------- CborOArchive ---------------------------- */
+
 class EGNITE_SERIALIZER_API CborOArchive
     : public boost::archive::detail::common_oarchive<CborOArchive> {
   friend class boost::archive::save_access;
@@ -81,6 +83,8 @@ class EGNITE_SERIALIZER_API CborOArchive
  private:
   std::unique_ptr<detail::CborOArchivePrivate> m_impl;
 };
+
+/* -------------------------------- CborIArchive ---------------------------- */
 
 class EGNITE_SERIALIZER_API CborIArchive
     : public boost::archive::detail::common_iarchive<CborIArchive> {

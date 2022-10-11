@@ -21,6 +21,8 @@ namespace detail {
 class RequestBuilderPrivate;
 }
 
+/* ------------------------------ RequestBuilder ---------------------------- */
+
 class EGNITE_REST_API RequestBuilder {
  public:
   explicit RequestBuilder();
