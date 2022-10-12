@@ -4,43 +4,43 @@
 #include <egnite/rest/api.h>
 /* -------------------------------------------------------------------------- */
 
-QmlApi::QmlApi(QObject* parent)
-    : QObject(parent), m_init(false), m_client(nullptr), m_api(nullptr) {}
+QmlApi::QmlApi(QObject* parent) : QObject(parent), m_api(nullptr) {}
 
 QmlApi::~QmlApi() = default;
+
+void QmlApi::setPath(const QString& path) {
+  if (m_revaluate_data.path == path) return;
+
+  m_revaluate_data.path = path;
+  revaluateApi();
+
+  Q_EMIT pathChanged(m_revaluate_data.path);
+}
+
+QString QmlApi::getPath() const { return m_revaluate_data.path; }
+
+void QmlApi::setClient(QmlClient* client) {
+  if (m_revaluate_data.client == client) return;
+
+  m_revaluate_data.client = client;
+  revaluateApi();
+
+  Q_EMIT clientChanged(client);
+}
+
+QmlClient* QmlApi::getClient() const { return m_revaluate_data.client; }
 
 void QmlApi::classBegin() {}
 
 void QmlApi::componentComplete() {
-  m_init = true;
+  m_revaluate_data.init = true;
   revaluateApi();
 }
-
-void QmlApi::setPath(const QString& path) {
-  if (m_path == path) return;
-
-  m_path = path;
-  revaluateApi();
-
-  Q_EMIT pathChanged(m_path);
-}
-
-QString QmlApi::getPath() const { return m_path; }
-
-void QmlApi::setClient(egnite::rest::Client* client) {
-  if (m_client == client) return;
-
-  m_client = client;
-  revaluateApi();
-
-  Q_EMIT clientChanged(m_client);
-}
-
-egnite::rest::Client* QmlApi::getClient() const { return m_client; }
 
 void QmlApi::revaluateApi() {
-  if (!m_init || !m_client) return;
+  if (!m_revaluate_data.init) return;
   if (m_api) m_api->deleteLater();
 
-  m_api = m_client->createApi(m_path, this);
+  Q_ASSERT(m_revaluate_data.client);
+  m_api = m_revaluate_data.client->createApi(m_revaluate_data.path, this);
 }

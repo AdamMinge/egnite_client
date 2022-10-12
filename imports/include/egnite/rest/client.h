@@ -9,22 +9,24 @@
 #include "reply_decorator.h"
 /* -------------------------------------------------------------------------- */
 
+/* --------------------------------- QmlClient ------------------------------ */
+
 class QmlClient : public egnite::rest::Client {
   Q_OBJECT
   QML_ELEMENT
 
-  Q_PROPERTY(
-      QString version READ getVersion WRITE setVersion NOTIFY versionChanged)
+  Q_PROPERTY(QString version READ getStrVersion WRITE setStrVersion NOTIFY
+                 versionChanged)
   Q_PROPERTY(QmlReplyDecorator *replyDecorator READ getReplyDecorator)
 
  public:
   explicit QmlClient(QObject *parent = nullptr);
   ~QmlClient() override;
 
-  void setVersion(const QString &version);
-  QString getVersion() const;
+  void setStrVersion(const QString &version);
+  [[nodiscard]] QString getStrVersion() const;
 
-  QmlReplyDecorator *getReplyDecorator() const;
+  [[nodiscard]] QmlReplyDecorator *getReplyDecorator() const override;
 
  Q_SIGNALS:
   void versionChanged(const QString &version);

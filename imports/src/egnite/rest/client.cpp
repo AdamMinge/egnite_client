@@ -12,13 +12,13 @@ QmlClient::QmlClient(QObject *parent)
 
 QmlClient::~QmlClient() = default;
 
-void QmlClient::setVersion(const QString &version) {
+void QmlClient::setStrVersion(const QString &version) {
   auto version_number = QVersionNumber::fromString(version);
   Q_ASSERT(!version_number.isNull());
-  egnite::rest::Client::setVersion(QVersionNumber::fromString(version));
+  setVersion(QVersionNumber::fromString(version));
 }
 
-QString QmlClient::getVersion() const {
+QString QmlClient::getStrVersion() const {
   return egnite::rest::Client::getVersion().toString();
 }
 

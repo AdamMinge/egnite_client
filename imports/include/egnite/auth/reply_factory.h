@@ -1,12 +1,12 @@
-#ifndef EGNITE_QML_REST_JWT_AUTHENTICATOR_REPLY_H
-#define EGNITE_QML_REST_JWT_AUTHENTICATOR_REPLY_H
+#ifndef EGNITE_QML_AUTH_REPLY_FACTORY_H
+#define EGNITE_QML_AUTH_REPLY_FACTORY_H
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QQmlParserStatus>
 /* --------------------------------- Egnite Qml ----------------------------- */
 #include <reply_factory.h>
 /* ------------------------------------ Local ------------------------------- */
-#include "jwt_authenticator.h"
+#include "authenticator.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::auth {
@@ -25,13 +25,13 @@ class QmlJwtAuthenticatorReplyFactory : public QmlReplyFactory,
   explicit QmlJwtAuthenticatorReplyFactory(QObject* parent = nullptr);
   ~QmlJwtAuthenticatorReplyFactory() override;
 
-  void classBegin() override;
-  void componentComplete() override;
-
   void setAuthenticator(QmlJwtAuthenticator* authenticator);
   [[nodiscard]] QmlJwtAuthenticator* getAuthenticator() const;
 
-  egnite::rest::Reply* create(egnite::rest::Reply* reply) override;
+  void classBegin() override;
+  void componentComplete() override;
+
+  egnite::rest::IReply* create(egnite::rest::IReply* reply) override;
 
  Q_SIGNALS:
   void authenticatorChanged(QmlJwtAuthenticator* authenticator);
@@ -40,9 +40,14 @@ class QmlJwtAuthenticatorReplyFactory : public QmlReplyFactory,
   void revaluateFactory();
 
  private:
-  bool m_init;
-  QmlJwtAuthenticator* m_authenticator;
+  struct RevaluateData {
+    bool init = false;
+    QmlJwtAuthenticator* authenticator = nullptr;
+  };
+
+ private:
+  RevaluateData m_revaluate_data;
   egnite::auth::JwtAuthenticatorReplyFactory* m_factory;
 };
 
-#endif  // EGNITE_QML_REST_JWT_AUTHENTICATOR_REPLY_H
+#endif  // EGNITE_QML_AUTH_REPLY_FACTORY_H

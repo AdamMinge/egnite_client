@@ -1,22 +1,23 @@
-#ifndef EGNITE_QML_AUTH_JWT_AUTHENTICATOR_H
-#define EGNITE_QML_AUTH_JWT_AUTHENTICATOR_H
+#ifndef EGNITE_QML_AUTH_AUTHENTICATOR_H
+#define EGNITE_QML_AUTH_AUTHENTICATOR_H
 
 /* ------------------------------------ Qt ---------------------------------- */
-#include <QObject>
 #include <QQmlParserStatus>
-#include <QUrl>
 #include <QtQml>
 /* ----------------------------------- Egnite ------------------------------- */
-#include <egnite/auth/jwt_authenticator.h>
+#include <egnite/auth/authenticator.h>
 #include <egnite/rest/client.h>
 /* -------------------------------------------------------------------------- */
 
-class QmlJwtAuthenticator : public QObject, public QQmlParserStatus {
+class QmlJwtAuthenticator : public egnite::auth::IJwtAuthenticator,
+                            public QQmlParserStatus {
   Q_OBJECT
   QML_ELEMENT
   Q_INTERFACES(QQmlParserStatus)
 
   Q_PROPERTY(QString path READ getPath WRITE setPath NOTIFY pathChanged)
+  Q_PROPERTY(QByteArray accessToken READ getAccessToken)
+  Q_PROPERTY(QByteArray refreshToken READ getRefreshToken)
   Q_PROPERTY(egnite::rest::Client* client READ getClient WRITE setClient NOTIFY
                  clientChanged)
   Q_PROPERTY(egnite::auth::JwtAuthenticator::Routing routing READ getRouting
@@ -26,21 +27,25 @@ class QmlJwtAuthenticator : public QObject, public QQmlParserStatus {
   explicit QmlJwtAuthenticator(QObject* parent = nullptr);
   ~QmlJwtAuthenticator() override;
 
-  Q_INVOKABLE void login(const QString& username, const QString& password);
-  Q_INVOKABLE void refresh();
-  Q_INVOKABLE void logout();
-
-  void classBegin() override;
-  void componentComplete() override;
-
   void setPath(const QString& path);
   [[nodiscard]] QString getPath() const;
 
   void setClient(egnite::rest::Client* client);
   [[nodiscard]] egnite::rest::Client* getClient() const;
 
-  void setRouting(const egnite::auth::JwtAuthenticator::Routing& routing);
-  [[nodiscard]] egnite::auth::JwtAuthenticator::Routing getRouting() const;
+  void setRouting(const egnite::auth::IJwtAuthenticator::Routing& routing);
+  [[nodiscard]] egnite::auth::IJwtAuthenticator::Routing getRouting() const;
+
+  void classBegin() override;
+  void componentComplete() override;
+
+  Q_INVOKABLE void login(const QString& username,
+                         const QString& password) override;
+  Q_INVOKABLE void refresh() override;
+  Q_INVOKABLE void logout() override;
+
+  [[nodiscard]] QByteArray getAccessToken() const override;
+  [[nodiscard]] QByteArray getRefreshToken() const override;
 
  Q_SIGNALS:
   void pathChanged(const QString& path);
@@ -51,11 +56,16 @@ class QmlJwtAuthenticator : public QObject, public QQmlParserStatus {
   void revaluateAuthenticator();
 
  private:
-  bool m_init;
-  QString m_path;
-  egnite::rest::Client* m_client;
-  egnite::auth::JwtAuthenticator::Routing m_routing;
-  egnite::auth::JwtAuthenticator* m_authenticator;
+  struct RevaluateData {
+    bool init = false;
+    QString path = "";
+    egnite::rest::Client* client;
+    egnite::auth::JwtAuthenticator::Routing routing;
+  };
+
+ private:
+  RevaluateData m_revaluate_data;
+  egnite::auth::IJwtAuthenticator* m_authenticator;
 };
 
-#endif  // EGNITE_QML_AUTH_JWT_AUTHENTICATOR_H
+#endif  // EGNITE_QML_AUTH_AUTHENTICATOR_H

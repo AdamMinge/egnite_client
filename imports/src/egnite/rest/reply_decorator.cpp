@@ -7,9 +7,9 @@
 #include <egnite/rest/reply_factory.h>
 /* -------------------------------------------------------------------------- */
 
-QmlReplyDecorator::QmlReplyDecorator(egnite::rest::ReplyDecorator* decorator,
+QmlReplyDecorator::QmlReplyDecorator(egnite::rest::IReplyDecorator* decorator,
                                      QObject* parent)
-    : egnite::rest::IReplyDecorator(parent), m_decorator(decorator) {}
+    : egnite::rest::ReplyDecorator(parent) {}
 
 QmlReplyDecorator::~QmlReplyDecorator() = default;
 
@@ -20,36 +20,26 @@ QQmlListProperty<QmlReplyFactory> QmlReplyDecorator::getFactories() {
       &QmlReplyDecorator::clearFactories);
 }
 
-void QmlReplyDecorator::appendFactory(QmlReplyFactory* factory) {
-  m_decorator->append(factory);
-}
-
-qsizetype QmlReplyDecorator::factoriesCount() const {
-  return m_decorator->count();
-}
-
-QmlReplyFactory* QmlReplyDecorator::factoryAt(qsizetype i) const {
-  return qobject_cast<QmlReplyFactory*>(m_decorator->at(i));
-}
-
-void QmlReplyDecorator::clearFactories() { m_decorator->clear(); }
-
 void QmlReplyDecorator::appendFactory(QQmlListProperty<QmlReplyFactory>* list,
                                       QmlReplyFactory* factory) {
-  reinterpret_cast<QmlReplyDecorator*>(list->data)->appendFactory(factory);
-}
-
-qsizetype QmlReplyDecorator::factoriesCount(
-    QQmlListProperty<QmlReplyFactory>* list) {
-  return reinterpret_cast<QmlReplyDecorator*>(list->data)->factoriesCount();
-}
-
-QmlReplyFactory* QmlReplyDecorator::factoryAt(
-    QQmlListProperty<QmlReplyFactory>* list, qsizetype i) {
-  return reinterpret_cast<QmlReplyDecorator*>(list->data)->factoryAt(i);
+  auto decorator = reinterpret_cast<QmlReplyDecorator*>(list->data);
+  decorator->append(factory);
 }
 
 void QmlReplyDecorator::clearFactories(
     QQmlListProperty<QmlReplyFactory>* list) {
-  reinterpret_cast<QmlReplyDecorator*>(list->data)->clearFactories();
+  auto decorator = reinterpret_cast<QmlReplyDecorator*>(list->data);
+  decorator->clear();
+}
+
+qsizetype QmlReplyDecorator::factoriesCount(
+    QQmlListProperty<QmlReplyFactory>* list) {
+  auto decorator = reinterpret_cast<QmlReplyDecorator*>(list->data);
+  return decorator->count();
+}
+
+QmlReplyFactory* QmlReplyDecorator::factoryAt(
+    QQmlListProperty<QmlReplyFactory>* list, qsizetype i) {
+  auto decorator = reinterpret_cast<QmlReplyDecorator*>(list->data);
+  return qobject_cast<QmlReplyFactory*>(decorator->at(i));
 }

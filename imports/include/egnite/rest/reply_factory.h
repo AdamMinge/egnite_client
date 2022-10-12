@@ -32,7 +32,8 @@ class QmlDebugReplyFactory : public QmlReplyFactory {
   explicit QmlDebugReplyFactory(QObject* parent = nullptr);
   ~QmlDebugReplyFactory() override;
 
-  egnite::rest::IReply* create(egnite::rest::IReply* reply) override;
+  [[nodiscard]] egnite::rest::IReply* create(
+      egnite::rest::IReply* reply) override;
 
  private:
   egnite::rest::DebugReplyFactory* m_factory;

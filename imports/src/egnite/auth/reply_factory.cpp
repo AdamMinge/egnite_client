@@ -1,51 +1,48 @@
 /* ----------------------------------- Local -------------------------------- */
-#include "jwt_authenticator_reply.h"
+#include "reply_factory.h"
 /* ----------------------------------- Egnite ------------------------------- */
-#include <egnite/auth/jwt_authenticator_reply.h>
+#include <egnite/auth/reply.h>
 /* -------------------------------------------------------------------------- */
 
 QmlJwtAuthenticatorReplyFactory::QmlJwtAuthenticatorReplyFactory(
     QObject* parent)
-    : QmlReplyFactory(parent),
-      m_init(false),
-      m_authenticator(nullptr),
-      m_factory(nullptr) {}
+    : QmlReplyFactory(parent), m_factory(nullptr) {}
 
 QmlJwtAuthenticatorReplyFactory::~QmlJwtAuthenticatorReplyFactory() = default;
+
+void QmlJwtAuthenticatorReplyFactory::setAuthenticator(
+    QmlJwtAuthenticator* authenticator) {
+  if (m_revaluate_data.authenticator == authenticator) return;
+
+  m_revaluate_data.authenticator = authenticator;
+  revaluateFactory();
+
+  Q_EMIT authenticatorChanged(m_revaluate_data.authenticator);
+}
+
+QmlJwtAuthenticator* QmlJwtAuthenticatorReplyFactory::getAuthenticator() const {
+  return m_revaluate_data.authenticator;
+}
 
 void QmlJwtAuthenticatorReplyFactory::classBegin() {}
 
 void QmlJwtAuthenticatorReplyFactory::componentComplete() {
-  m_init = true;
+  m_revaluate_data.init = true;
   revaluateFactory();
 }
 
-void QmlJwtAuthenticatorReplyFactory::setAuthenticator(
-    QmlJwtAuthenticator* authenticator) {
-  if (m_authenticator == authenticator) return;
-
-  m_authenticator = authenticator;
-  revaluateFactory();
-
-  Q_EMIT authenticatorChanged(m_authenticator);
-}
-
-QmlJwtAuthenticator* QmlJwtAuthenticatorReplyFactory::getAuthenticator() const {
-  return m_authenticator;
-}
-
-egnite::rest::Reply* QmlJwtAuthenticatorReplyFactory::create(
-    egnite::rest::Reply* reply) {
+egnite::rest::IReply* QmlJwtAuthenticatorReplyFactory::create(
+    egnite::rest::IReply* reply) {
   if (!m_factory) return reply;
   return m_factory->create(reply);
 }
 
 void QmlJwtAuthenticatorReplyFactory::revaluateFactory() {
-  if (!m_init) return;
+  if (!m_revaluate_data.init) return;
   if (m_factory) m_factory->deleteLater();
 
-  // Q_ASSERT(m_authenticator);
   qDebug() << "m_authenticator = " << m_authenticator;
-  m_factory =
-      new egnite::auth::JwtAuthenticatorReplyFactory(m_authenticator, this);
+  Q_ASSERT(m_revaluate_data.authenticator);
+  m_factory = new egnite::auth::JwtAuthenticatorReplyFactory(
+      m_revaluate_data.authenticator, this);
 }
