@@ -1,7 +1,5 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "reply_decorator.h"
-
-#include "reply_factory.h"
 /* ----------------------------------- Egnite ------------------------------- */
 #include <egnite/rest/reply_decorator.h>
 #include <egnite/rest/reply_factory.h>
@@ -13,33 +11,34 @@ QmlReplyDecorator::QmlReplyDecorator(egnite::rest::IReplyDecorator* decorator,
 
 QmlReplyDecorator::~QmlReplyDecorator() = default;
 
-QQmlListProperty<QmlReplyFactory> QmlReplyDecorator::getFactories() {
-  return QQmlListProperty<QmlReplyFactory>(
+QQmlListProperty<QObject> QmlReplyDecorator::getFactories() {
+  return QQmlListProperty<QObject>(
       this, this, &QmlReplyDecorator::appendFactory,
       &QmlReplyDecorator::factoriesCount, &QmlReplyDecorator::factoryAt,
       &QmlReplyDecorator::clearFactories);
 }
 
-void QmlReplyDecorator::appendFactory(QQmlListProperty<QmlReplyFactory>* list,
-                                      QmlReplyFactory* factory) {
+void QmlReplyDecorator::appendFactory(QQmlListProperty<QObject>* list,
+                                      QObject* object) {
   auto decorator = reinterpret_cast<QmlReplyDecorator*>(list->data);
-  decorator->append(factory);
+  auto factory = qobject_cast<egnite::rest::IReplyFactory*>(object);
+
+  Q_ASSERT(factory);
+  decorator->append(qobject_cast<egnite::rest::IReplyFactory*>(factory));
 }
 
-void QmlReplyDecorator::clearFactories(
-    QQmlListProperty<QmlReplyFactory>* list) {
+void QmlReplyDecorator::clearFactories(QQmlListProperty<QObject>* list) {
   auto decorator = reinterpret_cast<QmlReplyDecorator*>(list->data);
   decorator->clear();
 }
 
-qsizetype QmlReplyDecorator::factoriesCount(
-    QQmlListProperty<QmlReplyFactory>* list) {
+qsizetype QmlReplyDecorator::factoriesCount(QQmlListProperty<QObject>* list) {
   auto decorator = reinterpret_cast<QmlReplyDecorator*>(list->data);
   return decorator->count();
 }
 
-QmlReplyFactory* QmlReplyDecorator::factoryAt(
-    QQmlListProperty<QmlReplyFactory>* list, qsizetype i) {
+QObject* QmlReplyDecorator::factoryAt(QQmlListProperty<QObject>* list,
+                                      qsizetype i) {
   auto decorator = reinterpret_cast<QmlReplyDecorator*>(list->data);
-  return qobject_cast<QmlReplyFactory*>(decorator->at(i));
+  return decorator->at(i);
 }

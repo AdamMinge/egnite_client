@@ -3,8 +3,8 @@
 
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QQmlParserStatus>
-/* --------------------------------- Egnite Qml ----------------------------- */
-#include <reply_factory.h>
+/* ----------------------------------- Egnite ------------------------------- */
+#include <egnite/rest/reply_factory.h>
 /* ------------------------------------ Local ------------------------------- */
 #include "authenticator.h"
 /* -------------------------------------------------------------------------- */
@@ -13,7 +13,7 @@ namespace egnite::auth {
 class JwtAuthenticatorReplyFactory;
 }
 
-class QmlJwtAuthenticatorReplyFactory : public QmlReplyFactory,
+class QmlJwtAuthenticatorReplyFactory : public egnite::rest::IReplyFactory,
                                         public QQmlParserStatus {
   Q_OBJECT
   QML_ELEMENT

@@ -5,16 +5,16 @@
 /* -------------------------------------------------------------------------- */
 
 /* ------------------------------- QmlReplyFactory -------------------------- */
-
+/*
 QmlReplyFactory::QmlReplyFactory(QObject* parent)
     : egnite::rest::IReplyFactory(parent) {}
 
 QmlReplyFactory::~QmlReplyFactory() = default;
-
+*/
 /* ---------------------------- QmlDebugReplyFactory ------------------------ */
 
 QmlDebugReplyFactory::QmlDebugReplyFactory(QObject* parent)
-    : QmlReplyFactory(parent),
+    : egnite::rest::IReplyFactory(parent),
       m_factory(new egnite::rest::DebugReplyFactory(this)) {}
 
 QmlDebugReplyFactory::~QmlDebugReplyFactory() = default;

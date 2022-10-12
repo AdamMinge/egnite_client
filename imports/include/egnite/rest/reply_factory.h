@@ -11,20 +11,9 @@ namespace egnite::rest {
 class DebugReplyFactory;
 }
 
-/* ------------------------------ QmlReplyFactory --------------------------- */
-
-class QmlReplyFactory : public egnite::rest::IReplyFactory {
-  Q_OBJECT
-  QML_ELEMENT
-
- public:
-  explicit QmlReplyFactory(QObject* parent = nullptr);
-  ~QmlReplyFactory() override;
-};
-
 /* ---------------------------- QmlDebugReplyFactory ------------------------ */
 
-class QmlDebugReplyFactory : public QmlReplyFactory {
+class QmlDebugReplyFactory : public egnite::rest::IReplyFactory {
   Q_OBJECT
   QML_ELEMENT
 

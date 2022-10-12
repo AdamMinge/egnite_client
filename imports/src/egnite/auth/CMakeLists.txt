@@ -42,8 +42,7 @@ egnite_add_qml_module(
   RESOURCES
   ${resources}
   DEPENDENCIES
-  egnite::egnite-auth
-  egnite::egnite-rest-qml)
+  egnite::egnite-auth)
 
 target_include_directories(
   egnite-auth-qml

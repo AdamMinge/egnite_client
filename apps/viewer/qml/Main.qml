@@ -15,8 +15,8 @@ QtObject {
 
         replyDecorator {
             factories: [
-                QmlDebugReplyFactory{},
-                QmlJwtAuthenticatorReplyFactory{ authenticator: rest_authenticator }
+                QmlDebugReplyFactory {},
+                QmlJwtAuthenticatorReplyFactory { authenticator: rest_authenticator }
             ]
         }
     }

@@ -8,7 +8,7 @@ namespace egnite::auth {
 
 /* --------------------------- JwtAuthenticatorReply ------------------------ */
 
-JwtAuthenticatorReply::JwtAuthenticatorReply(JwtAuthenticator* authenticator,
+JwtAuthenticatorReply::JwtAuthenticatorReply(IJwtAuthenticator* authenticator,
                                              rest::IReply* reply,
                                              QObject* parent)
     : rest::WrappedReply(reply, parent) {

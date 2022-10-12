@@ -10,16 +10,16 @@
 
 namespace egnite::auth {
 
-class JwtAuthenticator;
+class IJwtAuthenticator;
 
 class JwtAuthenticatorReplyFactory
     : public rest::ReplyFactoryWithArgs<JwtAuthenticatorReply,
-                                        JwtAuthenticator*> {
+                                        IJwtAuthenticator*> {
   using ParentReplyFactory =
-      rest::ReplyFactoryWithArgs<JwtAuthenticatorReply, JwtAuthenticator*>;
+      rest::ReplyFactoryWithArgs<JwtAuthenticatorReply, IJwtAuthenticator*>;
 
  public:
-  explicit JwtAuthenticatorReplyFactory(JwtAuthenticator* authenticator,
+  explicit JwtAuthenticatorReplyFactory(IJwtAuthenticator* authenticator,
                                         QObject* parent = nullptr);
 };
 

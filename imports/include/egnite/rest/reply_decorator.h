@@ -7,7 +7,9 @@
 #include <egnite/rest/reply_decorator.h>
 /* -------------------------------------------------------------------------- */
 
-class QmlReplyFactory;
+namespace egnite::rest {
+class IReplyFactory;
+}
 
 /* ----------------------------- QmlReplyDecorator -------------------------- */
 
@@ -15,23 +17,22 @@ class QmlReplyDecorator : public egnite::rest::ReplyDecorator {
   Q_OBJECT
   QML_ELEMENT
 
-  Q_PROPERTY(QQmlListProperty<QmlReplyFactory> factories READ getFactories)
+  Q_PROPERTY(QQmlListProperty<QObject> factories READ getFactories)
 
  public:
   explicit QmlReplyDecorator(egnite::rest::IReplyDecorator* decorator,
                              QObject* parent = nullptr);
   ~QmlReplyDecorator() override;
 
-  [[nodiscard]] QQmlListProperty<QmlReplyFactory> getFactories();
+  [[nodiscard]] QQmlListProperty<QObject> getFactories();
 
  private:
-  static void appendFactory(QQmlListProperty<QmlReplyFactory>* list,
-                            QmlReplyFactory* factory);
-  static void clearFactories(QQmlListProperty<QmlReplyFactory>* list);
+  static void appendFactory(QQmlListProperty<QObject>* list, QObject* object);
+  static void clearFactories(QQmlListProperty<QObject>* list);
   [[nodiscard]] static qsizetype factoriesCount(
-      QQmlListProperty<QmlReplyFactory>* list);
-  [[nodiscard]] static QmlReplyFactory* factoryAt(
-      QQmlListProperty<QmlReplyFactory>* list, qsizetype i);
+      QQmlListProperty<QObject>* list);
+  [[nodiscard]] static QObject* factoryAt(QQmlListProperty<QObject>* list,
+                                          qsizetype i);
 };
 
 #endif  // EGNITE_QML_REST_REPLY_DECORATOR_H

@@ -1,12 +1,12 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "reply_factory.h"
 /* ----------------------------------- Egnite ------------------------------- */
-#include <egnite/auth/reply.h>
+#include <egnite/auth/reply_factory.h>
 /* -------------------------------------------------------------------------- */
 
 QmlJwtAuthenticatorReplyFactory::QmlJwtAuthenticatorReplyFactory(
     QObject* parent)
-    : QmlReplyFactory(parent), m_factory(nullptr) {}
+    : egnite::rest::IReplyFactory(parent), m_factory(nullptr) {}
 
 QmlJwtAuthenticatorReplyFactory::~QmlJwtAuthenticatorReplyFactory() = default;
 
@@ -41,7 +41,6 @@ void QmlJwtAuthenticatorReplyFactory::revaluateFactory() {
   if (!m_revaluate_data.init) return;
   if (m_factory) m_factory->deleteLater();
 
-  qDebug() << "m_authenticator = " << m_authenticator;
   Q_ASSERT(m_revaluate_data.authenticator);
   m_factory = new egnite::auth::JwtAuthenticatorReplyFactory(
       m_revaluate_data.authenticator, this);

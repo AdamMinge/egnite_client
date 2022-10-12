@@ -69,6 +69,14 @@ void QmlJwtAuthenticator::logout() {
   m_authenticator->logout();
 }
 
+QByteArray QmlJwtAuthenticator::getAccessToken() const {
+  return m_authenticator ? m_authenticator->getAccessToken() : QByteArray{};
+}
+
+QByteArray QmlJwtAuthenticator::getRefreshToken() const {
+  return m_authenticator ? m_authenticator->getRefreshToken() : QByteArray{};
+}
+
 void QmlJwtAuthenticator::revaluateAuthenticator() {
   if (!m_revaluate_data.init) return;
   if (m_authenticator) m_authenticator->deleteLater();

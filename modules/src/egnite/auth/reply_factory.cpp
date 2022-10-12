@@ -7,7 +7,7 @@ namespace egnite::auth {
 /* ----------------------- JwtAuthenticatorReplyFactory --------------------- */
 
 JwtAuthenticatorReplyFactory::JwtAuthenticatorReplyFactory(
-    JwtAuthenticator* authenticator, QObject* parent)
+    IJwtAuthenticator* authenticator, QObject* parent)
     : ParentReplyFactory(authenticator, parent) {}
 
 }  // namespace egnite::auth

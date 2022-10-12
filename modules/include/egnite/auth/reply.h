@@ -9,13 +9,13 @@
 
 namespace egnite::auth {
 
-class JwtAuthenticator;
+class IJwtAuthenticator;
 
 class EGNITE_AUTH_API JwtAuthenticatorReply : public rest::WrappedReply {
   Q_OBJECT
 
  public:
-  JwtAuthenticatorReply(JwtAuthenticator* authenticator, rest::IReply* reply,
+  JwtAuthenticatorReply(IJwtAuthenticator* authenticator, rest::IReply* reply,
                         QObject* parent = nullptr);
   ~JwtAuthenticatorReply() override;
 };
