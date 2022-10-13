@@ -16,12 +16,13 @@ class QmlJwtAuthenticator : public egnite::auth::IJwtAuthenticator,
   Q_INTERFACES(QQmlParserStatus)
 
   Q_PROPERTY(QString path READ getPath WRITE setPath NOTIFY pathChanged)
-  Q_PROPERTY(QByteArray accessToken READ getAccessToken)
-  Q_PROPERTY(QByteArray refreshToken READ getRefreshToken)
   Q_PROPERTY(egnite::rest::Client* client READ getClient WRITE setClient NOTIFY
                  clientChanged)
   Q_PROPERTY(egnite::auth::JwtAuthenticator::Routing routing READ getRouting
                  WRITE setRouting NOTIFY routingChanged)
+
+  Q_PROPERTY(QByteArray accessToken READ getAccessToken)
+  Q_PROPERTY(QByteArray refreshToken READ getRefreshToken)
 
  public:
   explicit QmlJwtAuthenticator(QObject* parent = nullptr);

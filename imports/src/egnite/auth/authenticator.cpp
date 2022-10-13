@@ -2,6 +2,8 @@
 #include "authenticator.h"
 /* -------------------------------------------------------------------------- */
 
+/* ---------------------------- QmlJwtAuthenticator ------------------------- */
+
 QmlJwtAuthenticator::QmlJwtAuthenticator(QObject* parent)
     : egnite::auth::IJwtAuthenticator(parent), m_authenticator(nullptr) {}
 
@@ -55,34 +57,53 @@ void QmlJwtAuthenticator::componentComplete() {
 
 void QmlJwtAuthenticator::login(const QString& username,
                                 const QString& password) {
-  Q_ASSERT(m_authenticator);
-  m_authenticator->login(username, password);
+  if (!m_authenticator)
+    qmlWarning(this) << "components wasn't evaluate correctly or not at all";
+  else
+    m_authenticator->login(username, password);
 }
 
 void QmlJwtAuthenticator::refresh() {
-  Q_ASSERT(m_authenticator);
-  m_authenticator->refresh();
+  if (!m_authenticator)
+    qmlWarning(this) << "components wasn't evaluate correctly or not at all";
+  else
+    m_authenticator->refresh();
 }
 
 void QmlJwtAuthenticator::logout() {
-  Q_ASSERT(m_authenticator);
-  m_authenticator->logout();
+  if (!m_authenticator)
+    qmlWarning(this) << "components wasn't evaluate correctly or not at all";
+  else
+    m_authenticator->logout();
 }
 
 QByteArray QmlJwtAuthenticator::getAccessToken() const {
-  return m_authenticator ? m_authenticator->getAccessToken() : QByteArray{};
+  if (!m_authenticator) {
+    qmlWarning(this) << "components wasn't evaluate correctly or not at all";
+    return QByteArray{};
+  }
+
+  return m_authenticator->getAccessToken();
 }
 
 QByteArray QmlJwtAuthenticator::getRefreshToken() const {
-  return m_authenticator ? m_authenticator->getRefreshToken() : QByteArray{};
+  if (!m_authenticator) {
+    qmlWarning(this) << "components wasn't evaluate correctly or not at all";
+    return QByteArray{};
+  }
+
+  return m_authenticator->getRefreshToken();
 }
 
 void QmlJwtAuthenticator::revaluateAuthenticator() {
   if (!m_revaluate_data.init) return;
   if (m_authenticator) m_authenticator->deleteLater();
 
-  Q_ASSERT(m_revaluate_data.client);
-  m_authenticator = new egnite::auth::JwtAuthenticator(
-      m_revaluate_data.client, m_revaluate_data.path, this);
-  m_authenticator->setRouting(m_revaluate_data.routing);
+  if (!m_revaluate_data.client) {
+    qmlWarning(this) << "client property must be set";
+  } else {
+    m_authenticator = new egnite::auth::JwtAuthenticator(
+        m_revaluate_data.client, m_revaluate_data.path, this);
+    m_authenticator->setRouting(m_revaluate_data.routing);
+  }
 }

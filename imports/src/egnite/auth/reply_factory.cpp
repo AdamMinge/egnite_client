@@ -4,6 +4,8 @@
 #include <egnite/auth/reply_factory.h>
 /* -------------------------------------------------------------------------- */
 
+/* ----------------------- QmlJwtAuthenticatorReplyFactory ------------------ */
+
 QmlJwtAuthenticatorReplyFactory::QmlJwtAuthenticatorReplyFactory(
     QObject* parent)
     : egnite::rest::IReplyFactory(parent), m_factory(nullptr) {}
@@ -33,7 +35,11 @@ void QmlJwtAuthenticatorReplyFactory::componentComplete() {
 
 egnite::rest::IReply* QmlJwtAuthenticatorReplyFactory::create(
     egnite::rest::IReply* reply) {
-  if (!m_factory) return reply;
+  if (!m_factory) {
+    qmlWarning(this) << "components wasn't evaluate correctly or not at all";
+    return reply;
+  }
+
   return m_factory->create(reply);
 }
 
@@ -41,7 +47,9 @@ void QmlJwtAuthenticatorReplyFactory::revaluateFactory() {
   if (!m_revaluate_data.init) return;
   if (m_factory) m_factory->deleteLater();
 
-  Q_ASSERT(m_revaluate_data.authenticator);
-  m_factory = new egnite::auth::JwtAuthenticatorReplyFactory(
-      m_revaluate_data.authenticator, this);
+  if (!m_revaluate_data.authenticator)
+    qmlWarning(this) << "authenticator property must be set";
+  else
+    m_factory = new egnite::auth::JwtAuthenticatorReplyFactory(
+        m_revaluate_data.authenticator, this);
 }

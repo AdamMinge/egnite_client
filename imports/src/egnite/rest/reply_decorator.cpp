@@ -5,6 +5,8 @@
 #include <egnite/rest/reply_factory.h>
 /* -------------------------------------------------------------------------- */
 
+/* ------------------------------ QmlReplyDecorator ------------------------- */
+
 QmlReplyDecorator::QmlReplyDecorator(egnite::rest::IReplyDecorator* decorator,
                                      QObject* parent)
     : egnite::rest::ReplyDecorator(parent) {}
@@ -23,8 +25,11 @@ void QmlReplyDecorator::appendFactory(QQmlListProperty<QObject>* list,
   auto decorator = reinterpret_cast<QmlReplyDecorator*>(list->data);
   auto factory = qobject_cast<egnite::rest::IReplyFactory*>(object);
 
-  Q_ASSERT(factory);
-  decorator->append(qobject_cast<egnite::rest::IReplyFactory*>(factory));
+  if (!factory)
+    qmlWarning(decorator)
+        << "Appended object must be derived from egnite::rest::IReplyFactory";
+  else
+    decorator->append(qobject_cast<egnite::rest::IReplyFactory*>(factory));
 }
 
 void QmlReplyDecorator::clearFactories(QQmlListProperty<QObject>* list) {

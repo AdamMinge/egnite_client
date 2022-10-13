@@ -4,6 +4,8 @@
 #include <egnite/rest/api.h>
 /* -------------------------------------------------------------------------- */
 
+/* ----------------------------------- QmlApi ------------------------------- */
+
 QmlApi::QmlApi(QObject* parent) : QObject(parent), m_api(nullptr) {}
 
 QmlApi::~QmlApi() = default;
@@ -41,6 +43,8 @@ void QmlApi::revaluateApi() {
   if (!m_revaluate_data.init) return;
   if (m_api) m_api->deleteLater();
 
-  Q_ASSERT(m_revaluate_data.client);
-  m_api = m_revaluate_data.client->createApi(m_revaluate_data.path, this);
+  if (!m_revaluate_data.client)
+    qmlWarning(this) << "client property must be set";
+  else
+    m_api = m_revaluate_data.client->createApi(m_revaluate_data.path, this);
 }

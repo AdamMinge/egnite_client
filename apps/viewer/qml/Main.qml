@@ -19,6 +19,9 @@ QtObject {
                 QmlJwtAuthenticatorReplyFactory { authenticator: rest_authenticator }
             ]
         }
+
+        globalHeaders: {}
+        globalParameters: {}
     }
 
     property var rest_authenticator: QmlJwtAuthenticator {

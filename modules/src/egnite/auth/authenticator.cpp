@@ -101,9 +101,9 @@ void JwtAuthenticatorPrivate::login(const QString& username,
   const auto request = IJwtAuthenticator::ObtainTokenRequest{
       .username = username, .password = password};
 
-  auto reply =
-      m_api->post<IJwtAuthenticator::ObtainTokenResponse,
-                  IAuthenticator::ErrorResponse>(m_routing.obtain, request);
+  auto reply = m_api->post<IJwtAuthenticator::ObtainTokenResponse,
+                           IAuthenticator::ErrorResponse>(m_routing.obtain,
+                                                          request, {}, {}, q);
 
   reply->setAutoDelete(true);
   reply
@@ -125,9 +125,9 @@ void JwtAuthenticatorPrivate::refresh() {
   const auto request =
       IJwtAuthenticator::TokenRefreshRequest{.refresh = m_refresh_token};
 
-  auto reply =
-      m_api->post<IJwtAuthenticator::TokenRefreshResponse,
-                  IAuthenticator::ErrorResponse>(m_routing.refresh, request);
+  auto reply = m_api->post<IJwtAuthenticator::TokenRefreshResponse,
+                           IAuthenticator::ErrorResponse>(m_routing.refresh,
+                                                          request, {}, {}, q);
 
   reply->setAutoDelete(true);
   reply
@@ -149,7 +149,7 @@ void JwtAuthenticatorPrivate::logout() {
       IJwtAuthenticator::TokenBlacklistRequest{.refresh = m_refresh_token};
 
   auto reply = m_api->post<void, IAuthenticator::ErrorResponse>(
-      m_routing.blacklist, request);
+      m_routing.blacklist, request, {}, {}, q);
 
   reply->setAutoDelete(true);
   reply
