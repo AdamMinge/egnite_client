@@ -14,10 +14,10 @@
 /* -------------------------------------------------------------------------- */
 /* --------------------- Identify the operating system ---------------------- */
 /* -------------------------------------------------------------------------- */
-#if defined(_WIN32)
-#define EGNITE_OS_WINDOWS
-#elif defined(__linux__)
+#if defined(__linux) || defined(__linux__) || defined(linux)
 #define EGNITE_OS_LINUX
+#elif defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(_WIN64)
+#define EGNITE_OS_WINDOWS
 #else
 #error This operating system is not supported by EGNITE library
 #endif

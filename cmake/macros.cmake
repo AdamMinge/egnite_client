@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------- #
-# ------------ Define a macro that helps add egnite qml module ---------- #
+# ----------- Define a function that helps add egnite qml module -------- #
 # ----------------------------------------------------------------------- #
 function(egnite_add_qml_module target)
 
@@ -41,7 +41,7 @@ function(egnite_add_qml_module target)
 
 endfunction()
 # ----------------------------------------------------------------------- #
-# -------------- Define a macro that helps add egnite module ------------ #
+# ------------- Define a function that helps add egnite module ---------- #
 # ----------------------------------------------------------------------- #
 function(egnite_add_module target)
 
@@ -119,7 +119,7 @@ function(egnite_export_modules)
 
 endfunction()
 # ----------------------------------------------------------------------- #
-# ------------ Define a macro that helps add qml application ------------ #
+# ----------- Define a function that helps add qml application ---------- #
 # ----------------------------------------------------------------------- #
 function(egnite_add_qml_executable target)
 
@@ -159,7 +159,7 @@ function(egnite_add_qml_executable target)
 
 endfunction()
 # ----------------------------------------------------------------------- #
-# -------------- Define a macro that helps add application -------------- #
+# ------------- Define a function that helps add application ------------ #
 # ----------------------------------------------------------------------- #
 function(egnite_add_executable target)
 
@@ -182,7 +182,7 @@ function(egnite_add_executable target)
 
 endfunction()
 # ----------------------------------------------------------------------- #
-# ------------- Define a macro that helps configure module -------------- #
+# ------------ Define a function that helps configure module ------------ #
 # ----------------------------------------------------------------------- #
 function(_egnite_config_module target export)
 
@@ -217,7 +217,7 @@ function(_egnite_config_module target export)
 
 endfunction()
 # ----------------------------------------------------------------------- #
-# ----------- Define a macro that helps configure application ----------- #
+# ---------- Define a function that helps configure application --------- #
 # ----------------------------------------------------------------------- #
 function(_egnite_config_executable target)
 
@@ -235,7 +235,7 @@ function(_egnite_config_executable target)
 
 endfunction()
 # ----------------------------------------------------------------------- #
-# ----------- Define a macro that helps configure application ----------- #
+# ---------- Define a function that helps add resources aliases --------- #
 # ----------------------------------------------------------------------- #
 function(_egnite_add_qt_resource_alias)
   cmake_parse_arguments(THIS "" "" "RESOURCES" ${ARGN})

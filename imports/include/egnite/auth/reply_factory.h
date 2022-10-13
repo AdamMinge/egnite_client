@@ -17,6 +17,7 @@ class QmlJwtAuthenticatorReplyFactory : public egnite::rest::IReplyFactory,
                                         public QQmlParserStatus {
   Q_OBJECT
   QML_ELEMENT
+  Q_INTERFACES(QQmlParserStatus)
 
   Q_PROPERTY(QmlJwtAuthenticator* authenticator READ getAuthenticator WRITE
                  setAuthenticator NOTIFY authenticatorChanged)

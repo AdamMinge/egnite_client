@@ -148,7 +148,8 @@ struct DstBindInfo<TDstRet (*)(TDstArgs...)> {
 template <typename TSrcFn, typename TDstFn>
 static inline auto bindCallback(TDstFn&& fn) {
   using DstBindInfo = detail::DstBindInfo<std::decay_t<TDstFn>>;
-  using SrcBindInfo = typename DstBindInfo::SrcBindInfo<std::decay_t<TSrcFn>>;
+  using SrcBindInfo =
+      typename DstBindInfo::template SrcBindInfo<std::decay_t<TSrcFn>>;
 
   return SrcBindInfo::bind(std::forward<TDstFn>(fn));
 }
