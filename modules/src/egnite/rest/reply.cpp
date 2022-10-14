@@ -20,6 +20,9 @@ IReply::IReply(QObject* parent) : QObject(parent) {}
 IReply::IReply(QObjectPrivate& impl, QObject* parent) : QObject(impl, parent) {
   connect(this, &IReply::succeeded, this, &IReply::completed);
   connect(this, &IReply::failed, this, &IReply::completed);
+
+  connect(this, &IReply::failed, this, &IReply::unsucceeded);
+  connect(this, &IReply::error, this, &IReply::unsucceeded);
 }
 
 IReply::~IReply() = default;

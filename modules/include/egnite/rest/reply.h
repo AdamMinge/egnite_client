@@ -98,6 +98,7 @@ class EGNITE_REST_API IReply : public QObject {
   EGNITE_DEFINE_BINDER(IReply, onSucceeded, succeeded);
   EGNITE_DEFINE_BINDER(IReply, onFailed, failed);
   EGNITE_DEFINE_BINDER(IReply, onError, error);
+  EGNITE_DEFINE_BINDER(IReply, OnUnsucceeded, unsucceeded);
 
   EGNITE_DEFINE_BINDER(IReply, onDownloadProgress, downloadProgress);
   EGNITE_DEFINE_BINDER(IReply, onUploadProgress, uploadProgress);
@@ -107,6 +108,7 @@ class EGNITE_REST_API IReply : public QObject {
   void succeeded(int http_code, const Data& data);
   void failed(int http_code, const Data& data);
   void error(const QString& error_str, Error error_type);
+  void unsucceeded();
 
   void downloadProgress(qint64 bytes_received, qint64 bytes_total);
   void uploadProgress(qint64 bytes_sent, qint64 bytes_total);
@@ -172,16 +174,19 @@ template <typename DataType, typename ErrorType,
           template <typename, typename> typename ChildGenericReply>
 class GenericReplyBase : public WrappedReply {
  public:
-  template <typename Handler>
-  ChildGenericReply<DataType, ErrorType>* onCompleted(Handler&& handler,
-                                                      QObject* scope = nullptr);
+  using ChildReply = ChildGenericReply<DataType, ErrorType>;
 
+ public:
   template <typename Handler>
-  ChildGenericReply<DataType, ErrorType>* onError(Handler&& handler,
-                                                  QObject* scope = nullptr);
+  ChildReply* onCompleted(Handler&& handler, QObject* scope = nullptr);
 
-  EGNITE_DEFINE_BINDER(IReply, onDownloadProgress, downloadProgress);
-  EGNITE_DEFINE_BINDER(IReply, onUploadProgress, uploadProgress);
+  EGNITE_DEFINE_BINDER_EXTENDED(IReply, ChildReply, onError, error);
+  EGNITE_DEFINE_BINDER_EXTENDED(IReply, ChildReply, OnUnsucceeded, unsucceeded);
+
+  EGNITE_DEFINE_BINDER_EXTENDED(IReply, ChildReply, onDownloadProgress,
+                                downloadProgress);
+  EGNITE_DEFINE_BINDER_EXTENDED(IReply, ChildReply, onUploadProgress,
+                                uploadProgress);
 
  protected:
   explicit GenericReplyBase(IReply* reply, QObject* parent = nullptr);
@@ -202,24 +207,12 @@ GenericReplyBase<DataType, ErrorType, ChildGenericReply>::~GenericReplyBase() =
 template <typename DataType, typename ErrorType,
           template <typename, typename> typename ChildGenericReply>
 template <typename Handler>
-ChildGenericReply<DataType, ErrorType>*
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::ChildReply*
 GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onCompleted(
     Handler&& handler, QObject* scope) {
   WrappedReply::onCompleted(
       core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
       scope);
-  return static_cast<ChildGenericReply<DataType, ErrorType>*>(this);
-}
-
-template <typename DataType, typename ErrorType,
-          template <typename, typename> typename ChildGenericReply>
-template <typename Handler>
-ChildGenericReply<DataType, ErrorType>*
-GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onError(
-    Handler&& handler, QObject* scope) {
-  WrappedReply::onError(core::utils::bindCallback<void(const QString&, Error)>(
-                            std::forward<Handler>(handler)),
-                        scope);
   return static_cast<ChildGenericReply<DataType, ErrorType>*>(this);
 }
 
