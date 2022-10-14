@@ -33,10 +33,6 @@ QtObject {
             refresh: "refresh"
             blacklist: "blacklist"
         }
-
-        Component.onCompleted: {
-            rest_authenticator.login("admin", "admin")
-        }
     }
 
     property var auth_window: AuthWindow{
