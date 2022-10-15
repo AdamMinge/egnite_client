@@ -182,6 +182,30 @@ function(egnite_add_executable target)
 
 endfunction()
 # ----------------------------------------------------------------------- #
+# ----------- Define a function that helps add static analysis ---------- #
+# ----------------------------------------------------------------------- #
+function(egnite_static_analyzers)
+  if(EGNITE_ENABLE_CLANG_TIDY)
+    find_program(CLANGTIDY clang-tidy)
+    if(CLANGTIDY)
+      set(CMAKE_CXX_CLANG_TIDY ${CLANGTIDY}
+                               -extra-arg=-Wno-unknown-warning-option)
+    else()
+      message(FATAL_ERROR "Clang-Tidy requested but executable not found")
+    endif()
+  endif()
+
+  if(EGNITE_ENABLE_CPPCHECK)
+    find_program(CPPCHECK cppcheck)
+    if(CPPCHECK)
+      set(CMAKE_CXX_CPPCHECK ${CPPCHECK} --suppress=missingInclude --enable=all
+                             --inline-suppr --inconclusive --force)
+    else()
+      message(FATAL_ERROR "Cppcheck requested but executable not found")
+    endif()
+  endif()
+endfunction()
+# ----------------------------------------------------------------------- #
 # ------------ Define a function that helps configure module ------------ #
 # ----------------------------------------------------------------------- #
 function(_egnite_config_module target export)
