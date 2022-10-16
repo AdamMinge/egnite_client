@@ -168,7 +168,7 @@ function(egnite_add_executable target)
   if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
     message(
       FATAL_ERROR
-        "Extra unparsed arguments when calling _egnite_add_executable: ${THIS_UNPARSED_ARGUMENTS}"
+        "Extra unparsed arguments when calling egnite_add_executable: ${THIS_UNPARSED_ARGUMENTS}"
     )
   endif()
 
@@ -204,6 +204,71 @@ function(egnite_static_analyzers)
       message(FATAL_ERROR "Cppcheck requested but executable not found")
     endif()
   endif()
+endfunction()
+# ----------------------------------------------------------------------- #
+# ------------ Define a function that helps create python env ----------- #
+# ----------------------------------------------------------------------- #
+function(egnite_create_python_env)
+  cmake_parse_arguments(THIS "" "DESTINATION" "" ${ARGN})
+
+  if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
+    message(
+      FATAL_ERROR
+        "Extra unparsed arguments when calling egnite_create_python_env: ${THIS_UNPARSED_ARGUMENTS}"
+    )
+  endif()
+
+  if(NOT EXISTS "${THIS_DESTINATION}/venv")
+    find_package(Python3)
+    execute_process(COMMAND ${Python3_EXECUTABLE} "-m" "venv" "venv"
+                    WORKING_DIRECTORY ${THIS_DESTINATION})
+  endif()
+endfunction()
+# ----------------------------------------------------------------------- #
+# ---------- Define a function that execute rest generator tool --------- #
+# ----------------------------------------------------------------------- #
+function(egnite_add_generate_rest_command target)
+
+  cmake_parse_arguments(THIS "" "DESTINATION" "SOURCES" ${ARGN})
+
+  if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
+    message(
+      FATAL_ERROR
+        "Extra unparsed arguments when calling _egnite_add_generate_rest_command: ${THIS_UNPARSED_ARGUMENTS}"
+    )
+  endif()
+
+  set(python ${CMAKE_BINARY_DIR}/tools/rest_generator/venv/bin/python)
+  set(generator_exe ${EGNITE_SOURCE_DIR}/tools/rest_generator/main.py)
+  string(REPLACE ";" " " generator_sources "${THIS_SOURCES}")
+  set(generator_args --sources ${generator_sources} --output_dir
+                     ${THIS_DESTINATION})
+
+  set(generator_command ${python} ${generator_exe} ${generator_args})
+  set(generator_depends ${generator_sources} ${THIS_SOURCES})
+
+  set(generator_output)
+  foreach(source ${THIS_SOURCES})
+    get_filename_component(file ${source} NAME_WE)
+    list(APPEND generator_output ${THIS_DESTINATION}/include/${file}.h
+         ${THIS_DESTINATION}/src/${file}.cpp)
+  endforeach()
+
+  add_custom_target(
+    ${target}_generate_rest
+    COMMAND ${generator_command}
+    DEPENDS ${generator_depends}
+    BYPRODUCTS ${generator_output}
+    COMMENT "Generating EGNIME-REST sources with RestGenerator"
+    VERBATIM)
+
+  target_sources(${target} PRIVATE ${generator_output})
+
+  target_include_directories(
+    ${target}
+    PUBLIC $<BUILD_INTERFACE:${THIS_DESTINATION}/generated/include>
+    PRIVATE ${THIS_DESTINATION}/generated/src)
+
 endfunction()
 # ----------------------------------------------------------------------- #
 # ------------ Define a function that helps configure module ------------ #
