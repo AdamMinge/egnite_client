@@ -24,7 +24,8 @@ setup(
         "Programming Language :: Python :: 3",
     ],
     packages=["schema_converter"],
-    include_package_data=["importlib_resources"],
+    include_package_data=True,
+    install_requires=["importlib_resources"],
     entry_points={"console_scripts": [
         "schema_converter=schema_converter.__main__:main"]},
 )
