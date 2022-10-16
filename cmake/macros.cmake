@@ -225,21 +225,46 @@ function(egnite_create_python_env)
   endif()
 endfunction()
 # ----------------------------------------------------------------------- #
+# ------------ Define a function that helps create python env ----------- #
+# ----------------------------------------------------------------------- #
+function(egnite_init_python_env)
+  cmake_parse_arguments(THIS "" "PYTHON_ENV;REQUIREMENTS" "" ${ARGN})
+
+  if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
+    message(
+      FATAL_ERROR
+        "Extra unparsed arguments when calling egnite_init_python_env: ${THIS_UNPARSED_ARGUMENTS}"
+    )
+  endif()
+
+  if(EXISTS "${THIS_PYTHON_ENV}")
+    set(python ${THIS_PYTHON_ENV}/bin/python)
+    execute_process(
+      COMMAND ${python} "-m" "pip" "install" "-r" "${THIS_REQUIREMENTS}"
+      WORKING_DIRECTORY ${THIS_PYTHON_ENV})
+  else()
+    message(
+      FATAL_ERROR
+        "Failed to initialize venv because required path to venv isn't correct")
+  endif()
+
+endfunction()
+# ----------------------------------------------------------------------- #
 # ---------- Define a function that execute rest generator tool --------- #
 # ----------------------------------------------------------------------- #
-function(egnite_add_generate_rest_command target)
+function(egnite_add_schema_converter target)
 
   cmake_parse_arguments(THIS "" "DESTINATION" "SOURCES" ${ARGN})
 
   if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
     message(
       FATAL_ERROR
-        "Extra unparsed arguments when calling _egnite_add_generate_rest_command: ${THIS_UNPARSED_ARGUMENTS}"
+        "Extra unparsed arguments when calling egnite_add_schema_converter: ${THIS_UNPARSED_ARGUMENTS}"
     )
   endif()
 
-  set(python ${CMAKE_BINARY_DIR}/tools/rest_generator/venv/bin/python)
-  set(generator_exe ${EGNITE_SOURCE_DIR}/tools/rest_generator/main.py)
+  set(python ${CMAKE_BINARY_DIR}/tools/schema_converter/venv/bin/python)
+  set(generator_exe ${EGNITE_SOURCE_DIR}/tools/schema_converter/cli.py)
   string(REPLACE ";" " " generator_sources "${THIS_SOURCES}")
   set(generator_args --sources ${generator_sources} --output_dir
                      ${THIS_DESTINATION})
@@ -259,7 +284,7 @@ function(egnite_add_generate_rest_command target)
     COMMAND ${generator_command}
     DEPENDS ${generator_depends}
     BYPRODUCTS ${generator_output}
-    COMMENT "Generating EGNIME-REST sources with RestGenerator"
+    COMMENT "Generating EGNIME-REST sources with SchemaConverter"
     VERBATIM)
 
   target_sources(${target} PRIVATE ${generator_output})

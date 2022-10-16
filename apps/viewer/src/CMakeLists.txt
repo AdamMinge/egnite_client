@@ -58,6 +58,6 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${include_root}>
   PRIVATE ${source_root})
 
-egnite_add_generate_rest_command(
+egnite_add_schema_converter(
   viewer DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/generated SOURCES ${schemas})
 # ----------------------------------------------------------------------- #
