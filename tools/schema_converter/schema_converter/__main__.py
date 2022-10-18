@@ -1,13 +1,13 @@
 """
 --------------------------------------------------------------
 schema_converter: command line tool for converting egnite
-schema files such as json,xml to Qt/QML interface files.
+schema files such as xml to Qt/QML interface files.
 --------------------------------------------------------------
 usage: schema_converter [-h] [--sources SOURCES [SOURCES ...]] [--destination DESTINATION]
 Options:
   -h, --help            show this help message and exit
   --sources SOURCES [SOURCES ...]
-                        schema files such as json,xml to convert
+                        schema files such as xml to convert
   --destination DESTINATION
                         directory in which the generated files will be to add
 """
@@ -68,7 +68,7 @@ class Parser():
         parser.add_argument("--interface",
                             type=valid_generation_interface, nargs=1, default="all")
         parser.add_argument("--sources", type=valid_source_paths, nargs="+", required=True,
-                            help="schema files such as json,xml to convert")
+                            help="schema files such as xml to convert")
         parser.add_argument("--destination", type=valid_destination_path, nargs=1, required=True,
                             help="directory in which the generated files will be to add")
         return parser.parse_args()
@@ -76,10 +76,8 @@ class Parser():
 
 def main():
     args = Parser.get_args()
-
-    for source in args.sources:
-        schema = read_schema(source)
-        generate_interfaces(schema, args.destination, args.interface)
+    schema = read_schema(args.sources)
+    generate_interfaces(schema, args.destination, args.interface)
 
 
 if __name__ == "__main__":

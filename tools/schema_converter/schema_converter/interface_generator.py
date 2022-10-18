@@ -6,7 +6,7 @@ import enum
 from pathlib import Path
 from typing import Type, Iterable
 
-from schema import Schema
+from schema import Schema, Client, Api, Model
 
 
 class InterfaceGenerator(abc.ABC):
