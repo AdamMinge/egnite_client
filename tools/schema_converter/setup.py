@@ -1,7 +1,8 @@
 """Setup script for schema_converter project"""
 
-from importlib.metadata import entry_points
+import schema_converter
 import os.path
+
 from setuptools import setup
 
 THIS_FOLDER = os.path.abspath(os.path.dirname(__file__))
@@ -11,7 +12,7 @@ with open(os.path.join(THIS_FOLDER, "README.md")) as handle:
 
 setup(
     name="schema_converter",
-    version="1.0.0",
+    version=schema_converter.__version__,
     description="tool for converting egnite schema files to Qt/QML interface files",
     long_description=README_TEXT,
     long_description_content_type="text/markdown",

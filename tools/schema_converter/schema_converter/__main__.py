@@ -16,20 +16,21 @@ from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
 from reader import read_schema
-from generator import generate_code, GenerationTarget
+from interface_generator import generate_interfaces, Interface
 
 
-def valid_generation_target(arg: str) -> GenerationTarget:
+def valid_generation_interface(arg: str) -> Interface:
+    """Custom argparse type for generation target values given from the command line"""
     match arg:
         case "qt":
-            return GenerationTarget.GenerateQtInterface
+            return Interface.QtInterface
         case "qml":
-            return GenerationTarget.GenerateQmlInterface
+            return Interface.QmlInterface
         case "all":
-            return GenerationTarget.GenerateQtQmlInterface
+            return Interface.QtInterface | Interface.QmlInterface
         case _:
             raise ArgumentTypeError(
-                f"given target: ({arg}) isn't correct, choose one of [qt, qml, all]")
+                f"given interface: ({arg}) isn't correct, choose one of [qt, qml, all]")
 
 
 def valid_source_paths(arg: str) -> Path:
@@ -64,8 +65,8 @@ class Parser():
     @staticmethod
     def get_args():
         parser = ArgumentParser(prog="schema_converter")
-        parser.add_argument("--target",
-                            type=valid_generation_target, nargs=1, default="all")
+        parser.add_argument("--interface",
+                            type=valid_generation_interface, nargs=1, default="all")
         parser.add_argument("--sources", type=valid_source_paths, nargs="+", required=True,
                             help="schema files such as json,xml to convert")
         parser.add_argument("--destination", type=valid_destination_path, nargs=1, required=True,
@@ -78,7 +79,7 @@ def main():
 
     for source in args.sources:
         schema = read_schema(source)
-        generate_code(schema, args.destination, args.generation_target)
+        generate_interfaces(schema, args.destination, args.interface)
 
 
 if __name__ == "__main__":
