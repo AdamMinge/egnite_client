@@ -3,20 +3,23 @@
 schema_converter: command line tool for converting egnite
 schema files such as xml to Qt/QML interface files.
 --------------------------------------------------------------
-usage: schema_converter [-h] [--sources SOURCES [SOURCES ...]] [--destination DESTINATION]
+usage: schema_converter [-h] [--interface {qt,qml}] --sources SOURCES [SOURCES ...] --destination DESTINATION
 Options:
   -h, --help            show this help message and exit
+  --interface INTERFACE {qt,qml}
   --sources SOURCES [SOURCES ...]
                         schema files such as xml to convert
   --destination DESTINATION
                         directory in which the generated files will be to add
 """
 
-from argparse import ArgumentParser, ArgumentTypeError
+from argparse import ArgumentParser, ArgumentTypeError, Action, Namespace
 from pathlib import Path
+from typing import Sequence, Any, Iterable
 
-from reader import read_schema
-from interface_generator import generate_interfaces, Interface
+from .schema import Schema
+from .reader import read_schema
+from .generator import generate_interfaces, Interface
 
 
 def valid_generation_interface(arg: str) -> Interface:
@@ -26,11 +29,9 @@ def valid_generation_interface(arg: str) -> Interface:
             return Interface.QtInterface
         case "qml":
             return Interface.QmlInterface
-        case "all":
-            return Interface.QtInterface | Interface.QmlInterface
         case _:
             raise ArgumentTypeError(
-                f"given interface: ({arg}) isn't correct, choose one of [qt, qml, all]")
+                f"given interface: ({arg}) isn't correct, choose one of [qt, qml]")
 
 
 def valid_source_paths(arg: str) -> Path:
@@ -61,24 +62,52 @@ def valid_destination_path(arg: str) -> Path:
     return path
 
 
+class UniqueAppendAction(Action):
+    def __call__(
+        self,
+        parser: ArgumentParser,
+        namespace: Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None
+    ) -> None:
+        unique_values = set(values)
+
+        if len(unique_values) != len(values):
+            raise ArgumentTypeError(
+                f"given arguments have to be unique")
+
+        setattr(namespace, self.dest, unique_values)
+
+
 class Parser():
     @staticmethod
-    def get_args():
+    def get_args() -> Namespace:
         parser = ArgumentParser(prog="schema_converter")
         parser.add_argument("--interface",
-                            type=valid_generation_interface, nargs=1, default="all")
-        parser.add_argument("--sources", type=valid_source_paths, nargs="+", required=True,
+                            type=valid_generation_interface,
+                            nargs=1,
+                            default="qt",
+                            choices=["qt", "qml"],
+                            action=UniqueAppendAction)
+        parser.add_argument("--sources",
+                            type=valid_source_paths, nargs="+",
+                            required=True,
+                            action=UniqueAppendAction,
                             help="schema files such as xml to convert")
-        parser.add_argument("--destination", type=valid_destination_path, nargs=1, required=True,
+        parser.add_argument("--destination",
+                            type=valid_destination_path,
+                            nargs=1,
+                            required=True,
                             help="directory in which the generated files will be to add")
+
         return parser.parse_args()
 
 
-def main():
+def main() -> None:
     args = Parser.get_args()
-    schema = read_schema(args.sources)
-    generate_interfaces(schema, args.destination, args.interface)
 
+    schemas: Iterable[tuple[Schema, Path]] = []
+    for source in args.sources:
+        schemas.append(tuple(read_schema(source), source))
 
-if __name__ == "__main__":
-    main()
+    generate_interfaces(schemas, args.destination, args.interface)
