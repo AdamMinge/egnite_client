@@ -13,14 +13,13 @@ class UnsupportedSchemaFileExtension(Exception):
 
 
 def read_schema(schema_file: Path) -> Schema:
-    file_to_reader: dict[str, Type[SchemaReader]] = {
-        ".xml": XmlSchemaReader
-    }
-
-    reader = file_to_reader[schema_file.suffix]()
-    if not reader:
-        raise UnsupportedSchemaFileExtension(
-            f"given schema file: ({schema_file}) has unsupported extension")
+    generator: Type(SchemaReader) = None
+    match schema_file.suffix:
+        case ".xml":
+            reader = XmlSchemaReader()
+        case _:
+            raise UnsupportedSchemaFileExtension(
+                f"given schema file: ({schema_file}) has unsupported extension")
 
     return reader.read(schema_file)
 

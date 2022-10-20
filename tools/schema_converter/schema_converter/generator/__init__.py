@@ -17,13 +17,25 @@ class Interface(enum.Enum):
     QmlInterface = enum.auto()
 
 
-def generate_interfaces(schema: Iterable[tuple[Schema, Path]],
+class UnsupportedInterface(Exception):
+    pass
+
+
+def generate_interfaces(schemas: Iterable[tuple[Schema, Path]],
                         destination: Path,
                         interfaces: Interface) -> None:
-    interface_to_generator: dict[Interface, Type[Generator]] = {
-        Interface.QtInterface: QtGenerator,
-        Interface.QmlInterface: QmlGenerator
-    }
+
+    generator: Type(Generator) = None
+    match interfaces:
+        case Interface.QtInterface:
+            generator = QtGenerator()
+        case Interface.QmlInterface:
+            generator = QmlGenerator()
+        case _:
+            raise UnsupportedInterface(
+                f"given interface ({interfaces}) is unsupported")
+
+    generator.generate(schemas, destination)
 
 
 __all__ = [Generator, QtGenerator, QmlGenerator,

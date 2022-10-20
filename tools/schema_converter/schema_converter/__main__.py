@@ -104,6 +104,7 @@ class Parser():
 
 
 def main() -> None:
+    '''
     args = Parser.get_args()
 
     schemas: Iterable[tuple[Schema, Path]] = []
@@ -111,3 +112,13 @@ def main() -> None:
         schemas.append(tuple(read_schema(source), source))
 
     generate_interfaces(schemas, args.destination, args.interface)
+    '''
+
+    ## TEST ONLY ##
+    schema_files = [Path("client.xml"), Path("api.xml"), Path("model.xml")]
+
+    schemas: Iterable[tuple[Schema, Path]] = []
+    for source in schema_files:
+        schemas.append((read_schema(source), source))
+
+    generate_interfaces(schemas, Path("."), Interface.QtInterface)
