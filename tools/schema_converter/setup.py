@@ -3,11 +3,12 @@
 import schema_converter
 import os.path
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
-THIS_FOLDER = os.path.abspath(os.path.dirname(__file__))
+THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+CODE_GENERATOR_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'code_generator'))
 
-with open(os.path.join(THIS_FOLDER, "README.md")) as handle:
+with open(os.path.join(THIS_DIR, "README.md")) as handle:
     README_TEXT = handle.read()
 
 setup(
@@ -24,9 +25,12 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
     ],
-    packages=["schema_converter"],
+    packages=find_packages(include=["schema_converter", "schema_converter.*"]),
     include_package_data=True,
-    install_requires=["importlib_resources"],
+    install_requires=[
+        "importlib_resources", 
+        "wheel",
+        f"code_generator @ file://localhost/{CODE_GENERATOR_DIR}"],
     entry_points={"console_scripts": [
         "schema_converter=schema_converter.__main__:main"]},
 )

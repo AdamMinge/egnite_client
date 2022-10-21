@@ -3,7 +3,7 @@
 import code_generator
 import os.path
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 THIS_FOLDER = os.path.abspath(os.path.dirname(__file__))
 
@@ -24,7 +24,7 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
     ],
-    packages=["code_generator"],
+    packages=find_packages(include=["code_generator", "code_generator.*"]),
     include_package_data=True,
-    install_requires=["importlib_resources"],
+    install_requires=["importlib_resources", "wheel"],
 )

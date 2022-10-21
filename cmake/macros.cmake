@@ -228,7 +228,7 @@ endfunction()
 # ------------ Define a function that helps create python env ----------- #
 # ----------------------------------------------------------------------- #
 function(egnite_init_python_env)
-  cmake_parse_arguments(THIS "" "PYTHON_ENV;REQUIREMENTS" "" ${ARGN})
+  cmake_parse_arguments(THIS "" "PYTHON_ENV;PACKAGE" "" ${ARGN})
 
   if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
     message(
@@ -239,9 +239,8 @@ function(egnite_init_python_env)
 
   if(EXISTS "${THIS_PYTHON_ENV}")
     set(python ${THIS_PYTHON_ENV}/bin/python)
-    execute_process(
-      COMMAND ${python} "-m" "pip" "install" "-r" "${THIS_REQUIREMENTS}"
-      WORKING_DIRECTORY ${THIS_PYTHON_ENV})
+    execute_process(COMMAND ${python} "-m" "pip" "install" "${THIS_PACKAGE}"
+                    WORKING_DIRECTORY ${THIS_PYTHON_ENV})
   else()
     message(
       FATAL_ERROR
@@ -263,13 +262,13 @@ function(egnite_add_schema_converter target)
     )
   endif()
 
-  set(python ${CMAKE_BINARY_DIR}/tools/schema_converter/venv/bin/python)
-  set(generator_exe ${EGNITE_SOURCE_DIR}/tools/schema_converter/cli.py)
+  set(generator
+      ${CMAKE_BINARY_DIR}/tools/schema_converter/venv/bin/schema_converter)
   string(REPLACE ";" " " generator_sources "${THIS_SOURCES}")
   set(generator_args --sources ${generator_sources} --output_dir
                      ${THIS_DESTINATION})
 
-  set(generator_command ${python} ${generator_exe} ${generator_args})
+  set(generator_command ${generator} ${generator_args})
   set(generator_depends ${generator_sources} ${THIS_SOURCES})
 
   set(generator_output)
