@@ -5,7 +5,7 @@ from __future__ import annotations
 import abc
 import dataclasses
 
-from typing import Type, Iterable
+from typing import Iterable
 
 
 @dataclasses.dataclass
@@ -39,18 +39,16 @@ class CppLine(CppGenerator):
 
 class CppScope(CppGenerator):
     def __init__(self,
-                 begin: str = None,
-                 end: str = None) -> None:
-        self._elements: Iterable[Type[CppGenerator]] = []
-        self._scope = None
-
+                 begin: str | None = None,
+                 end: str | None = None) -> None:
+        self._elements: list[CppGenerator] = []
         if begin and end:
             self._scope = (CppLine(txt=begin), CppLine(txt=end))
 
     def code(self,
              code_style: CppCodeStyle,
              indent_level: int) -> str:
-        elements_code: Iterable[Type[CppGenerator]] = []
+        elements_code: list[str] = []
 
         if self._scope:
             elements_code = [generator.code(code_style=code_style, indent_level=indent_level + 1)
@@ -86,7 +84,7 @@ class CppFile(CppScope):
 class CppClass(CppScope):
     def __init__(self,
                  name: str,
-                 parents: str | Iterable[str] = None) -> None:
+                 parents: str | Iterable[str] | None = None) -> None:
         super().__init__(begin="{", end="}")
 
         if not isinstance(parents, str):
@@ -116,8 +114,8 @@ class CppFunction(CppScope):
     def __init__(self,
                  name: str,
                  return_type: str = "void",
-                 arguments: str | Iterable[str] = None,
-                 qualifiers: str | Iterable[str] = None) -> None:
+                 arguments: str | Iterable[str] | None = None,
+                 qualifiers: str | Iterable[str] | None = None) -> None:
         super().__init__(begin="{", end="}")
 
         if not isinstance(arguments, str):

@@ -3,10 +3,29 @@
 from io import TextIOWrapper
 from typing import Iterable
 from pathlib import Path
+from code_generator import generator
 
 from ..schema import ClientSchema, ApiSchema, ModelSchema
 from .generator import Generator
 
+
+class HeaderClient(generator.CppFile):
+    pass
+
+class SrcClient(generator.CppFile):
+    pass
+
+class HeaderApi(generator.CppFile):
+    pass
+
+class SrcApi(generator.CppFile):
+    pass
+
+class HeaderModel(generator.CppFile):
+    pass
+
+class SrcModel(generator.CppFile):
+    pass
 
 class QtGenerator(Generator):
     def _generate_client(self,
