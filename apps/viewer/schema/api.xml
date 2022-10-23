@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Api name="ExampleApi">
+	<Path>api</Path>
+	<Method name="getExamples" verb="GET" returns="int"/>
+	<Method name="getExample" verb="GET" returns="string">
+		<Parameter key="id" type="int"/>
+	</Method>
+	<Method name="postExample" verb="POST" returns="vec"/>
+</Api>

@@ -19,7 +19,8 @@ set(includes)
 set(qmls ${qmls_root}/AuthWindow.qml ${qmls_root}/LoginPage.qml
          ${qmls_root}/Main.qml ${qmls_root}/SignUpPage.qml)
 
-set(schemas)
+set(schemas ${schema_root}/client.xml ${schema_root}/api.xml
+            ${schema_root}/model.xml)
 
 set(resources ${resources_root}/conf/qtquickcontrols2.conf
               ${resources_root}/font/FontAwesome.ttf)
