@@ -264,12 +264,11 @@ function(egnite_add_schema_converter target)
 
   set(generator
       ${CMAKE_BINARY_DIR}/tools/schema_converter/venv/bin/schema_converter)
-  string(REPLACE ";" " " generator_sources "${THIS_SOURCES}")
-  set(generator_args --sources ${generator_sources} --output_dir
+  set(generator_args --sources ${THIS_SOURCES} --destination
                      ${THIS_DESTINATION})
 
   set(generator_command ${generator} ${generator_args})
-  set(generator_depends ${generator_sources} ${THIS_SOURCES})
+  set(generator_depends ${THIS_SOURCES})
 
   set(generator_output)
   foreach(source ${THIS_SOURCES})
@@ -280,6 +279,7 @@ function(egnite_add_schema_converter target)
 
   add_custom_target(
     ${target}_generate_rest
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${THIS_DESTINATION}
     COMMAND ${generator_command}
     DEPENDS ${generator_depends}
     BYPRODUCTS ${generator_output}

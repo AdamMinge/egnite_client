@@ -1,7 +1,6 @@
 """Module for schema reading from file"""
 
 from pathlib import Path
-from typing import Type
 
 from ..schema import Schema
 from .schema_reader import SchemaReader
@@ -13,7 +12,7 @@ class UnsupportedSchemaFileExtension(Exception):
 
 
 def read_schema(schema_file: Path) -> Schema:
-    generator: Type(SchemaReader) = None
+    generator: SchemaReader
     match schema_file.suffix:
         case ".xml":
             reader = XmlSchemaReader()
@@ -24,5 +23,5 @@ def read_schema(schema_file: Path) -> Schema:
     return reader.read(schema_file)
 
 
-__all__ = [SchemaReader, XmlSchemaReader,
-           IncorrectXmlSchema, UnsupportedSchemaFileExtension, read_schema]
+__all__ = ["SchemaReader", "XmlSchemaReader",
+           "IncorrectXmlSchema", "UnsupportedSchemaFileExtension", "read_schema"]

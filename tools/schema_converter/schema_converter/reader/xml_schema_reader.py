@@ -20,7 +20,7 @@ def get_element_child_value(element: ElementTree.Element,
     if (child := element.find(key)) == None:
         raise IncorrectXmlSchema(
             f"parsing xml element: ({element.tag}) hasn't child: ({key})")
-    return child.text
+    return getattr(child, "text", "")
 
 
 class XmlClientSchemaReader:
@@ -94,7 +94,7 @@ class XmlModelSchemaReader:
     def _read_property(self,
                        parameter_tree: ElementTree.Element) -> ModelSchema.Property:
         return ModelSchema.Property(
-            key=get_element_attribute(parameter_tree, "key"),
+            name=get_element_attribute(parameter_tree, "name"),
             type=get_element_attribute(parameter_tree, "type"),
         )
 
@@ -105,7 +105,7 @@ class XmlSchemaReader(SchemaReader):
         tree = ElementTree.parse(schema_file)
         root = tree.getroot()
 
-        reader: XmlClientSchemaReader | XmlApiSchemaReader | XmlModelSchemaReader = None
+        reader: XmlClientSchemaReader | XmlApiSchemaReader | XmlModelSchemaReader
         match root.tag:
             case "Client":
                 reader = XmlClientSchemaReader()

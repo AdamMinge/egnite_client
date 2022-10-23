@@ -15,7 +15,7 @@ Options:
 
 from argparse import ArgumentParser, ArgumentTypeError, Action, Namespace
 from pathlib import Path
-from typing import Sequence, Any, Iterable
+from typing import Sequence, Any
 
 from .schema import Schema
 from .reader import read_schema
@@ -70,13 +70,17 @@ class UniqueAppendAction(Action):
         values: str | Sequence[Any] | None,
         option_string: str | None = None
     ) -> None:
-        unique_values = set(values)
+        
+        unique_values = values
+        if not isinstance(values, str | None):
+            unique_values = set(values)
 
-        if len(unique_values) != len(values):
-            raise ArgumentTypeError(
-                f"given arguments have to be unique")
+            if len(unique_values) != len(values):
+                raise ArgumentTypeError(
+                    f"given arguments have to be unique")
 
         setattr(namespace, self.dest, unique_values)
+            
 
 
 class Parser():
@@ -85,10 +89,9 @@ class Parser():
         parser = ArgumentParser(prog="schema_converter")
         parser.add_argument("--interface",
                             type=valid_generation_interface,
-                            nargs=1,
+                            nargs='?',
                             default="qt",
-                            choices=["qt", "qml"],
-                            action=UniqueAppendAction)
+                            choices=["qt", "qml"])
         parser.add_argument("--sources",
                             type=valid_source_paths, nargs="+",
                             required=True,
@@ -96,7 +99,7 @@ class Parser():
                             help="schema files such as xml to convert")
         parser.add_argument("--destination",
                             type=valid_destination_path,
-                            nargs=1,
+                            nargs='?',
                             required=True,
                             help="directory in which the generated files will be to add")
 
@@ -104,21 +107,10 @@ class Parser():
 
 
 def main() -> None:
-    '''
     args = Parser.get_args()
 
-    schemas: Iterable[tuple[Schema, Path]] = []
+    schemas: list[tuple[Schema, Path]] = []
     for source in args.sources:
-        schemas.append(tuple(read_schema(source), source))
-
-    generate_interfaces(schemas, args.destination, args.interface)
-    '''
-
-    ## TEST ONLY ##
-    schema_files = [Path("client.xml"), Path("api.xml"), Path("model.xml")]
-
-    schemas: Iterable[tuple[Schema, Path]] = []
-    for source in schema_files:
         schemas.append((read_schema(source), source))
 
-    generate_interfaces(schemas, Path("."), Interface.QtInterface)
+    generate_interfaces(schemas, args.destination, args.interface)

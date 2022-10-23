@@ -25,89 +25,112 @@ class CppGenerator(abc.ABC):
 class CppLine(CppGenerator):
     def __init__(self,
                  txt: str = "",
-                 ignore_indent: bool = False) -> None:
-        self._txt = txt
-        self._ignore_indent = ignore_indent
+                 ignore_indent: bool = False,
+                 offset_indent: int = 0) -> None:
+        self.txt = txt
+        self.ignore_indent = ignore_indent
+        self.offset_indent = offset_indent
 
     def code(self,
              code_style: CppCodeStyle,
              indent_level: int) -> str:
-        if self._ignore_indent:
+        if self.ignore_indent:
             indent_level = 0
-        return f"{code_style.indent * indent_level}{self._txt}"
+        indent_level = max(0, indent_level + self.offset_indent)
+            
+        return f"{code_style.indent * indent_level}{self.txt}"
 
 
 class CppScope(CppGenerator):
     def __init__(self,
                  begin: str | None = None,
                  end: str | None = None) -> None:
-        self._elements: list[CppGenerator] = []
+        self.elements: list[CppGenerator] = []
         if begin and end:
-            self._scope = (CppLine(txt=begin), CppLine(txt=end))
+            self.scope = (CppLine(txt=begin), CppLine(txt=end))
 
     def code(self,
              code_style: CppCodeStyle,
              indent_level: int) -> str:
         elements_code: list[str] = []
 
-        if self._scope:
+        if hasattr(self, 'scope'):
             elements_code = [generator.code(code_style=code_style, indent_level=indent_level + 1)
-                             for generator in self._elements]
-            elements_code.insert(0, self._scope[0].code(
+                             for generator in self.elements]
+            elements_code.insert(0, self.scope[0].code(
                 code_style=code_style, indent_level=indent_level))
-            elements_code.insert(len(elements_code), self._scope[1].code(
+            elements_code.insert(len(elements_code), self.scope[1].code(
                 code_style=code_style, indent_level=indent_level))
         else:
             elements_code = [generator.code(code_style=code_style, indent_level=indent_level)
-                             for generator in self._elements]
+                             for generator in self.elements]
 
         return code_style.lf.join(elements_code)
+    
+    def add_element(self, 
+                    element: CppGenerator) -> None:
+        self.elements.append(element)
 
 
 class CppFile(CppScope):
     def __init__(self) -> None:
         super().__init__()
 
-    def add_line(self,
-                 cpp_line: CppLine) -> None:
-        self._elements.append(cpp_line)
+    def create_line(self, *args, **kwargs) -> CppLine:
+        cpp_line = CppLine(*args, **kwargs)
+        self.add_element(cpp_line)
+        return cpp_line
 
-    def add_class(self,
-                  cpp_class: CppClass) -> None:
-        self._elements.append(cpp_class)
+    def create_class(self, *args, **kwargs) -> CppClass:
+        cpp_class = CppClass(*args, **kwargs)
+        self.add_element(cpp_class)
+        return cpp_class
 
-    def add_function(self,
-                     cpp_function: CppFunction) -> None:
-        self._elements.append(cpp_function)
+    def create_struct(self, *args, **kwargs) -> CppStruct:
+        cpp_struct = CppStruct(*args, **kwargs)
+        self.add_element(cpp_struct)
+        return cpp_struct
+
+    def create_function(self, *args, **kwargs) -> CppFunction:
+        cpp_function = CppFunction(*args, **kwargs)
+        self.add_element(cpp_function)
+        return cpp_function
 
 
 class CppClass(CppScope):
     def __init__(self,
                  name: str,
                  parents: str | Iterable[str] | None = None) -> None:
-        super().__init__(begin="{", end="}")
+        super().__init__(begin="{", end="};")
 
         if not isinstance(parents, str):
             parents = f"{', '.join(parents)}" if parents else ""
         parents = f" : {parents}" if parents else ""
 
-        self._class_header = CppLine(
-            txt=f"class {name}{parents}")
+        self.class_header = CppLine(txt=f"class {name}{parents}")
 
-    def add_function(self,
-                     cpp_function: CppFunction) -> None:
-        self._elements.append(cpp_function)
+    def create_line(self, *args, **kwargs) -> CppLine:
+        cpp_line = CppLine(*args, **kwargs)
+        self.add_element(cpp_line)
+        return cpp_line
 
-    def add_line(self,
-                 cpp_line: CppLine) -> None:
-        self._elements.append(cpp_line)
+    def create_function(self, *args, **kwargs) -> CppFunction:
+        cpp_function = CppFunction(*args, **kwargs)
+        self.add_element(cpp_function)
+        return cpp_function
 
     def code(self,
              code_style: CppCodeStyle,
              indent_level: int) -> str:
-        return code_style.lf.join([self._class_header.code(
+        return code_style.lf.join([self.class_header.code(
             code_style=code_style, indent_level=indent_level),
             super().code(code_style=code_style, indent_level=indent_level)])
+      
+        
+class CppStruct(CppClass):
+    def __init__(self, name: str, parents: str | Iterable[str] | None = None) -> None:
+        super().__init__(name, parents)
+        self.class_header.txt = self.class_header.txt.replace("class", "struct")
 
 
 class CppFunction(CppScope):
@@ -123,12 +146,12 @@ class CppFunction(CppScope):
         if not isinstance(qualifiers, str):
             qualifiers = f"{' '.join(qualifiers)}" if qualifiers else ""
 
-        self._function_header = CppLine(
+        self.function_header = CppLine(
             txt=f"{return_type} {name}({arguments}) {qualifiers}")
 
     def code(self,
              code_style: CppCodeStyle,
              indent_level: int) -> str:
-        return code_style.lf.join([self._function_header.code(
+        return code_style.lf.join([self.function_header.code(
             code_style=code_style, indent_level=indent_level),
             super().code(code_style=code_style, indent_level=indent_level)])

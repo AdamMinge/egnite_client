@@ -3,7 +3,7 @@
 import enum
 
 from pathlib import Path
-from typing import Type, Iterable
+from typing import Iterable
 
 from ..schema import Schema
 
@@ -25,7 +25,7 @@ def generate_interfaces(schemas: Iterable[tuple[Schema, Path]],
                         destination: Path,
                         interfaces: Interface) -> None:
 
-    generator: Type(Generator) = None
+    generator: Generator
     match interfaces:
         case Interface.QtInterface:
             generator = QtGenerator()
@@ -38,5 +38,5 @@ def generate_interfaces(schemas: Iterable[tuple[Schema, Path]],
     generator.generate(schemas, destination)
 
 
-__all__ = [Generator, QtGenerator, QmlGenerator,
-           Interface, generate_interfaces]
+__all__ = ["Generator", "QtGenerator", "QmlGenerator",
+           "Interface", "generate_interfaces"]

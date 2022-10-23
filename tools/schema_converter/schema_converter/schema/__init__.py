@@ -7,4 +7,4 @@ from .model import ModelSchema
 Schema = ApiSchema | ClientSchema | ModelSchema
 
 
-__all__ = [ApiSchema, ClientSchema, ModelSchema, Schema]
+__all__ = ["ApiSchema", "ClientSchema", "ModelSchema", "Schema"]
