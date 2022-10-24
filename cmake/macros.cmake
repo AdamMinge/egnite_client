@@ -249,11 +249,11 @@ function(egnite_init_python_env)
 
 endfunction()
 # ----------------------------------------------------------------------- #
-# ---------- Define a function that execute rest generator tool --------- #
+# ----------- Define a macro that execute rest generator tool ----------- #
 # ----------------------------------------------------------------------- #
-function(egnite_add_schema_converter target)
+macro(egnite_add_schema_converter target)
 
-  cmake_parse_arguments(THIS "" "DESTINATION" "SOURCES" ${ARGN})
+  cmake_parse_arguments(THIS "" "NAMESPACE" "SOURCES" ${ARGN})
 
   if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
     message(
@@ -262,24 +262,27 @@ function(egnite_add_schema_converter target)
     )
   endif()
 
+  set(output_dir ${CMAKE_CURRENT_BINARY_DIR}/schema/${THIS_NAMESPACE})
+
   set(generator
       ${CMAKE_BINARY_DIR}/tools/schema_converter/venv/bin/schema_converter)
-  set(generator_args --sources ${THIS_SOURCES} --destination
-                     ${THIS_DESTINATION})
+  set(generator_args --sources ${THIS_SOURCES} --destination ${output_dir})
 
   set(generator_command ${generator} ${generator_args})
   set(generator_depends ${THIS_SOURCES})
 
+  set(output_headers_destination ${output_dir})
+
   set(generator_output)
   foreach(source ${THIS_SOURCES})
     get_filename_component(file ${source} NAME_WE)
-    list(APPEND generator_output ${THIS_DESTINATION}/include/${file}.h
-         ${THIS_DESTINATION}/src/${file}.cpp)
+    list(APPEND generator_output ${output_dir}/${file}.h)
+    list(APPEND generator_output ${output_dir}/${file}.cpp)
   endforeach()
 
   add_custom_target(
     ${target}_generate_rest
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${THIS_DESTINATION}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${output_dir}
     COMMAND ${generator_command}
     DEPENDS ${generator_depends}
     BYPRODUCTS ${generator_output}
@@ -289,11 +292,9 @@ function(egnite_add_schema_converter target)
   target_sources(${target} PRIVATE ${generator_output})
 
   target_include_directories(
-    ${target}
-    PUBLIC $<BUILD_INTERFACE:${THIS_DESTINATION}/generated/include>
-    PRIVATE ${THIS_DESTINATION}/generated/src)
+    ${target} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/schema/>)
 
-endfunction()
+endmacro()
 # ----------------------------------------------------------------------- #
 # ------------ Define a function that helps configure module ------------ #
 # ----------------------------------------------------------------------- #

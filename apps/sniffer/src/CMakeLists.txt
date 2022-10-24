@@ -58,6 +58,5 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${include_root}>
   PRIVATE ${source_root})
 
-egnite_add_schema_converter(
-  sniffer DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/generated SOURCES ${schemas})
+egnite_add_schema_converter(sniffer NAMESPACE schema SOURCES ${schemas})
 # ----------------------------------------------------------------------- #

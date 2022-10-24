@@ -62,7 +62,7 @@ class HeaderModel(generator.CppFile):
 class SrcModel(generator.CppFile):
     def __init__(self, model_schema: ModelSchema) -> None:
         super().__init__()
-        self.create_line("#include <QObject>")
+        self.create_line("#include \"model.h\"")
 
 class QtGenerator(Generator):
     code_style = generator.CppCodeStyle(
