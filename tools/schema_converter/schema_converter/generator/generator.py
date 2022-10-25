@@ -28,13 +28,7 @@ class Generator(abc.ABC):
     def generate(self,
                  schemas: Iterable[tuple[Schema, Path]],
                  destination: Path) -> None:
-
         schemas_files = self._get_schemas_files(schemas, destination)
-        client_include_dependencies = [
-            sf.header_path for sf in schemas_files if isinstance(sf.schema, ApiSchema)]
-        api_include_dependencies = [
-            sf.header_path for sf in schemas_files if isinstance(sf.schema, ModelSchema)]
-
         for schema_files in schemas_files:
             schema = schema_files.schema
             with schema_files.header_path.open("w") as header_stream, \
@@ -42,10 +36,10 @@ class Generator(abc.ABC):
                 match schema:
                     case ClientSchema():
                         self._generate_client(
-                            schema, header_stream, src_stream, client_include_dependencies)
+                            schema, header_stream, src_stream)
                     case ApiSchema():
                         self._generate_api(
-                            schema, header_stream, src_stream, api_include_dependencies)
+                            schema, header_stream, src_stream)
                     case ModelSchema():
                         self._generate_model(
                             schema, header_stream, src_stream)
@@ -68,16 +62,14 @@ class Generator(abc.ABC):
     def _generate_client(self,
                          client_schema: ClientSchema,
                          header_stream: TextIOWrapper,
-                         src_stream: TextIOWrapper,
-                         include_dependencies: Iterable[Path]) -> None:
+                         src_stream: TextIOWrapper) -> None:
         pass
 
     @ abc.abstractmethod
     def _generate_api(self,
                       api_schema: ApiSchema,
                       header_stream: TextIOWrapper,
-                      src_stream: TextIOWrapper,
-                      include_dependencies: Iterable[Path]) -> None:
+                      src_stream: TextIOWrapper) -> None:
         pass
 
     @ abc.abstractmethod

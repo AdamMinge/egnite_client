@@ -36,8 +36,7 @@ class QmlGenerator(Generator):
     def _generate_client(self,
                          client_schema: ClientSchema,
                          header_stream: TextIOWrapper,
-                         src_stream: TextIOWrapper,
-                         include_dependencies: Iterable[Path]) -> None:
+                         src_stream: TextIOWrapper) -> None:
         header_client = HeaderClient()
         src_client = SrcClient()
         
@@ -47,8 +46,7 @@ class QmlGenerator(Generator):
 
     def _generate_api(self, api_schema: ApiSchema,
                       header_stream: TextIOWrapper,
-                      src_stream: TextIOWrapper,
-                      include_dependencies: Iterable[Path]) -> None:
+                      src_stream: TextIOWrapper) -> None:
         header_api = HeaderApi()
         src_api = SrcApi()
         

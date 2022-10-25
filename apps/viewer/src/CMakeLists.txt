@@ -52,7 +52,8 @@ egnite_add_qml_executable(
   Qt::Gui
   Qt::Qml
   Qt::QuickControls2
-  egnite::egnite-cmd)
+  egnite::egnite-cmd
+  egnite::egnite-rest)
 
 target_include_directories(
   viewer

@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import re
 import abc
 import dataclasses
 
 from typing import Iterable
+
+from .utils import convert_to_list
 
 
 @dataclasses.dataclass
@@ -46,20 +49,20 @@ class CppScope(CppGenerator):
                  begin: str | None = None,
                  end: str | None = None) -> None:
         self.elements: list[CppGenerator] = []
-        if begin and end:
-            self.scope = (CppLine(txt=begin), CppLine(txt=end))
+        self.begin = begin
+        self.end = end
 
     def code(self,
              code_style: CppCodeStyle,
              indent_level: int) -> str:
         elements_code: list[str] = []
 
-        if hasattr(self, 'scope'):
+        if self.begin and self.end:
             elements_code = [generator.code(code_style=code_style, indent_level=indent_level + 1)
                              for generator in self.elements]
-            elements_code.insert(0, self.scope[0].code(
+            elements_code.insert(0, CppLine(txt=self.begin).code(
                 code_style=code_style, indent_level=indent_level))
-            elements_code.insert(len(elements_code), self.scope[1].code(
+            elements_code.insert(len(elements_code), CppLine(txt=self.end).code(
                 code_style=code_style, indent_level=indent_level))
         else:
             elements_code = [generator.code(code_style=code_style, indent_level=indent_level)
@@ -73,28 +76,29 @@ class CppScope(CppGenerator):
 
 
 class CppFile(CppScope):
-    def __init__(self) -> None:
+    def __init__(self,
+                 header_guard: str | None = None) -> None:
         super().__init__()
+        self.header_guard = header_guard
+        
+    def code(self,
+             code_style: CppCodeStyle,
+             indent_level: int) -> str: 
+        
+        if self.header_guard:
+            elements_code = [generator.code(code_style=code_style, indent_level=indent_level)
+                             for generator in self.elements]
+            elements_code.insert(0, CppLine(txt=f"#ifndef {self.header_guard}").code(
+                code_style=code_style, indent_level=indent_level))
+            elements_code.insert(1, CppLine(txt=f"#define {self.header_guard}").code(
+                code_style=code_style, indent_level=indent_level))
+            elements_code.insert(len(elements_code), CppLine(txt=f"#endif //{self.header_guard}").code(
+                code_style=code_style, indent_level=indent_level))
+        else:
+            elements_code = [generator.code(code_style=code_style, indent_level=indent_level)
+                             for generator in self.elements]
 
-    def create_line(self, *args, **kwargs) -> CppLine:
-        cpp_line = CppLine(*args, **kwargs)
-        self.add_element(cpp_line)
-        return cpp_line
-
-    def create_class(self, *args, **kwargs) -> CppClass:
-        cpp_class = CppClass(*args, **kwargs)
-        self.add_element(cpp_class)
-        return cpp_class
-
-    def create_struct(self, *args, **kwargs) -> CppStruct:
-        cpp_struct = CppStruct(*args, **kwargs)
-        self.add_element(cpp_struct)
-        return cpp_struct
-
-    def create_function(self, *args, **kwargs) -> CppFunction:
-        cpp_function = CppFunction(*args, **kwargs)
-        self.add_element(cpp_function)
-        return cpp_function
+        return code_style.lf.join(elements_code)
 
 
 class CppClass(CppScope):
@@ -102,56 +106,69 @@ class CppClass(CppScope):
                  name: str,
                  parents: str | Iterable[str] | None = None) -> None:
         super().__init__(begin="{", end="};")
-
-        if not isinstance(parents, str):
-            parents = f"{', '.join(parents)}" if parents else ""
-        parents = f" : {parents}" if parents else ""
-
-        self.class_header = CppLine(txt=f"class {name}{parents}")
-
-    def create_line(self, *args, **kwargs) -> CppLine:
-        cpp_line = CppLine(*args, **kwargs)
-        self.add_element(cpp_line)
-        return cpp_line
-
-    def create_function(self, *args, **kwargs) -> CppFunction:
-        cpp_function = CppFunction(*args, **kwargs)
-        self.add_element(cpp_function)
-        return cpp_function
+        self.name = name
+        self.parents = parents
 
     def code(self,
              code_style: CppCodeStyle,
-             indent_level: int) -> str:
-        return code_style.lf.join([self.class_header.code(
-            code_style=code_style, indent_level=indent_level),
+             indent_level: int) -> str: 
+        return code_style.lf.join([
+            self._class_header().code(code_style=code_style, indent_level=indent_level),
             super().code(code_style=code_style, indent_level=indent_level)])
+        
+    def _class_header(self) -> CppLine:
+        parents = convert_to_list(self.parents)
+        parents = f": {', '.join(parents)}" if parents else ""
+        return CppLine(txt=re.sub(" +", " ", f"class {self.name} {parents}".strip()))
       
         
 class CppStruct(CppClass):
-    def __init__(self, name: str, parents: str | Iterable[str] | None = None) -> None:
-        super().__init__(name, parents)
-        self.class_header.txt = self.class_header.txt.replace("class", "struct")
+    def _class_header(self) -> CppLine:
+        parents = convert_to_list(self.parents)
+        parents = f": {', '.join(parents)}" if parents else ""
+        return CppLine(txt=re.sub(" +", " ", f"struct {self.name} {parents}").strip())
 
 
 class CppFunction(CppScope):
     def __init__(self,
                  name: str,
-                 return_type: str = "void",
+                 return_type: str | None = None,
                  arguments: str | Iterable[str] | None = None,
                  qualifiers: str | Iterable[str] | None = None) -> None:
         super().__init__(begin="{", end="}")
-
-        if not isinstance(arguments, str):
-            arguments = f"{', '.join(arguments)}" if arguments else ""
-        if not isinstance(qualifiers, str):
-            qualifiers = f"{' '.join(qualifiers)}" if qualifiers else ""
-
-        self.function_header = CppLine(
-            txt=f"{return_type} {name}({arguments}) {qualifiers}")
+        self.name = name
+        self.return_type = return_type
+        self.arguments = arguments
+        self.qualifiers = qualifiers
 
     def code(self,
              code_style: CppCodeStyle,
-             indent_level: int) -> str:
-        return code_style.lf.join([self.function_header.code(
+             indent_level: int) -> str:  
+        return code_style.lf.join([self._function_header().code(
             code_style=code_style, indent_level=indent_level),
             super().code(code_style=code_style, indent_level=indent_level)])
+        
+    def _function_header(self) -> CppLine:
+        return_type = f"{self.return_type}" if self.return_type else ""
+        pre_qualifiers, post_qualifiers = self._split_qualifiers(convert_to_list(self.qualifiers))
+        arguments = convert_to_list(self.arguments)
+
+        arguments = ', '.join(arguments)
+        pre_qualifiers = ' '.join(pre_qualifiers)
+        post_qualifiers = ' '.join(post_qualifiers)
+        
+        return CppLine(
+            txt=re.sub(" +", " ", f"{pre_qualifiers} {return_type} {self.name}({arguments}) {post_qualifiers}".strip()))
+        
+    def _split_qualifiers(self, 
+                          qualifiers: Iterable[str]) -> tuple[list[str], list[str]]:
+        pre_qualifiers: list[str] = []
+        post_qualifiers: list[str] = []
+        
+        for qualifier in qualifiers:
+            if qualifier in ["[[nodiscard]]", "virtual", "explicit"]:
+                pre_qualifiers.append(qualifier)
+            else:
+                post_qualifiers.append(qualifier)
+                
+        return pre_qualifiers, post_qualifiers
