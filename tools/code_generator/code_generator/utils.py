@@ -12,7 +12,7 @@ def is_iterable(value: Any) -> bool:
         return True
 
 
-def convert_to_list(value: Iterable[str] | Any | None) -> list[Any]:
+def listify(value: Iterable[Any] | Any | None) -> list[Any]:
     if value is None:
         return []
     elif not isinstance(value, str) and is_iterable(value):

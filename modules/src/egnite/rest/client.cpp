@@ -32,7 +32,7 @@ Client::~Client() = default;
 
 IApi* Client::createApi(const QString& path, QObject* parent) {
   Q_D(detail::Client);
-  return new Api(this, d->getNetworkAccessManager(), path, parent);
+  return new Api(this, path, parent);
 }
 
 void Client::setBaseUrl(const QUrl& url) {
@@ -84,6 +84,11 @@ QUrlQuery Client::getGlobalParameters() const {
 RequestBuilder Client::getRequestBuilder() const {
   Q_D(const detail::Client);
   return d->getRequestBuilder();
+}
+
+QNetworkAccessManager* Client::getNetworkAccessManager() const {
+  Q_D(const detail::Client);
+  return d->getNetworkAccessManager();
 }
 
 DataSerializer* Client::getDataSerializer() const {

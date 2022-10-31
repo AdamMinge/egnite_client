@@ -23,9 +23,10 @@ IApi::~IApi() = default;
 
 /* ---------------------------------- Api ----------------------------------- */
 
-Api::Api(IClient* client, QNetworkAccessManager* manager,
-         const QString& subpath, QObject* parent)
-    : Api(*new detail::ApiPrivate(client, manager, subpath), parent) {}
+Api::Api(IClient* client, const QString& subpath, QObject* parent)
+    : Api(*new detail::ApiPrivate(client, client->getNetworkAccessManager(),
+                                  subpath),
+          parent) {}
 
 Api::Api(detail::ApiPrivate& impl, QObject* parent) : IApi(impl, parent) {}
 

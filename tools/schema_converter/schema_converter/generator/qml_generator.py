@@ -1,34 +1,33 @@
 """QML Generator"""
 
 from io import TextIOWrapper
+from code_generator import code_generator
 from typing import Iterable
-from pathlib import Path
-from code_generator import generator
 
 from ..schema import ClientSchema, ApiSchema, ModelSchema
-from .generator import Generator
+from .generator import Generator, SchemaFiles
 
 
-class HeaderClient(generator.CppFile):
+class HeaderClient(code_generator.CppFile):
     pass
 
-class SrcClient(generator.CppFile):
+class SrcClient(code_generator.CppFile):
     pass
 
-class HeaderApi(generator.CppFile):
+class HeaderApi(code_generator.CppFile):
     pass
 
-class SrcApi(generator.CppFile):
+class SrcApi(code_generator.CppFile):
     pass
 
-class HeaderModel(generator.CppFile):
+class HeaderModel(code_generator.CppFile):
     pass
 
-class SrcModel(generator.CppFile):
+class SrcModel(code_generator.CppFile):
     pass
 
 class QmlGenerator(Generator):
-    code_style = generator.CppCodeStyle(
+    code_style = code_generator.CppCodeStyle(
         indent=" "*2, 
         lf="\n"
     )
@@ -36,7 +35,8 @@ class QmlGenerator(Generator):
     def _generate_client(self,
                          client_schema: ClientSchema,
                          header_stream: TextIOWrapper,
-                         src_stream: TextIOWrapper) -> None:
+                         src_stream: TextIOWrapper,
+                         schemas_dependent_files: Iterable[SchemaFiles]) -> None:
         header_client = HeaderClient()
         src_client = SrcClient()
         
@@ -46,7 +46,8 @@ class QmlGenerator(Generator):
 
     def _generate_api(self, api_schema: ApiSchema,
                       header_stream: TextIOWrapper,
-                      src_stream: TextIOWrapper) -> None:
+                      src_stream: TextIOWrapper,
+                      schemas_dependent_files: Iterable[SchemaFiles]) -> None:
         header_api = HeaderApi()
         src_api = SrcApi()
         
@@ -56,7 +57,8 @@ class QmlGenerator(Generator):
     def _generate_model(self,
                         model_schema: ModelSchema,
                         header_stream: TextIOWrapper,
-                        src_stream: TextIOWrapper) -> None:
+                        src_stream: TextIOWrapper,
+                        schemas_dependent_files: Iterable[SchemaFiles]) -> None:
         header_model = HeaderModel()
         src_model = SrcModel()
         

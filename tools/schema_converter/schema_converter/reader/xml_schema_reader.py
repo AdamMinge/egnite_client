@@ -29,7 +29,7 @@ class XmlClientSchemaReader:
         client = ClientSchema(
             name=get_element_attribute(client_tree, "name"),
             base_url=get_element_child_value(client_tree, "BaseUrl"),
-            version=int(get_element_child_value(client_tree, "Version")),
+            version=get_element_child_value(client_tree, "Version"),
         )
 
         for api_tree in client_tree.findall("Api"):

@@ -2,6 +2,7 @@
 #define EGNITE_REST_CLIENT_H
 
 /* ------------------------------------ Qt ---------------------------------- */
+#include <QNetworkAccessManager>
 #include <QObject>
 #include <QUrl>
 #include <QUrlQuery>
@@ -56,6 +57,8 @@ class EGNITE_REST_API IClient : public QObject {
   virtual void setGlobalParameters(const QUrlQuery& parameters) = 0;
   [[nodiscard]] virtual QUrlQuery getGlobalParameters() const = 0;
 
+  [[nodiscard]] virtual QNetworkAccessManager* getNetworkAccessManager()
+      const = 0;
   [[nodiscard]] virtual RequestBuilder getRequestBuilder() const = 0;
   [[nodiscard]] virtual DataSerializer* getDataSerializer() const = 0;
   [[nodiscard]] virtual IReplyDecorator* getReplyDecorator() const = 0;
@@ -95,6 +98,7 @@ class EGNITE_REST_API Client : public IClient {
   void setGlobalParameters(const QUrlQuery& parameters) override;
   [[nodiscard]] QUrlQuery getGlobalParameters() const override;
 
+  [[nodiscard]] QNetworkAccessManager* getNetworkAccessManager() const override;
   [[nodiscard]] RequestBuilder getRequestBuilder() const override;
   [[nodiscard]] DataSerializer* getDataSerializer() const override;
   [[nodiscard]] IReplyDecorator* getReplyDecorator() const override;

@@ -266,8 +266,8 @@ class EGNITE_REST_API Api : public IApi {
   Q_OBJECT
 
  public:
-  explicit Api(IClient* client, QNetworkAccessManager* manager,
-               const QString& subpath, QObject* parent = nullptr);
+  explicit Api(IClient* client, const QString& subpath,
+               QObject* parent = nullptr);
   ~Api() override;
 
   [[nodiscard]] IClient* getClient() const override;
