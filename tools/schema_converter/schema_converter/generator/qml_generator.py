@@ -2,10 +2,9 @@
 
 from io import TextIOWrapper
 from code_generator import code_generator
-from typing import Iterable
 
 from ..schema import ClientSchema, ApiSchema, ModelSchema
-from .generator import Generator, SchemaFiles
+from .generator import Generator
 
 
 class HeaderClient(code_generator.CppFile):
@@ -35,8 +34,7 @@ class QmlGenerator(Generator):
     def _generate_client(self,
                          client_schema: ClientSchema,
                          header_stream: TextIOWrapper,
-                         src_stream: TextIOWrapper,
-                         schemas_dependent_files: Iterable[SchemaFiles]) -> None:
+                         src_stream: TextIOWrapper) -> None:
         header_client = HeaderClient()
         src_client = SrcClient()
         
@@ -46,8 +44,7 @@ class QmlGenerator(Generator):
 
     def _generate_api(self, api_schema: ApiSchema,
                       header_stream: TextIOWrapper,
-                      src_stream: TextIOWrapper,
-                      schemas_dependent_files: Iterable[SchemaFiles]) -> None:
+                      src_stream: TextIOWrapper) -> None:
         header_api = HeaderApi()
         src_api = SrcApi()
         
@@ -57,8 +54,7 @@ class QmlGenerator(Generator):
     def _generate_model(self,
                         model_schema: ModelSchema,
                         header_stream: TextIOWrapper,
-                        src_stream: TextIOWrapper,
-                        schemas_dependent_files: Iterable[SchemaFiles]) -> None:
+                        src_stream: TextIOWrapper) -> None:
         header_model = HeaderModel()
         src_model = SrcModel()
         

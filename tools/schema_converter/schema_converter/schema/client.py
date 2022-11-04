@@ -11,6 +11,7 @@ class ClientSchema:
     base_url: str
     version: str
     apis: list[Api] = field(default_factory=list)
+    includes: list[str] = field(default_factory=list)
 
     @dataclass
     class Api:

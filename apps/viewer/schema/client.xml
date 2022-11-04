@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Client name="ExampleClient">
+	<Include>api.h</Include>
 	<BaseUrl>https://localhost</BaseUrl>
 	<Version>1</Version>
 	<Api name="examples" type="ExampleApi"/>

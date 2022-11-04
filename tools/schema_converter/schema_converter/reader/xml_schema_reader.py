@@ -23,11 +23,20 @@ def get_element_child_value(element: ElementTree.Element,
     return getattr(child, "text", "")
 
 
+def get_element_child_values(element: ElementTree.Element,
+                            key: str) -> list[str]:
+    values: list[str] = []
+    for child in element.findall(key):
+        values.append(getattr(child, "text", ""))
+    return values
+
+
 class XmlClientSchemaReader:
     def read(self,
              client_tree: ElementTree.Element) -> ClientSchema:
         client = ClientSchema(
             name=get_element_attribute(client_tree, "name"),
+            includes=get_element_child_values(client_tree, "Include"),
             base_url=get_element_child_value(client_tree, "BaseUrl"),
             version=get_element_child_value(client_tree, "Version"),
         )
@@ -51,6 +60,7 @@ class XmlApiSchemaReader:
         api = ApiSchema(
             name=get_element_attribute(api_tree, "name"),
             path=get_element_child_value(api_tree, "Path"),
+            includes=get_element_child_values(api_tree, "Include"),
         )
 
         for method_tree in api_tree.findall("Method"):

@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 class ModelSchema:
     name: str
     properties: list[Property] = field(default_factory=list)
+    includes: list[str] = field(default_factory=list)
 
     @dataclass
     class Property:

@@ -10,6 +10,7 @@ class ApiSchema:
     name: str
     path: str
     methods: list[Method] = field(default_factory=list)
+    includes: list[str] = field(default_factory=list)
 
     @dataclass
     class Method:

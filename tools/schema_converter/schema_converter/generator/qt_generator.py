@@ -2,11 +2,9 @@
 
 from io import TextIOWrapper
 from code_generator import code_generator
-from typing import Iterable
 
 from ..schema import ClientSchema, ApiSchema, ModelSchema
-from .generator import Generator, SchemaFiles
-
+from .generator import Generator
 
 class HeaderClient(code_generator.CppFile):
     def __init__(self, 
@@ -89,20 +87,18 @@ class HeaderClient(code_generator.CppFile):
         
 class SrcClient(code_generator.CppFile):
     def __init__(self, 
-                 client_schema: ClientSchema,
-                 schemas_dependent_files: Iterable[SchemaFiles]) -> None:
+                 client_schema: ClientSchema) -> None:
         super().__init__()
         
-        self.add_element(self._create_include_headers_scope(schemas_dependent_files))
+        self.add_element(self._create_include_headers_scope(client_schema))
         self.add_element(code_generator.CppLine())
         self.add_element(self._create_class_implementation(client_schema))
         
     def _create_include_headers_scope(self, 
-                                      schemas_dependent_files: Iterable[SchemaFiles]) -> code_generator.CppScope:
+                                      client_schema: ClientSchema) -> code_generator.CppScope:
         scope = code_generator.CppScope()
-        for schema_dependent_files in schemas_dependent_files:
-            scope.add_element(code_generator.CppLine(
-                f'#include "{schema_dependent_files.header_path.name}"'))
+        for include in client_schema.includes:
+            scope.add_element(code_generator.CppLine(f'#include "{include}"'))
         return scope
     
     def _create_class_implementation(self, 
@@ -198,20 +194,18 @@ class HeaderApi(code_generator.CppFile):
 
 class SrcApi(code_generator.CppFile):
     def __init__(self, 
-                 api_schema: ApiSchema,
-                 schemas_dependent_files: Iterable[SchemaFiles]) -> None:
+                 api_schema: ApiSchema) -> None:
         super().__init__()
     
-        self.add_element(self._create_include_headers_scope(schemas_dependent_files))
+        self.add_element(self._create_include_headers_scope(api_schema))
         self.add_element(code_generator.CppLine())
         self.add_element(self._create_class_implementation(api_schema))
         
     def _create_include_headers_scope(self, 
-                                      schemas_dependent_files: Iterable[SchemaFiles]) -> code_generator.CppScope:
+                                      api_schema: ApiSchema) -> code_generator.CppScope:
         scope = code_generator.CppScope()
-        for schema_dependent_files in schemas_dependent_files:
-            scope.add_element(code_generator.CppLine(
-                f'#include "{schema_dependent_files.header_path.name}"'))
+        for include in api_schema.includes:
+            scope.add_element(code_generator.CppLine(f'#include "{include}"'))
         return scope
     
     def _create_class_implementation(self, 
@@ -287,19 +281,17 @@ class HeaderModel(code_generator.CppFile):
 
 class SrcModel(code_generator.CppFile):
     def __init__(self, 
-                 model_schema: ModelSchema,
-                 schemas_dependent_files: Iterable[SchemaFiles]) -> None:
+                 model_schema: ModelSchema) -> None:
         super().__init__()
         
-        self.add_element(self._create_include_headers_scope(schemas_dependent_files))
+        self.add_element(self._create_include_headers_scope(model_schema))
         self.add_element(code_generator.CppLine())
         
     def _create_include_headers_scope(self, 
-                                      schemas_dependent_files: Iterable[SchemaFiles]) -> code_generator.CppScope:
+                                      model_schema: ModelSchema) -> code_generator.CppScope:
         scope = code_generator.CppScope()
-        for schema_dependent_files in schemas_dependent_files:
-            scope.add_element(code_generator.CppLine(
-                f'#include "{schema_dependent_files.header_path.name}"'))
+        for include in model_schema.includes:
+            scope.add_element(code_generator.CppLine(f'#include "{include}"'))
         return scope
         
 
@@ -312,20 +304,18 @@ class QtGenerator(Generator):
     def _generate_client(self,
                          client_schema: ClientSchema,
                          header_stream: TextIOWrapper,
-                         src_stream: TextIOWrapper,
-                         schemas_dependent_files: Iterable[SchemaFiles]) -> None:
+                         src_stream: TextIOWrapper) -> None:
         header_client = HeaderClient(client_schema)
-        src_client = SrcClient(client_schema, schemas_dependent_files)
+        src_client = SrcClient(client_schema)
         
         header_stream.write(header_client.code(code_style=QtGenerator.code_style, indent_level=0))
         src_stream.write(src_client.code(code_style=QtGenerator.code_style, indent_level=0))
         
     def _generate_api(self, api_schema: ApiSchema,
                       header_stream: TextIOWrapper,
-                      src_stream: TextIOWrapper,
-                      schemas_dependent_files: Iterable[SchemaFiles]) -> None:
+                      src_stream: TextIOWrapper) -> None:
         header_api = HeaderApi(api_schema)
-        src_api = SrcApi(api_schema, schemas_dependent_files)
+        src_api = SrcApi(api_schema)
         
         header_stream.write(header_api.code(code_style=QtGenerator.code_style, indent_level=0))
         src_stream.write(src_api.code(code_style=QtGenerator.code_style, indent_level=0))
@@ -333,10 +323,9 @@ class QtGenerator(Generator):
     def _generate_model(self,
                         model_schema: ModelSchema,
                         header_stream: TextIOWrapper,
-                        src_stream: TextIOWrapper,
-                        schemas_dependent_files: Iterable[SchemaFiles]) -> None:
+                        src_stream: TextIOWrapper) -> None:
         header_model = HeaderModel(model_schema)
-        src_model = SrcModel(model_schema, schemas_dependent_files)
+        src_model = SrcModel(model_schema)
         
         header_stream.write(header_model.code(code_style=QtGenerator.code_style, indent_level=0))
         src_stream.write(src_model.code(code_style=QtGenerator.code_style, indent_level=0))

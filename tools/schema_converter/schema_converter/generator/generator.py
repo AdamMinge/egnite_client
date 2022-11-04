@@ -28,72 +28,41 @@ class Generator(abc.ABC):
     def generate(self,
                  schemas: Iterable[tuple[Schema, Path]],
                  destination: Path) -> None:
-        schemas_files = self._get_schemas_files(schemas, destination)
-        for schema_files in schemas_files:
-            schema = schema_files.schema
-            with schema_files.header_path.open("w") as header_stream, \
-                    schema_files.src_path.open("w") as src_stream:
+        for schema, path in schemas:
+            header_path = destination / f"{path.stem}.{self._hpp_file_suffix}"
+            src_path = destination / f"{path.stem}.{self._cpp_file_suffix}"
+            
+            with header_path.open("w") as header_stream, src_path.open("w") as src_stream:
+                schema.includes.insert(0, f"{path.stem}.{self._hpp_file_suffix}")
+                
                 match schema:
                     case ClientSchema():
                         self._generate_client(
-                            schema, header_stream, src_stream, 
-                            self._get_schemas_dependent_files(schema_files, schemas_files))
+                            schema, header_stream, src_stream)
                     case ApiSchema():
                         self._generate_api(
-                            schema, header_stream, src_stream,
-                            self._get_schemas_dependent_files(schema_files, schemas_files))
+                            schema, header_stream, src_stream)
                     case ModelSchema():
                         self._generate_model(
-                            schema, header_stream, src_stream,
-                            self._get_schemas_dependent_files(schema_files, schemas_files))
-
-    def _get_schemas_files(self,
-                           schemas: Iterable[tuple[Schema, Path]],
-                           destination: Path) -> Iterable[SchemaFiles]:
-        schemas_files: Iterable[SchemaFiles] = []
-
-        for schema, path in schemas:
-            schemas_files.append(SchemaFiles(
-                schema=schema,
-                header_path=destination /
-                f"{path.stem}.{self._hpp_file_suffix}",
-                src_path=destination / f"{path.stem}.{self._cpp_file_suffix}"))
-
-        return schemas_files
-    
-    def _get_schemas_dependent_files(self,
-                                     schema_files: SchemaFiles,
-                                     schemas_files: Iterable[SchemaFiles]) -> Iterable[SchemaFiles]:
-        dependent_schema_files: Iterable[SchemaFiles] = [schema_files]
-        
-        match schema_files.schema:
-            case ClientSchema():
-                dependent_schema_files.extend(filter(lambda x: isinstance(x.schema, ApiSchema), schemas_files))
-            case ApiSchema():
-                dependent_schema_files.extend(filter(lambda x: isinstance(x.schema, ModelSchema), schemas_files))
-        
-        return dependent_schema_files
+                            schema, header_stream, src_stream)
 
     @abc.abstractmethod
     def _generate_client(self,
                          client_schema: ClientSchema,
                          header_stream: TextIOWrapper,
-                         src_stream: TextIOWrapper,
-                         schemas_dependent_files: Iterable[SchemaFiles]) -> None:
+                         src_stream: TextIOWrapper) -> None:
         pass
 
     @ abc.abstractmethod
     def _generate_api(self,
                       api_schema: ApiSchema,
                       header_stream: TextIOWrapper,
-                      src_stream: TextIOWrapper,
-                      schemas_dependent_files: Iterable[SchemaFiles]) -> None:
+                      src_stream: TextIOWrapper) -> None:
         pass
 
     @ abc.abstractmethod
     def _generate_model(self,
                         model_schema: ModelSchema,
                         header_stream: TextIOWrapper,
-                        src_stream: TextIOWrapper,
-                        schemas_dependent_files: Iterable[SchemaFiles]) -> None:
+                        src_stream: TextIOWrapper) -> None:
         pass
