@@ -2,9 +2,8 @@
 <Api name="ExampleApi">
 	<Path>api</Path>
 	<Include>model.h</Include>
-	<Method name="getExamples" verb="GET" returns="int"/>
-	<Method name="getExample" verb="GET" returns="string">
+	<Method name="getExamples" verb="GET" returns="QList&lt;ExampleModel&gt;"/>
+	<Method name="getExample" verb="GET" returns="ExampleModel">
 		<Parameter key="id" type="int"/>
 	</Method>
-	<Method name="postExample" verb="POST" returns="vec"/>
 </Api>

@@ -8,26 +8,34 @@ from .schema_reader import SchemaReader
 
 
 def get_element_attribute(element: ElementTree.Element,
-                          key: str) -> str:
-    if key not in element.attrib:
-        raise IncorrectXmlSchema(
-            f"parsing xml element: ({element.tag}) hasn't attribute: ({key})")
-    return element.attrib[key]
+                          key: str,
+                          default: str | None = None) -> str:
+    if key in element.attrib:
+        return element.attrib[key]
+    elif default:
+        return default
+        
+    raise IncorrectXmlSchema(
+            f"parsing xml element: ({element.tag}) hasn't attribute: ({key})")  
 
 
 def get_element_child_value(element: ElementTree.Element,
-                            key: str) -> str:
-    if (child := element.find(key)) == None:
-        raise IncorrectXmlSchema(
+                            key: str,
+                            default: str | None = None) -> str:
+    if (child := element.find(key)) is not None:
+        return getattr(child, "text")
+    elif default:
+        return default
+    
+    raise IncorrectXmlSchema(
             f"parsing xml element: ({element.tag}) hasn't child: ({key})")
-    return getattr(child, "text", "")
 
 
 def get_element_child_values(element: ElementTree.Element,
-                            key: str) -> list[str]:
+                             key: str) -> list[str]:
     values: list[str] = []
     for child in element.findall(key):
-        values.append(getattr(child, "text", ""))
+        values.append(getattr(child, "text"))
     return values
 
 
@@ -73,7 +81,8 @@ class XmlApiSchemaReader:
         method = ApiSchema.Method(
             name=get_element_attribute(method_tree, "name"),
             verb=get_element_attribute(method_tree, "verb"),
-            returns=get_element_attribute(method_tree, "returns"),
+            returns=(get_element_attribute(method_tree, "returns", default="void"), 
+                     get_element_attribute(method_tree, "except", default="void"))
         )
 
         for parameter_tree in method_tree.findall("Parameter"):

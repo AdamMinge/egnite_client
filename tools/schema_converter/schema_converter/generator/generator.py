@@ -3,18 +3,10 @@
 import abc
 from io import TextIOWrapper
 
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
 from ..schema import Schema, ClientSchema, ApiSchema, ModelSchema
-
-
-@dataclass
-class SchemaFiles:
-    schema: Schema
-    header_path: Path
-    src_path: Path
 
 
 class Generator(abc.ABC):
@@ -33,8 +25,6 @@ class Generator(abc.ABC):
             src_path = destination / f"{path.stem}.{self._cpp_file_suffix}"
             
             with header_path.open("w") as header_stream, src_path.open("w") as src_stream:
-                schema.includes.insert(0, f"{path.stem}.{self._hpp_file_suffix}")
-                
                 match schema:
                     case ClientSchema():
                         self._generate_client(

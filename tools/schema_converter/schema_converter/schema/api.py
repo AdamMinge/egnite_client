@@ -16,7 +16,7 @@ class ApiSchema:
     class Method:
         name: str
         verb: str
-        returns: str
+        returns: tuple[str, str]
         parameters: list[Parameter] = field(
             default_factory=list)
 
