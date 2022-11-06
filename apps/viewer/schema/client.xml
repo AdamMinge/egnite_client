@@ -3,6 +3,8 @@
 	<Include>api.h</Include>
 	<BaseUrl>https://localhost</BaseUrl>
 	<Version>1</Version>
+	<Header key="global_header" value="global_header_value"/>
+	<Parameter key="global_parameter" value="global_parameter_value"/>
 	<Api name="examples" type="ExampleApi"/>
 </Client>
 

@@ -47,6 +47,26 @@ DataSerializer* Api::getDataSerializer() const {
   return d->getDataSerializer();
 }
 
+void Api::setGlobalHeaders(const Headers& headers) {
+  Q_D(detail::Api);
+  d->setGlobalHeaders(headers);
+}
+
+Headers Api::getGlobalHeaders() const {
+  Q_D(const detail::Api);
+  return d->getGlobalHeaders();
+}
+
+void Api::setGlobalParameters(const QUrlQuery& parameters) {
+  Q_D(detail::Api);
+  d->setGlobalParameters(parameters);
+}
+
+QUrlQuery Api::getGlobalParameters() const {
+  Q_D(const detail::Api);
+  return d->getGlobalParameters();
+}
+
 IApi* Api::createSubApi(const QString& path, QObject* parent) {
   Q_D(const detail::Api);
   return d->getClient()->createApi(QString("%1/%2").arg(d->getPath(), path),
@@ -221,11 +241,31 @@ DataSerializer* ApiPrivate::getDataSerializer() const {
   return m_client->getDataSerializer();
 }
 
+void ApiPrivate::setGlobalHeaders(const Headers& headers) {
+  Q_Q(Api);
+  if (m_headers == headers) return;
+
+  m_headers = headers;
+  Q_EMIT q->globalHeadersChanged(m_headers);
+}
+
+Headers ApiPrivate::getGlobalHeaders() const { return m_headers; }
+
+void ApiPrivate::setGlobalParameters(const QUrlQuery& parameters) {
+  Q_Q(Api);
+  if (m_parameters == parameters) return;
+
+  m_parameters = parameters;
+  Q_EMIT q->globalParametersChanged(m_parameters);
+}
+
+QUrlQuery ApiPrivate::getGlobalParameters() const { return m_parameters; }
+
 QString ApiPrivate::getPath() const { return m_path; }
 
 [[nodiscard]] DataSerializer::Format ApiPrivate::getRequestDataFormat(
     const Headers& headers) const {
-  auto request = m_client->getRequestBuilder().addHeaders(headers).build();
+  auto request = getRequestBuilder().addHeaders(headers).build();
   auto content_type = request.header(QNetworkRequest::ContentTypeHeader)
                           .toByteArray()
                           .trimmed();
@@ -246,8 +286,7 @@ QString ApiPrivate::getPath() const { return m_path; }
 QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
                                   const QUrlQuery& parameters,
                                   const Headers& headers) const {
-  auto request = m_client->getRequestBuilder()
-                     .addPath(m_path)
+  auto request = getRequestBuilder()
                      .addPath(path)
                      .addParameters(parameters)
                      .addHeaders(headers)
@@ -261,8 +300,7 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
                                   const QUrlQuery& parameters,
                                   const Headers& headers) const {
   auto request =
-      m_client->getRequestBuilder()
-          .addPath(m_path)
+      getRequestBuilder()
           .addPath(path)
           .addParameters(parameters)
           .addHeaders(headers)
@@ -278,8 +316,7 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
                                   const QUrlQuery& parameters,
                                   const Headers& headers) const {
   auto request =
-      m_client->getRequestBuilder()
-          .addPath(m_path)
+      getRequestBuilder()
           .addPath(path)
           .addParameters(parameters)
           .addHeaders(headers)
@@ -288,6 +325,13 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
           .build();
 
   return ReplyPrivate::send(m_manager, request, verb, convertData(data));
+}
+
+RequestBuilder ApiPrivate::getRequestBuilder() const {
+  return m_client->getRequestBuilder()
+      .addPath(m_path)
+      .addParameters(m_parameters)
+      .addHeaders(m_headers);
 }
 
 QByteArray ApiPrivate::convertData(const Data& body) {

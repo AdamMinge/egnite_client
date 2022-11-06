@@ -35,6 +35,12 @@ class ApiPrivate : public QObjectPrivate {
   [[nodiscard]] DataSerializer* getDataSerializer() const;
   [[nodiscard]] QString getPath() const;
 
+  void setGlobalHeaders(const Headers& headers);
+  [[nodiscard]] Headers getGlobalHeaders() const;
+
+  void setGlobalParameters(const QUrlQuery& parameters);
+  [[nodiscard]] QUrlQuery getGlobalParameters() const;
+
   [[nodiscard]] DataSerializer::Format getRequestDataFormat(
       const Headers& headers) const;
 
@@ -48,6 +54,8 @@ class ApiPrivate : public QObjectPrivate {
                         const QCborValue& data, const QUrlQuery& parameters,
                         const Headers& headers) const;
 
+  [[nodiscard]] RequestBuilder getRequestBuilder() const;
+
  public:
   [[nodiscard]] static QByteArray convertData(const Data& body);
   [[nodiscard]] static QByteArray convertData(const QJsonValue& body);
@@ -56,6 +64,8 @@ class ApiPrivate : public QObjectPrivate {
  private:
   IClient* m_client;
   QNetworkAccessManager* m_manager;
+  Headers m_headers;
+  QUrlQuery m_parameters;
   QString m_path;
 };
 

@@ -28,11 +28,23 @@ class EGNITE_REST_API IApi : public QObject {
   Q_OBJECT
 
  public:
+  Q_PROPERTY(Headers globalHeaders READ getGlobalHeaders WRITE setGlobalHeaders
+                 NOTIFY globalHeadersChanged)
+  Q_PROPERTY(QUrlQuery globalParameters READ getGlobalParameters WRITE
+                 setGlobalParameters NOTIFY globalParametersChanged)
+
+ public:
   ~IApi() override;
 
   [[nodiscard]] virtual IClient* getClient() const = 0;
   [[nodiscard]] virtual IReplyDecorator* getReplyDecorator() const = 0;
   [[nodiscard]] virtual DataSerializer* getDataSerializer() const = 0;
+
+  virtual void setGlobalHeaders(const Headers& headers) = 0;
+  [[nodiscard]] virtual Headers getGlobalHeaders() const = 0;
+
+  virtual void setGlobalParameters(const QUrlQuery& parameters) = 0;
+  [[nodiscard]] virtual QUrlQuery getGlobalParameters() const = 0;
 
   [[nodiscard]] virtual IApi* createSubApi(const QString& path,
                                            QObject* parent = nullptr) = 0;
@@ -139,6 +151,10 @@ class EGNITE_REST_API IApi : public QObject {
       const QString& path, const RequestDataType& data,
       const QUrlQuery& parameters = {}, const Headers& headers = {},
       QObject* parent = nullptr);
+
+ Q_SIGNALS:
+  void globalHeadersChanged(const egnite::rest::Headers& headers);
+  void globalParametersChanged(const QUrlQuery& parameters);
 
  protected:
   [[nodiscard]] virtual DataSerializer::Format getRequestDataFormat(
@@ -273,6 +289,12 @@ class EGNITE_REST_API Api : public IApi {
   [[nodiscard]] IClient* getClient() const override;
   [[nodiscard]] IReplyDecorator* getReplyDecorator() const override;
   [[nodiscard]] DataSerializer* getDataSerializer() const override;
+
+  void setGlobalHeaders(const Headers& headers) override;
+  [[nodiscard]] Headers getGlobalHeaders() const override;
+
+  void setGlobalParameters(const QUrlQuery& parameters) override;
+  [[nodiscard]] QUrlQuery getGlobalParameters() const override;
 
   [[nodiscard]] IApi* createSubApi(const QString& path,
                                    QObject* parent = nullptr) override;

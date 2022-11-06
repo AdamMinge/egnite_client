@@ -24,6 +24,11 @@ class QmlApi : public QObject, public QQmlParserStatus {
   Q_PROPERTY(
       QmlClient* client READ getClient WRITE setClient NOTIFY clientChanged)
 
+  Q_PROPERTY(QJSValue globalHeaders READ getGlobalQmlHeaders WRITE
+                 setGlobalQmlHeaders NOTIFY globalQmlHeadersChanged)
+  Q_PROPERTY(QJSValue globalParameters READ getGlobalQmlParameters WRITE
+                 setGlobalQmlParameters NOTIFY globalQmlParametersChanged)
+
  public:
   explicit QmlApi(QObject* parent = nullptr);
   ~QmlApi() override;
@@ -34,12 +39,20 @@ class QmlApi : public QObject, public QQmlParserStatus {
   void setClient(QmlClient* client);
   [[nodiscard]] QmlClient* getClient() const;
 
+  [[nodiscard]] QJSValue getGlobalQmlHeaders() const;
+  [[nodiscard]] QJSValue getGlobalQmlParameters() const;
+
+  void setGlobalQmlHeaders(QJSValue object);
+  void setGlobalQmlParameters(QJSValue object);
+
   void classBegin() override;
   void componentComplete() override;
 
  Q_SIGNALS:
   void pathChanged(const QString& path);
   void clientChanged(QmlClient* client);
+  void globalQmlHeadersChanged(const QJSValue& object);
+  void globalQmlParametersChanged(const QJSValue& object);
 
  private:
   void revaluateApi();

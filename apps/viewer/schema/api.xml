@@ -2,8 +2,16 @@
 <Api name="ExampleApi">
 	<Path>api</Path>
 	<Include>model.h</Include>
+	<Header key="global_header" value="global_header_value"/>
+	<Parameter key="global_parameter" value="global_parameter_value"/>
 	<Method name="getExamples" verb="GET" returns="QList&lt;ExampleModel&gt;"/>
 	<Method name="getExample" verb="GET" returns="ExampleModel">
-		<Parameter key="id" type="int"/>
+		<Argument key="id" type="int"/>
+		<Header key="header" value="header_value"/>
+		<Parameter key="parameter" value="parameter_value"/>
+	</Method>
+	<Method name="addExample" verb="POST" returns="ExampleModel" body="ExampleModel">
+		<Header key="header" value="header_value"/>
+		<Parameter key="parameter" value="parameter_value"/>
 	</Method>
 </Api>

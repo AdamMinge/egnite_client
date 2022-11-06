@@ -6,6 +6,7 @@ from code_generator import code_generator
 
 from ..schema import ClientSchema, ApiSchema, ModelSchema
 from .generator import Generator
+from .utils import Utils
 
 class HeaderClient(code_generator.CppFile):
     def __init__(self, 
@@ -13,23 +14,27 @@ class HeaderClient(code_generator.CppFile):
         super().__init__(f"SCHEMA_GENERATED_CLIENT_{client_schema.name.upper()}_H")
         
         self.add_element(code_generator.CppLine())
-        self.add_element(self._create_include_headers_scope(client_schema))
+        self.add_element(self._create_include_headers_scope())
+        self.add_element(code_generator.CppLine())
+        self.add_element(self._create_declarations_scope(client_schema))
         self.add_element(code_generator.CppLine())
         self.add_element(self._create_class(client_schema))
         self.add_element(code_generator.CppLine())
         
-    def _create_include_headers_scope(self,
-                                      client_schema: ClientSchema) -> code_generator.CppScope:
+    def _create_include_headers_scope(self) -> code_generator.CppScope:
         scope = code_generator.CppScope()
         external_includes = [
             "egnite/rest/client.h",
         ]
         for include in external_includes:
             scope.add_element(code_generator.CppLine(f'#include <{include}>'))   
-        if client_schema.includes:
-            scope.add_element(code_generator.CppLine())
-            for include in client_schema.includes:
-                scope.add_element(code_generator.CppLine(f'#include "{include}"'))
+        return scope
+    
+    def _create_declarations_scope(self,
+                                      client_schema: ClientSchema) -> code_generator.CppScope:
+        scope = code_generator.CppScope()
+        for api in client_schema.apis:
+            scope.add_element(code_generator.CppClass(api.type).declaration())
         return scope
     
     def _create_class(self, 
@@ -92,14 +97,19 @@ class SrcClient(code_generator.CppFile):
                  header_include: str) -> None:
         super().__init__()
         
-        self.add_element(self._create_include_headers_scope(header_include))
+        self.add_element(self._create_include_headers_scope(client_schema, header_include))
         self.add_element(code_generator.CppLine())
         self.add_element(self._create_class_implementation(client_schema))
         
     def _create_include_headers_scope(self, 
+                                      client_schema: ClientSchema,
                                       header_include: str) -> code_generator.CppScope:
         scope = code_generator.CppScope()
         scope.add_element(code_generator.CppLine(f'#include "{header_include}"'))
+        if client_schema.includes:
+            scope.add_element(code_generator.CppLine())
+            for include in client_schema.includes:
+                scope.add_element(code_generator.CppLine(f'#include "{include}"'))
         return scope
     
     def _create_class_implementation(self, 
@@ -123,16 +133,28 @@ class SrcClient(code_generator.CppFile):
             namespace=client_schema.name,
             arguments= "QObject* parent",
             initializations=constructor_initializations)
-        constructor.add_element(code_generator.CppLine(
-            txt=f'setBaseUrl(QUrl("{client_schema.base_url}"));'))
-        constructor.add_element(code_generator.CppLine(
-            txt=f'setVersion(QVersionNumber::fromString("{client_schema.version}"));'))
+        constructor.add_element(self._create_constructor_code_scope(client_schema))
         
         scope.add_element(constructor)
         scope.add_element(code_generator.CppLine())
         scope.add_element(code_generator.CppDestructor(
             name=client_schema.name,
             namespace=client_schema.name))
+        return scope
+    
+    def _create_constructor_code_scope(self, 
+                                       client_schema: ClientSchema) -> code_generator.CppScope:
+        scope = code_generator.CppScope()
+        scope.add_element(code_generator.CppLine(
+            txt=f'setBaseUrl(QUrl("{client_schema.base_url}"));'))
+        scope.add_element(code_generator.CppLine(
+            txt=f'setVersion(QVersionNumber::fromString("{client_schema.version}"));'))
+        if client_schema.global_headers:
+            scope.add_element(code_generator.CppLine())
+            scope.add_element(Utils.create_global_headers_scope(client_schema.global_headers))
+        if client_schema.global_parameters:
+            scope.add_element(code_generator.CppLine())
+            scope.add_element(Utils.create_global_parameters_scope(client_schema.global_parameters))
         return scope
     
     def _create_apis_getters_scope(self, 
@@ -245,15 +267,28 @@ class SrcApi(code_generator.CppFile):
         
         constructor_initializations = [f'egnite::rest::Api(client, "{api_schema.path}", parent)']
             
-        scope.add_element(code_generator.CppConstructor(
+        api_constructor = code_generator.CppConstructor(
             name=api_schema.name, 
             namespace=api_schema.name,
             arguments= ["egnite::rest::IClient* client", "QObject* parent"], 
-            initializations=constructor_initializations))
+            initializations=constructor_initializations)
+        api_constructor.add_element(self._create_constructor_code_scope(api_schema))
+            
+        scope.add_element(api_constructor)
         scope.add_element(code_generator.CppLine())
         scope.add_element(code_generator.CppDestructor(
             name=api_schema.name,
             namespace=api_schema.name))
+        return scope
+    
+    def _create_constructor_code_scope(self, 
+                                       api_schema: ApiSchema) -> code_generator.CppScope:
+        scope = code_generator.CppScope()
+        if api_schema.global_headers:
+            scope.add_element(Utils.create_global_headers_scope(api_schema.global_headers))
+        if api_schema.global_parameters:
+            scope.add_element(code_generator.CppLine())
+            scope.add_element(Utils.create_global_parameters_scope(api_schema.global_parameters))
         return scope
     
     def _create_methods_scope(self, 
