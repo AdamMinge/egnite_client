@@ -209,7 +209,7 @@ class HeaderApi(code_generator.CppFile):
         for method in api_schema.methods:
             scope.add_element(code_generator.CppFunction(
                 name=method.name,
-                return_type=f"egnite::rest::GenericReply<{method.returns[0]}, {method.returns[1]}>",
+                return_type=f"egnite::rest::GenericReply<{method.returns}, {method.excepts}>",
                 arguments=[]
             ).declaration())
         return scope
@@ -262,7 +262,7 @@ class SrcApi(code_generator.CppFile):
         for method in api_schema.methods:
             scope.add_element(code_generator.CppFunction(
                 name=method.name,
-                return_type=f"egnite::rest::GenericReply<{method.returns[0]}, {method.returns[1]}>",
+                return_type=f"egnite::rest::GenericReply<{method.returns}, {method.excepts}>",
                 arguments=[]
             ))
             scope.add_element(code_generator.CppLine())

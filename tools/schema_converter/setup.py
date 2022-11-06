@@ -30,6 +30,7 @@ setup(
     install_requires=[
         "importlib_resources", 
         "wheel",
+        "xsdata",
         f"code_generator @ file://localhost/{CODE_GENERATOR_DIR}"],
     entry_points={"console_scripts": [
         "schema_converter=schema_converter.__main__:main"]},

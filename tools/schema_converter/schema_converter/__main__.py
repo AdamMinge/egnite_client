@@ -16,9 +16,11 @@ Options:
 from argparse import ArgumentParser, ArgumentTypeError, Action, Namespace
 from pathlib import Path
 from typing import Sequence, Any
+from xsdata.exceptions import ParserError
+from xsdata.formats.dataclass.parsers import XmlParser
+from xsdata.formats.dataclass.parsers.config import ParserConfig
 
-from .schema import Schema
-from .reader import read_schema
+from .schema import Schema, ClientSchema, ApiSchema, ModelSchema
 from .generator import generate_interfaces, Interface
 
 
@@ -76,8 +78,7 @@ class UniqueAppendAction(Action):
             unique_values = set(values)
 
             if len(unique_values) != len(values):
-                raise ArgumentTypeError(
-                    f"given arguments have to be unique")
+                raise ArgumentTypeError("given arguments have to be unique")
 
         setattr(namespace, self.dest, unique_values)
             
@@ -106,11 +107,28 @@ class Parser():
         return parser.parse_args()
 
 
+def read_schema(path: Path) -> Schema:
+    config = ParserConfig(fail_on_unknown_properties=True, 
+                          fail_on_unknown_attributes=True, 
+                          fail_on_converter_warnings=True)
+    supported_schemas = [ClientSchema, ApiSchema, ModelSchema]
+    for supported_schema in supported_schemas:
+        parser = XmlParser(config=config)
+        try:
+            schema = parser.from_path(path, supported_schema)
+            return schema
+        except (ParserError, TypeError):
+            continue
+    raise ArgumentTypeError(
+        f"given source path: ({path}) isn't correct schema format")
+
+
 def main() -> None:
     args = Parser.get_args()
 
     schemas: list[tuple[Schema, Path]] = []
     for source in args.sources:
+        print(f"schema = {read_schema(source)}")
         schemas.append((read_schema(source), source))
 
     generate_interfaces(schemas, args.destination, args.interface)
