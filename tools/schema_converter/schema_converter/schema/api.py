@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 @dataclass
-class ApiSchema:
+class Api:
     name: str = field(metadata=dict(type="Attribute", name="name"))
     path: str = field(metadata=dict(type="Element", name="Path"))
     methods: list[Method] = field(default_factory=list, metadata=dict(type="Element", name="Method"))

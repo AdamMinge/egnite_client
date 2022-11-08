@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 
 @dataclass
-class ClientSchema:
+class Client:
     name: str = field(metadata=dict(type="Attribute", name="name"))
     base_url: str = field(metadata=dict(type="Element", name="BaseUrl"))
     version: str = field(metadata=dict(type="Element", name="Version"))

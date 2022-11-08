@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 
 @dataclass
-class ModelSchema:
+class Model:
     name: str = field(metadata=dict(type="Attribute", name="name"))
     properties: list[Property] = field(default_factory=list, metadata=dict(type="Element", name="Property"))
     includes: list[str] = field(default_factory=list, metadata=dict(type="Element", name="Include"))

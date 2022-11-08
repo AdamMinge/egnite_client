@@ -3,7 +3,7 @@
 from io import TextIOWrapper
 from code_generator import code_generator
 
-from ..schema import ClientSchema, ApiSchema, ModelSchema
+from ..schema import client, api, model
 from .generator import Generator
 
 
@@ -32,7 +32,7 @@ class QmlGenerator(Generator):
     )
     
     def _generate_client(self,
-                         client_schema: ClientSchema,
+                         client_schema: client.Client,
                          header_stream: TextIOWrapper,
                          src_stream: TextIOWrapper) -> None:
         header_client = HeaderClient()
@@ -42,7 +42,7 @@ class QmlGenerator(Generator):
         src_stream.write(src_client.code(code_style=QmlGenerator.code_style, indent_level=0))
         
 
-    def _generate_api(self, api_schema: ApiSchema,
+    def _generate_api(self, api_schema: api.Api,
                       header_stream: TextIOWrapper,
                       src_stream: TextIOWrapper) -> None:
         header_api = HeaderApi()
@@ -52,7 +52,7 @@ class QmlGenerator(Generator):
         src_stream.write(src_api.code(code_style=QmlGenerator.code_style, indent_level=0))
 
     def _generate_model(self,
-                        model_schema: ModelSchema,
+                        model_schema: model.Model,
                         header_stream: TextIOWrapper,
                         src_stream: TextIOWrapper) -> None:
         header_model = HeaderModel()

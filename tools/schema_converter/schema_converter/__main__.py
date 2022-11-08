@@ -20,7 +20,7 @@ from xsdata.exceptions import ParserError
 from xsdata.formats.dataclass.parsers import XmlParser
 from xsdata.formats.dataclass.parsers.config import ParserConfig
 
-from .schema import Schema, ClientSchema, ApiSchema, ModelSchema
+from .schema import Schema, Client, Api, Model
 from .generator import generate_interfaces, Interface
 
 
@@ -111,7 +111,7 @@ def read_schema(path: Path) -> Schema:
     config = ParserConfig(fail_on_unknown_properties=True, 
                           fail_on_unknown_attributes=True, 
                           fail_on_converter_warnings=True)
-    supported_schemas = [ClientSchema, ApiSchema, ModelSchema]
+    supported_schemas = [Client, Api, Model]
     for supported_schema in supported_schemas:
         parser = XmlParser(config=config)
         try:

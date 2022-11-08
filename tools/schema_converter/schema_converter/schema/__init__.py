@@ -1,10 +1,10 @@
 """Module for schema data representation"""
 
-from .api import ApiSchema
-from .client import ClientSchema
-from .model import ModelSchema
+from .api import Api
+from .client import Client
+from .model import Model
 
-Schema = ApiSchema | ClientSchema | ModelSchema
+Schema = Api | Client | Model
 
 
-__all__ = ["ApiSchema", "ClientSchema", "ModelSchema", "Schema"]
+__all__ = ["Api", "Client", "Model", "Schema"]

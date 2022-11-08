@@ -73,8 +73,8 @@ IApi* Api::createSubApi(const QString& path, QObject* parent) {
                                    parent);
 }
 
-IReply* Api::get(const QString& path, const QUrlQuery& parameters,
-                 const Headers& headers, QObject* parent) const {
+IReply* Api::getRaw(const QString& path, const QUrlQuery& parameters,
+                    const Headers& headers, QObject* parent) const {
   Q_D(const detail::Api);
   auto reply = new Reply(
       const_cast<Api*>(this),
@@ -84,8 +84,8 @@ IReply* Api::get(const QString& path, const QUrlQuery& parameters,
   return getReplyDecorator()->decorate(reply);
 }
 
-IReply* Api::head(const QString& path, const QUrlQuery& parameters,
-                  const Headers& headers, QObject* parent) const {
+IReply* Api::headRaw(const QString& path, const QUrlQuery& parameters,
+                     const Headers& headers, QObject* parent) const {
   Q_D(const detail::Api);
   auto reply = new Reply(
       const_cast<Api*>(this),
@@ -95,8 +95,8 @@ IReply* Api::head(const QString& path, const QUrlQuery& parameters,
   return getReplyDecorator()->decorate(reply);
 }
 
-IReply* Api::deleteResource(const QString& path, const QUrlQuery& parameters,
-                            const Headers& headers, QObject* parent) const {
+IReply* Api::deleteResourceRaw(const QString& path, const QUrlQuery& parameters,
+                               const Headers& headers, QObject* parent) const {
   Q_D(const detail::Api);
   auto reply = new Reply(
       const_cast<Api*>(this),
@@ -106,8 +106,8 @@ IReply* Api::deleteResource(const QString& path, const QUrlQuery& parameters,
   return getReplyDecorator()->decorate(reply);
 }
 
-IReply* Api::post(const QString& path, const QUrlQuery& parameters,
-                  const Headers& headers, QObject* parent) const {
+IReply* Api::postRaw(const QString& path, const QUrlQuery& parameters,
+                     const Headers& headers, QObject* parent) const {
   Q_D(const detail::Api);
   auto reply = new Reply(
       const_cast<Api*>(this),
@@ -117,9 +117,9 @@ IReply* Api::post(const QString& path, const QUrlQuery& parameters,
   return getReplyDecorator()->decorate(reply);
 }
 
-IReply* Api::post(const QString& path, const QJsonValue& data,
-                  const QUrlQuery& parameters, const Headers& headers,
-                  QObject* parent) const {
+IReply* Api::postRaw(const QString& path, const QJsonValue& data,
+                     const QUrlQuery& parameters, const Headers& headers,
+                     QObject* parent) const {
   Q_D(const detail::Api);
   auto reply = new Reply(
       const_cast<Api*>(this),
@@ -129,9 +129,9 @@ IReply* Api::post(const QString& path, const QJsonValue& data,
   return getReplyDecorator()->decorate(reply);
 }
 
-IReply* Api::post(const QString& path, const QCborValue& data,
-                  const QUrlQuery& parameters, const Headers& headers,
-                  QObject* parent) const {
+IReply* Api::postRaw(const QString& path, const QCborValue& data,
+                     const QUrlQuery& parameters, const Headers& headers,
+                     QObject* parent) const {
   Q_D(const detail::Api);
   auto reply = new Reply(
       const_cast<Api*>(this),
@@ -141,8 +141,8 @@ IReply* Api::post(const QString& path, const QCborValue& data,
   return getReplyDecorator()->decorate(reply);
 }
 
-IReply* Api::put(const QString& path, const QUrlQuery& parameters,
-                 const Headers& headers, QObject* parent) const {
+IReply* Api::putRaw(const QString& path, const QUrlQuery& parameters,
+                    const Headers& headers, QObject* parent) const {
   Q_D(const detail::Api);
   auto reply = new Reply(
       const_cast<Api*>(this),
@@ -152,9 +152,9 @@ IReply* Api::put(const QString& path, const QUrlQuery& parameters,
   return getReplyDecorator()->decorate(reply);
 }
 
-IReply* Api::put(const QString& path, const QJsonValue& data,
-                 const QUrlQuery& parameters, const Headers& headers,
-                 QObject* parent) const {
+IReply* Api::putRaw(const QString& path, const QJsonValue& data,
+                    const QUrlQuery& parameters, const Headers& headers,
+                    QObject* parent) const {
   Q_D(const detail::Api);
   auto reply = new Reply(
       const_cast<Api*>(this),
@@ -164,9 +164,9 @@ IReply* Api::put(const QString& path, const QJsonValue& data,
   return getReplyDecorator()->decorate(reply);
 }
 
-IReply* Api::put(const QString& path, const QCborValue& data,
-                 const QUrlQuery& parameters, const Headers& headers,
-                 QObject* parent) const {
+IReply* Api::putRaw(const QString& path, const QCborValue& data,
+                    const QUrlQuery& parameters, const Headers& headers,
+                    QObject* parent) const {
   Q_D(const detail::Api);
   auto reply = new Reply(
       const_cast<Api*>(this),
@@ -176,8 +176,8 @@ IReply* Api::put(const QString& path, const QCborValue& data,
   return getReplyDecorator()->decorate(reply);
 }
 
-IReply* Api::patch(const QString& path, const QUrlQuery& parameters,
-                   const Headers& headers, QObject* parent) const {
+IReply* Api::patchRaw(const QString& path, const QUrlQuery& parameters,
+                      const Headers& headers, QObject* parent) const {
   Q_D(const detail::Api);
   auto reply = new Reply(
       const_cast<Api*>(this),
@@ -187,9 +187,9 @@ IReply* Api::patch(const QString& path, const QUrlQuery& parameters,
   return getReplyDecorator()->decorate(reply);
 }
 
-IReply* Api::patch(const QString& path, const QJsonValue& data,
-                   const QUrlQuery& parameters, const Headers& headers,
-                   QObject* parent) const {
+IReply* Api::patchRaw(const QString& path, const QJsonValue& data,
+                      const QUrlQuery& parameters, const Headers& headers,
+                      QObject* parent) const {
   Q_D(const detail::Api);
   auto reply = new Reply(
       const_cast<Api*>(this),
@@ -199,9 +199,9 @@ IReply* Api::patch(const QString& path, const QJsonValue& data,
   return getReplyDecorator()->decorate(reply);
 }
 
-IReply* Api::patch(const QString& path, const QCborValue& data,
-                   const QUrlQuery& parameters, const Headers& headers,
-                   QObject* parent) const {
+IReply* Api::patchRaw(const QString& path, const QCborValue& data,
+                      const QUrlQuery& parameters, const Headers& headers,
+                      QObject* parent) const {
   Q_D(const detail::Api);
   auto reply = new Reply(
       const_cast<Api*>(this),
