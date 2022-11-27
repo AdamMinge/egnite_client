@@ -3,494 +3,336 @@
 from io import TextIOWrapper
 from pathlib import Path
 from typing import Iterable
-from code_generator import code_generator
+from code_generator import constructs, writer
 
-from ..schema import client, api, model
+from ..schema import client, api, model, Schema
 from .generator import Generator
 
 
-class Helper:
-    @staticmethod
-    def create_global_headers_scope(headers: Iterable[api.KeyValue | client.KeyValue]) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        scope.add_element(code_generator.CppLine("auto headers = getGlobalHeaders();"))
-        for header in headers:
-            scope.add_element(code_generator.CppLine(f'headers["{header.key}"] = "{header.value}";'))
-        scope.add_element(code_generator.CppLine("setGlobalHeaders(headers);"))
-        return scope
-
-    @staticmethod
-    def create_global_parameters_scope(parameters: Iterable[api.KeyValue | client.KeyValue]) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        scope.add_element(code_generator.CppLine("auto parameters = getGlobalParameters();"))
-        for parameter in parameters:
-            scope.add_element(code_generator.CppLine(f'parameters.addQueryItem("{parameter.key}", "{parameter.value}");'))
-        scope.add_element(code_generator.CppLine("setGlobalParameters(parameters);"))
-        return scope
+class QtSchemaGenerator:
+    external_includes = []
     
-    @staticmethod
-    def get_api_method_arguments(method: api.Method, 
-                                 ignore_default: bool = False) -> list[str]:
+    def __init__(self,
+                 schema: Schema) -> None:
+        self.schema = schema
+    
+    def write(self,
+              header_stream: TextIOWrapper,
+              src_stream: TextIOWrapper):
+        header_stream.write(self._write_header())
+        src_stream.write(self._write_src(Path(header_stream.name))) 
+        
+    def _write_header(self) -> str:
+        header_guard = self._include_guard_name()
+        header_guard.add_code("")
+        header_guard.add_code(iter(self._include_headers()))
+        header_guard.add_code("")
+        header_guard.add_code(iter(self._header_body()))
+        header_guard.add_code("")
+        return header_guard.code
+    
+    def _write_src(self,
+                   header_path: Path) -> str:
+        wr = writer.CodeWriter()
+        wr.add_lines(iter(self._source_headers(header_path)))
+        wr.add_lines("")
+        wr.add_lines(iter(self._src_body()))
+        return wr.code
+    
+    def _include_guard_name(self) -> constructs.CppIncludeGuard:
+        return constructs.CppIncludeGuard(f"SCHEMA_GENERATED_{self.schema.name.upper()}_H")
+    
+    def _header_body(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        return wr
+    
+    def _src_body(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        return wr
+    
+    def _include_headers(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        for include in self.__class__.external_includes:
+            wr.add_line(text=f'#include <{include}>')
+        if self.schema.includes:  
+            wr.add_line()
+            for include in self.schema.includes:
+                wr.add_line(text=f'#include "{include}"')
+        return wr
+    
+    def _source_headers(self, 
+                        header_path: Path) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        wr.add_line(text=f'#include "{header_path.name}"')
+        return wr
+    
+    
+class QtClientGenerator(QtSchemaGenerator):
+    external_includes = ["egnite/rest/client.h"]
+    
+    def __init__(self,
+                 client_schema: client.Client) -> None:
+        super().__init__(client_schema)
+        self.client_schema = client_schema
+    
+    def _header_body(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        wr.add_lines(self._client_class().definition)
+        return wr
+    
+    def _src_body(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        wr.add_lines((f"{method.definition}\n" for method in self._client_class_methods()))
+        return wr
+    
+    def _client_class(self) -> constructs.CppClass:
+        model_class = constructs.CppClass(name=self.client_schema.name, parents="public egnite::rest::Client")
+        model_class.add_code("Q_OBJECT")
+        model_class.add_code("")
+        model_class.add_code("public:")
+        model_class.add_code((method.declaration for method in self._client_class_methods()))
+        model_class.add_code("")
+        model_class.add_code("private:")
+        model_class.add_code(self._client_class_variables().code)
+        return model_class
+    
+    def _client_class_methods(self) -> list[constructs.CppClassMethod]:
+        methods: list[constructs.CppClassMethod] = []
+        methods.append(self._client_class_constructor())
+        methods.append(self._client_class_destructor())
+        methods.extend(self._client_class_api_getters())
+        return methods
+    
+    def _client_class_constructor(self) -> constructs.CppClassConstructor:
+        constructor = constructs.CppClassConstructor(
+            class_owner=self.client_schema.name, 
+            arguments="QObject* parent = nullptr",
+            qualifiers="explicit")
+        constructor.add_initialization("egnite::rest::Client(parent)")
+        constructor.add_code(self._client_class_constructor_body().code)
+        return constructor
+    
+    def _client_class_constructor_body(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        wr.add_line(f'setBaseUrl(QUrl("{self.client_schema.base_url}"));')
+        wr.add_line(f'setVersion(QVersionNumber::fromString("{self.client_schema.version}"));')
+        if self.client_schema.global_headers:
+            wr.add_line("")
+            wr.add_line("auto headers = getGlobalHeaders();")
+            for header in self.client_schema.global_headers:
+                wr.add_line(f'headers["{header.key}"] = "{header.value}";')
+            wr.add_line("setGlobalHeaders(headers);")
+        if self.client_schema.global_parameters:
+            wr.add_line("")
+            wr.add_line("auto parameters = getGlobalParameters();")
+            for parameter in self.client_schema.global_parameters:
+                wr.add_line(f'parameters.addQueryItem("{parameter.key}", "{parameter.value}");')
+            wr.add_line("setGlobalParameters(parameters);")
+        return wr
+    
+    def _client_class_destructor(self) -> constructs.CppClassDestructor:
+        destructor = constructs.CppClassDestructor(
+            class_owner=self.client_schema.name, 
+            qualifiers="override")
+        return destructor
+    
+    def _client_class_api_getters(self) -> list[constructs.CppClassMethod]:
+        getters: list[constructs.CppClassMethod] = []
+        for api in self.client_schema.apis:
+            getter = constructs.CppClassMethod(
+                name=api.name,
+                class_owner=self.client_schema.name, 
+                return_type=f"{api.type}*",
+                qualifiers=["const", "[[nodiscard]]"])
+            getter.add_code(f"return m_{api.name};")
+            getters.append(getter)
+        return getters
+        
+    def _client_class_variables(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        for api in self.client_schema.apis:
+            wr.add_line(f"{api.type}* m_{api.name};")
+        return wr
+    
+
+class QtApiGenerator(QtSchemaGenerator):
+    external_includes = ["egnite/rest/api.h"]
+    verb_use_body = ["POST", "PUT", "PATCH"]
+    reply_methods = {
+        "POST": "post",
+        "PUT": "put",
+        "PATCH": "patch",
+        "DELETE": "deleteResource",
+        "HEAD": "head",
+        "GET": "get"
+    }
+    
+    def __init__(self,
+                 api_schema: api.Api) -> None:
+        super().__init__(api_schema)
+        self.api_schema = api_schema
+        
+    def _header_body(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        wr.add_lines(self._api_class().definition)
+        return wr
+    
+    def _src_body(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        wr.add_lines((f"{method.definition}\n" for method in self._api_class_methods()))
+        return wr
+        
+    def _api_class(self) -> constructs.CppClass:
+        model_class = constructs.CppClass(name=self.api_schema.name, parents="public egnite::rest::Api")
+        model_class.add_code("Q_OBJECT")
+        model_class.add_code("")
+        model_class.add_code("public:")
+        model_class.add_code((method.declaration for method in self._api_class_methods()))
+        return model_class
+    
+    def _api_class_methods(self) -> list[constructs.CppClassMethod]:
+        methods: list[constructs.CppClassMethod] = []
+        methods.append(self._api_class_constructor())
+        methods.append(self._api_class_destructor())
+        methods.extend(self._api_class_reply_methods())
+        return methods
+    
+    def _api_class_constructor(self) -> constructs.CppClassConstructor:
+        constructor = constructs.CppClassConstructor(
+            class_owner=self.api_schema.name, 
+            arguments=["egnite::rest::IClient* client", "QObject* parent = nullptr"],
+            qualifiers="explicit")
+        constructor.add_initialization(f'egnite::rest::Api(client, "{self.api_schema.path}", parent)')
+        constructor.add_code(self._api_class_constructor_body().code)
+        return constructor
+        
+    def _api_class_constructor_body(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        if self.api_schema.global_headers:
+            wr.add_line("auto headers = getGlobalHeaders();")
+            for header in self.api_schema.global_headers:
+                wr.add_line(f'headers["{header.key}"] = "{header.value}";')
+            wr.add_line("setGlobalHeaders(headers);")
+        if self.api_schema.global_parameters:
+            wr.add_line("")
+            wr.add_line("auto parameters = getGlobalParameters();")
+            for parameter in self.api_schema.global_parameters:
+                wr.add_line(f'parameters.addQueryItem("{parameter.key}", "{parameter.value}");')
+            wr.add_line("setGlobalParameters(parameters);")
+        return wr
+    
+    def _api_class_destructor(self) -> constructs.CppClassDestructor:
+        destructor = constructs.CppClassDestructor(
+            class_owner=self.api_schema.name, 
+            qualifiers="override")
+        return destructor
+    
+    def _api_class_reply_methods(self) -> list[constructs.CppClassMethod]:
+        reply_methods: list[constructs.CppClassMethod] = []
+        for method in self.api_schema.methods:
+            reply_method = constructs.CppClassMethod(
+                name=method.name,
+                class_owner=self.api_schema.name, 
+                return_type=f"egnite::rest::GenericReply<{method.returns}, {method.excepts}>*",
+                arguments=self._api_class_reply_method_arguments(method),
+                qualifiers="[[nodiscard]]")
+            reply_methods.append(reply_method)    
+            reply_method.add_code(self._api_class_reply_method_body(method).code)
+        return reply_methods
+    
+    def _api_class_reply_method_arguments(self,
+                                          method: api.Method) -> list[str]:
         arguments: list[str] = []
-        if Helper._use_body(method):
+        if self._api_class_reply_method_use_body(method):
             arguments.append(f"const {method.body}& data")
         for argument in method.arguments:
             arguments.append(f"{argument.type} {argument.key}")
-        arguments.append("QObject* parent" if ignore_default else "QObject* parent = nullptr")
+        arguments.append("QObject* parent = nullptr")
         return arguments
     
-    @staticmethod
-    def get_api_method_call(method: api.Method, 
-                            parameters_variable: str, 
-                            headers_variable: str) -> code_generator.CppLine:
-        function = Helper._get_function(method)
-        template = f"<{method.returns}, {method.excepts}>"
-        arguments = f'("", {parameters_variable}, {headers_variable}, parent)' 
-        if Helper._use_body(method):
-            template = f"<{method.returns}, {method.excepts}, {method.body}>"
-            arguments = f'("", data, {parameters_variable}, {headers_variable}, parent)'
-        return code_generator.CppLine(
-            f"return {function}{template}{arguments};")
-    
-    @staticmethod
-    def _use_body(method: api.Method) -> bool:
-        return method.verb in ["POST", "PUT", "PATCH"]
-    
-    @staticmethod
-    def _get_function(method: api.Method) -> str:
-        match method.verb:
-            case "POST": return "post"
-            case "PUT": return "put"
-            case "PATCH": return "patch"
-            case "DELETE": return "deleteResource"
-            case "HEAD": return "head"
-            case _: return "get"
-
-class HeaderClient(code_generator.CppFile):
-    def __init__(self, 
-                 client_schema: client.Client) -> None:
-        super().__init__(f"SCHEMA_GENERATED_CLIENT_{client_schema.name.upper()}_H")
-        
-        self.add_element(code_generator.CppLine())
-        self.add_element(self._create_include_headers_scope())
-        self.add_element(code_generator.CppLine())
-        self.add_element(self._create_declarations_scope(client_schema))
-        self.add_element(code_generator.CppLine())
-        self.add_element(self._create_class(client_schema))
-        self.add_element(code_generator.CppLine())
-        
-    def _create_include_headers_scope(self) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        external_includes = [
-            "egnite/rest/client.h",
-        ]
-        for include in external_includes:
-            scope.add_element(code_generator.CppLine(f'#include <{include}>'))   
-        return scope
-    
-    def _create_declarations_scope(self,
-                                      client_schema: client.Client) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        for api in client_schema.apis:
-            scope.add_element(code_generator.CppClass(api.type).declaration())
-        return scope
-    
-    def _create_class(self, 
-                      client_schema: client.Client) -> code_generator.CppClass:
-        client_class = code_generator.CppClass(client_schema.name, parents = "public egnite::rest::Client")
-        client_class.add_element(code_generator.CppLine("Q_OBJECT"))
-        client_class.add_element(code_generator.CppLine())
-        client_class.add_element(self._public_class_interface_scope(client_schema))
-        client_class.add_element(code_generator.CppLine())
-        client_class.add_element(self._private_class_interface_scope(client_schema))
-        return client_class
-    
-    def _public_class_interface_scope(self, 
-                                      client_schema: client.Client) -> code_generator.CppScope:
-        scope = code_generator.CppScope(begin=code_generator.CppLine("public:"), indent_elements=True)
-        scope.add_element(self._create_constructors_scope(client_schema))
-        scope.add_element(code_generator.CppLine())
-        scope.add_element(self._create_apis_getters_scope(client_schema))
-        return scope
-    
-    def _private_class_interface_scope(self, 
-                                       client_schema: client.Client) -> code_generator.CppScope:
-        scope = code_generator.CppScope(begin=code_generator.CppLine("private:"), indent_elements=True)
-        scope.add_element(self._create_apis_scope(client_schema))
-        return scope
-        
-    def _create_constructors_scope(self, 
-                                   client_schema: client.Client) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        scope.add_element(code_generator.CppConstructor(
-            name=client_schema.name, 
-            arguments= "QObject* parent = nullptr", 
-            qualifiers= "explicit").declaration())
-        scope.add_element(code_generator.CppDestructor(
-            name=client_schema.name, 
-            qualifiers= "override").declaration())
-        return scope
-    
-    def _create_apis_getters_scope(self, 
-                           client_schema: client.Client) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        for api in client_schema.apis:
-            scope.add_element(code_generator.CppFunction(
-                name=api.name, 
-                return_type= f"{api.type}*",
-                qualifiers= ["const", "[[nodiscard]]"]).declaration())
-        return scope
-    
-    def _create_apis_scope(self, 
-                           client_schema: client.Client) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        for api in client_schema.apis:
-            scope.add_element(code_generator.CppLine(f"{api.type}* m_{api.name};"))
-        return scope
-    
-        
-class SrcClient(code_generator.CppFile):
-    def __init__(self, 
-                 client_schema: client.Client,
-                 header_include: str) -> None:
-        super().__init__()
-        
-        self.add_element(self._create_include_headers_scope(client_schema, header_include))
-        self.add_element(code_generator.CppLine())
-        self.add_element(self._create_class_implementation(client_schema))
-        
-    def _create_include_headers_scope(self, 
-                                      client_schema: client.Client,
-                                      header_include: str) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        scope.add_element(code_generator.CppLine(f'#include "{header_include}"'))
-        if client_schema.includes:
-            scope.add_element(code_generator.CppLine())
-            for include in client_schema.includes:
-                scope.add_element(code_generator.CppLine(f'#include "{include}"'))
-        return scope
-    
-    def _create_class_implementation(self, 
-                                     client_schema: client.Client) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        scope.add_element(self._create_constructors_scope(client_schema))
-        scope.add_element(code_generator.CppLine())
-        scope.add_element(self._create_apis_getters_scope(client_schema))
-        return scope
-    
-    def _create_constructors_scope(self, 
-                                   client_schema: client.Client) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        
-        constructor_initializations = ["egnite::rest::Client(parent)"]
-        for api in client_schema.apis:
-            constructor_initializations.append(f"m_{api.name}(new {api.type}(this))")
-            
-        constructor = code_generator.CppConstructor(
-            name=client_schema.name, 
-            namespace=client_schema.name,
-            arguments= "QObject* parent",
-            initializations=constructor_initializations)
-        constructor.add_element(self._create_constructor_code_scope(client_schema))
-        
-        scope.add_element(constructor)
-        scope.add_element(code_generator.CppLine())
-        scope.add_element(code_generator.CppDestructor(
-            name=client_schema.name,
-            namespace=client_schema.name))
-        return scope
-    
-    def _create_constructor_code_scope(self, 
-                                       client_schema: client.Client) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        scope.add_element(code_generator.CppLine(
-            txt=f'setBaseUrl(QUrl("{client_schema.base_url}"));'))
-        scope.add_element(code_generator.CppLine(
-            txt=f'setVersion(QVersionNumber::fromString("{client_schema.version}"));'))
-        if client_schema.global_headers:
-            scope.add_element(code_generator.CppLine())
-            scope.add_element(Helper.create_global_headers_scope(client_schema.global_headers))
-        if client_schema.global_parameters:
-            scope.add_element(code_generator.CppLine())
-            scope.add_element(Helper.create_global_parameters_scope(client_schema.global_parameters))
-        return scope
-    
-    def _create_apis_getters_scope(self, 
-                           client_schema: client.Client) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        for api in client_schema.apis:
-            api_function = code_generator.CppFunction(
-                name=api.name,
-                namespace=client_schema.name, 
-                return_type= f"{api.type}*",
-                qualifiers="const")
-            api_function.add_element(code_generator.CppLine(f"return m_{api.name};"))
-            
-            scope.add_element(api_function)
-        return scope
-
-
-class HeaderApi(code_generator.CppFile):
-    def __init__(self, 
-                 api_schema: api.Api) -> None:
-        super().__init__(f"SCHEMA_GENERATED_API_{api_schema.name.upper()}_H")
-        
-        self.add_element(code_generator.CppLine())
-        self.add_element(self._create_include_headers_scope(api_schema))
-        self.add_element(code_generator.CppLine())
-        self.add_element(self._create_class(api_schema))
-        self.add_element(code_generator.CppLine())
-        
-    def _create_class(self, 
-                      api_schema: api.Api) -> code_generator.CppClass:
-        api_class = code_generator.CppClass(api_schema.name, parents = "public egnite::rest::Api")
-        api_class.add_element(code_generator.CppLine("Q_OBJECT"))
-        api_class.add_element(code_generator.CppLine())
-        api_class.add_element(self._public_class_interface_scope(api_schema))
-        return api_class
-    
-    def _public_class_interface_scope(self, 
-                                      api_schema: api.Api) -> code_generator.CppScope:
-        scope = code_generator.CppScope(begin=code_generator.CppLine("public:"), indent_elements=True)
-        scope.add_element(self._create_constructors_scope(api_schema))
-        scope.add_element(code_generator.CppLine())
-        scope.add_element(self._create_methods_scope(api_schema))
-        return scope
-         
-    def _create_include_headers_scope(self,
-                                      api_schema: api.Api) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        external_includes = [
-            "egnite/rest/api.h",
-        ]
-        for include in external_includes:
-            scope.add_element(code_generator.CppLine(f'#include <{include}>'))      
-        if api_schema.includes:  
-            scope.add_element(code_generator.CppLine())
-            for include in api_schema.includes:
-                scope.add_element(code_generator.CppLine(f'#include "{include}"'))
-        return scope
-
-    def _create_constructors_scope(self, 
-                                   api_schema: api.Api) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        scope.add_element(code_generator.CppConstructor(
-            name=api_schema.name, 
-            arguments= ["egnite::rest::IClient* client", "QObject* parent = nullptr"], 
-            qualifiers= "explicit").declaration())
-        scope.add_element(code_generator.CppDestructor(
-            name=api_schema.name, 
-            qualifiers= "override").declaration())
-        return scope
-    
-    def _create_methods_scope(self, 
-                              api_schema: api.Api) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        for method in api_schema.methods:
-            scope.add_element(code_generator.CppFunction(
-                name=method.name,
-                return_type=f"egnite::rest::GenericReply<{method.returns}, {method.excepts}>*",
-                arguments=Helper.get_api_method_arguments(method),
-                qualifiers="[[nodiscard]]").declaration())
-        return scope
-
-
-class SrcApi(code_generator.CppFile):
-    def __init__(self, 
-                 api_schema: api.Api,
-                 header_include: str) -> None:
-        super().__init__()
-    
-        self.add_element(self._create_include_headers_scope(header_include))
-        self.add_element(code_generator.CppLine())
-        self.add_element(self._create_class_implementation(api_schema))
-        
-    def _create_include_headers_scope(self, 
-                                      header_include: str) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        scope.add_element(code_generator.CppLine(f'#include "{header_include}"'))   
-        return scope
-    
-    def _create_class_implementation(self, 
-                                     api_schema: api.Api) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        scope.add_element(self._create_constructors_scope(api_schema))
-        scope.add_element(code_generator.CppLine())
-        scope.add_element(self._create_methods_scope(api_schema))
-        return scope
-    
-    def _create_constructors_scope(self, 
-                                   api_schema: api.Api) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        
-        constructor_initializations = [f'egnite::rest::Api(client, "{api_schema.path}", parent)']
-            
-        api_constructor = code_generator.CppConstructor(
-            name=api_schema.name, 
-            namespace=api_schema.name,
-            arguments= ["egnite::rest::IClient* client", "QObject* parent"], 
-            initializations=constructor_initializations)
-        api_constructor.add_element(self._create_constructor_code_scope(api_schema))
-            
-        scope.add_element(api_constructor)
-        scope.add_element(code_generator.CppLine())
-        scope.add_element(code_generator.CppDestructor(
-            name=api_schema.name,
-            namespace=api_schema.name))
-        return scope
-    
-    def _create_constructor_code_scope(self, 
-                                       api_schema: api.Api) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        if api_schema.global_headers:
-            scope.add_element(Helper.create_global_headers_scope(api_schema.global_headers))
-        if api_schema.global_parameters:
-            scope.add_element(code_generator.CppLine())
-            scope.add_element(Helper.create_global_parameters_scope(api_schema.global_parameters))
-        return scope
-    
-    def _create_methods_scope(self, 
-                              api_schema: api.Api) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        for method in api_schema.methods:
-            function = code_generator.CppFunction(
-                name=method.name,
-                namespace=api_schema.name,
-                return_type=f"egnite::rest::GenericReply<{method.returns}, {method.excepts}>*",
-                arguments=Helper.get_api_method_arguments(method, ignore_default=True))
-            function.add_element(self._create_method_scope(method))
-            scope.add_element(function)
-            scope.add_element(code_generator.CppLine())
-        return scope
-    
-    def _create_method_scope(self, 
-                             method: api.Method) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
+    def _api_class_reply_method_body(self, 
+                                     method: api.Method) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
         if method.parameters:
-            scope.add_element(code_generator.CppLine("QUrlQuery parameters;"))
+            wr.add_line("QUrlQuery parameters;")
             for parameter in method.parameters:
-                scope.add_element(code_generator.CppLine(
-                    f'parameters.addQueryItem("{parameter.key}", "{parameter.value}");'))      
-            scope.add_element(code_generator.CppLine())
-            
+                wr.add_line(f'parameters.addQueryItem("{parameter.key}", "{parameter.value}");')    
+            wr.add_line()    
         if method.headers:
-            scope.add_element(code_generator.CppLine("egnite::rest::Headers headers;"))
+            wr.add_line("egnite::rest::Headers headers;")
             for header in method.headers:
-                scope.add_element(code_generator.CppLine(
-                    f'headers["{header.key}"] = "{header.value}";'))
-            scope.add_element(code_generator.CppLine())
-            
-        scope.add_element(Helper.get_api_method_call(
+                wr.add_line(f'headers["{header.key}"] = "{header.value}";')
+            wr.add_line()        
+        wr.add_line(self._api_class_reply_call(
             method=method, 
             parameters_variable="parameters" if method.parameters else "{}",
             headers_variable="headers" if method.headers else "{}"))
-        return scope
-
-
-class HeaderModel(code_generator.CppFile):
-    def __init__(self, 
+        return wr
+    
+    def _api_class_reply_call(self, 
+                              method: api.Method, 
+                              parameters_variable: str, 
+                              headers_variable: str) -> str:
+        function = self.__class__.reply_methods[method.verb]
+        template = f"<{method.returns}, {method.excepts}>"
+        arguments = f'("", {parameters_variable}, {headers_variable}, parent)' 
+        if self._api_class_reply_method_use_body(method):
+            template = f"<{method.returns}, {method.excepts}, {method.body}>"
+            arguments = f'("", data, {parameters_variable}, {headers_variable}, parent)'
+        return f"return {function}{template}{arguments};"
+        
+    def _api_class_reply_method_use_body(self, 
+                                         method: api.Method) -> bool:
+        return method.verb in self.__class__.verb_use_body
+        
+    
+class QtModelGenerator(QtSchemaGenerator):
+    external_includes = ["QObject"]
+    
+    def __init__(self,
                  model_schema: model.Model) -> None:
-        super().__init__(f"SCHEMA_GENERATED_MODEL_{model_schema.name.upper()}_H")
-        
-        self.add_element(code_generator.CppLine())
-        self.add_element(self._create_include_headers_scope(model_schema))
-        self.add_element(code_generator.CppLine())
-        self.add_element(self._create_struct(model_schema))
-        self.add_element(code_generator.CppLine())
-        
-    def _create_include_headers_scope(self,
-                                      model_schema: model.Model) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        external_includes = [
-            "QObject",
-        ]
-        for include in external_includes:
-            scope.add_element(code_generator.CppLine(f'#include <{include}>'))    
-        if model_schema.includes:  
-            scope.add_element(code_generator.CppLine())
-            for include in model_schema.includes:
-                scope.add_element(code_generator.CppLine(f'#include "{include}"'))  
-        return scope
+        super().__init__(model_schema)
+        self.model_schema = model_schema
     
-    def _create_struct(self, 
-                       model_schema: model.Model) -> code_generator.CppStruct:
-        
-        model_struct = code_generator.CppStruct(model_schema.name)
-        model_struct.add_element(code_generator.CppLine("Q_GADGET"))
-        model_struct.add_element(self._create_properties_scope(model_schema))
-        model_struct.add_element(code_generator.CppLine())
-        model_struct.add_element(self._public_class_interface_scope(model_schema))
-        return model_struct
+    def _header_body(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        wr.add_lines(self._model_class().definition)
+        return wr
     
-    def _create_properties_scope(self, 
-                                 model_schema: model.Model) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        for property in model_schema.properties:
-            scope.add_element(code_generator.CppLine(f"Q_PROPERTY({property.type} {property.name} MEMBER {property.name})"))  
-        return scope
-    
-    def _public_class_interface_scope(self, 
-                                      model_schema: model.Model) -> code_generator.CppScope:
-        scope = code_generator.CppScope(begin=code_generator.CppLine("public:"), indent_elements=True)
-        scope.add_element(self._create_members_scope_scope(model_schema))
-        return scope
-    
-    def _create_members_scope_scope(self,
-                                    model_schema: model.Model) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        for property in model_schema.properties:
-            scope.add_element(code_generator.CppLine(f"{property.type} {property.name};"))
-        return scope
+    def _model_class(self) -> constructs.CppClass:
+        model_class = constructs.CppClass(
+            name=self.schema.name,
+            is_struct=True
+        )
+        model_class.add_code("Q_GADGET")
+        for property in self.model_schema.properties:
+            model_class.add_code(f"Q_PROPERTY({property.type} {property.name} MEMBER {property.name})")
+        model_class.add_code("")
+        for property in self.model_schema.properties:
+            model_class.add_code(f"{property.type} {property.name};")
+        return model_class  
 
-
-class SrcModel(code_generator.CppFile):
-    def __init__(self, 
-                 model_schema: model.Model,
-                 header_include: str) -> None:
-        super().__init__()
-        
-        self.add_element(self._create_include_headers_scope(header_include))
-        self.add_element(code_generator.CppLine())
-        
-    def _create_include_headers_scope(self, 
-                                      header_include: str) -> code_generator.CppScope:
-        scope = code_generator.CppScope()
-        scope.add_element(code_generator.CppLine(f'#include "{header_include}"'))
-        return scope
-        
 
 class QtGenerator(Generator):
-    code_style = code_generator.CppCodeStyle(
-        indent=" "*2, 
-        lf="\n"
-    )
-    
     def _generate_client(self,
                          client_schema: client.Client,
                          header_stream: TextIOWrapper,
                          src_stream: TextIOWrapper) -> None:
-        header_client = HeaderClient(client_schema)
-        src_client = SrcClient(client_schema, Path(header_stream.name).name)
-        
-        header_stream.write(header_client.code(code_style=QtGenerator.code_style, indent_level=0))
-        src_stream.write(src_client.code(code_style=QtGenerator.code_style, indent_level=0))
+        client_generator = QtClientGenerator(client_schema=client_schema)
+        client_generator.write(header_stream=header_stream, 
+                              src_stream=src_stream)
         
     def _generate_api(self, api_schema: api.Api,
                       header_stream: TextIOWrapper,
                       src_stream: TextIOWrapper) -> None:
-        header_api = HeaderApi(api_schema)
-        src_api = SrcApi(api_schema, Path(header_stream.name).name)
-        
-        header_stream.write(header_api.code(code_style=QtGenerator.code_style, indent_level=0))
-        src_stream.write(src_api.code(code_style=QtGenerator.code_style, indent_level=0))
+        api_generator = QtApiGenerator(api_schema=api_schema)
+        api_generator.write(header_stream=header_stream, 
+                              src_stream=src_stream)
 
     def _generate_model(self,
                         model_schema: model.Model,
                         header_stream: TextIOWrapper,
                         src_stream: TextIOWrapper) -> None:
-        header_model = HeaderModel(model_schema)
-        src_model = SrcModel(model_schema, Path(header_stream.name).name)
-        
-        
-        header_stream.write(header_model.code(code_style=QtGenerator.code_style, indent_level=0))
-        src_stream.write(src_model.code(code_style=QtGenerator.code_style, indent_level=0))
+        model_generator = QtModelGenerator(model_schema=model_schema)
+        model_generator.write(header_stream=header_stream, 
+                              src_stream=src_stream)
