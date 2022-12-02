@@ -8,13 +8,12 @@
 #include <QtQml>
 /* ----------------------------------- Local -------------------------------- */
 #include "client.h"
+#include "reply.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
 class IApi;
 }  // namespace egnite::rest
-
-class QmlReply;
 
 /* ----------------------------------- QmlApi ------------------------------- */
 
@@ -51,22 +50,23 @@ class QmlApi : public QObject, public QQmlParserStatus {
   void classBegin() override;
   void componentComplete() override;
 
-  [[nodiscard]] QmlReply* get(QJSValue path, QJSValue parameters = {},
-                              QJSValue headers = {}) const;
-  [[nodiscard]] QmlReply* head(QJSValue path, QJSValue parameters = {},
-                               QJSValue headers = {}) const;
-  [[nodiscard]] QmlReply* deleteResource(QJSValue path,
-                                         QJSValue parameters = {},
-                                         QJSValue headers = {}) const;
-  [[nodiscard]] QmlReply* post(QJSValue path, QJSValue data,
-                               QJSValue parameters = {},
-                               QJSValue headers = {}) const;
-  [[nodiscard]] QmlReply* put(QJSValue path, QJSValue data,
-                              QJSValue parameters = {},
-                              QJSValue headers = {}) const;
-  [[nodiscard]] QmlReply* patch(QJSValue path, QJSValue data,
-                                QJSValue parameters = {},
-                                QJSValue headers = {}) const;
+  Q_INVOKABLE [[nodiscard]] QmlReply* get(QJSValue path,
+                                          QJSValue parameters = {},
+                                          QJSValue headers = {}) const;
+  Q_INVOKABLE [[nodiscard]] QmlReply* head(QJSValue path,
+                                           QJSValue parameters = {},
+                                           QJSValue headers = {}) const;
+  Q_INVOKABLE [[nodiscard]] QmlReply* deleteResource(
+      QJSValue path, QJSValue parameters = {}, QJSValue headers = {}) const;
+  Q_INVOKABLE [[nodiscard]] QmlReply* post(QJSValue path, QJSValue data,
+                                           QJSValue parameters = {},
+                                           QJSValue headers = {}) const;
+  Q_INVOKABLE [[nodiscard]] QmlReply* put(QJSValue path, QJSValue data,
+                                          QJSValue parameters = {},
+                                          QJSValue headers = {}) const;
+  Q_INVOKABLE [[nodiscard]] QmlReply* patch(QJSValue path, QJSValue data,
+                                            QJSValue parameters = {},
+                                            QJSValue headers = {}) const;
 
  Q_SIGNALS:
   void pathChanged(const QString& path);
