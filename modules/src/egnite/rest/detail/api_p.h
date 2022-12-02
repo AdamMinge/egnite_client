@@ -19,14 +19,6 @@ class ApiPrivate : public QObjectPrivate {
   Q_DECLARE_PUBLIC(Api)
 
  public:
-  static const QByteArray GetVerb;
-  static const QByteArray PostVerb;
-  static const QByteArray PutVerb;
-  static const QByteArray PatchVerb;
-  static const QByteArray DeleteVerb;
-  static const QByteArray HeadVerb;
-
- public:
   explicit ApiPrivate(IClient* client, QNetworkAccessManager* manager,
                       const QString& path);
 

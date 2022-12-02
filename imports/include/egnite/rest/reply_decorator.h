@@ -7,10 +7,6 @@
 #include <egnite/rest/reply_decorator.h>
 /* -------------------------------------------------------------------------- */
 
-namespace egnite::rest {
-class IReplyFactory;
-}
-
 /* ----------------------------- QmlReplyDecorator -------------------------- */
 
 class QmlReplyDecorator : public egnite::rest::ReplyDecorator {

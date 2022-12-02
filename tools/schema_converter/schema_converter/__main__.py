@@ -128,7 +128,6 @@ def main() -> None:
 
     schemas: list[tuple[Schema, Path]] = []
     for source in args.sources:
-        print(f"schema = {read_schema(source)}")
         schemas.append((read_schema(source), source))
 
     generate_interfaces(schemas, args.destination, args.interface)

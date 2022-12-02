@@ -4,6 +4,7 @@
 /* ------------------------------------ Qt ---------------------------------- */
 #include <QObject>
 #include <QQmlParserStatus>
+#include <QtQml/QJSValue>
 #include <QtQml>
 /* ----------------------------------- Local -------------------------------- */
 #include "client.h"
@@ -12,6 +13,8 @@
 namespace egnite::rest {
 class IApi;
 }  // namespace egnite::rest
+
+class QmlReply;
 
 /* ----------------------------------- QmlApi ------------------------------- */
 
@@ -48,6 +51,23 @@ class QmlApi : public QObject, public QQmlParserStatus {
   void classBegin() override;
   void componentComplete() override;
 
+  [[nodiscard]] QmlReply* get(QJSValue path, QJSValue parameters = {},
+                              QJSValue headers = {}) const;
+  [[nodiscard]] QmlReply* head(QJSValue path, QJSValue parameters = {},
+                               QJSValue headers = {}) const;
+  [[nodiscard]] QmlReply* deleteResource(QJSValue path,
+                                         QJSValue parameters = {},
+                                         QJSValue headers = {}) const;
+  [[nodiscard]] QmlReply* post(QJSValue path, QJSValue data,
+                               QJSValue parameters = {},
+                               QJSValue headers = {}) const;
+  [[nodiscard]] QmlReply* put(QJSValue path, QJSValue data,
+                              QJSValue parameters = {},
+                              QJSValue headers = {}) const;
+  [[nodiscard]] QmlReply* patch(QJSValue path, QJSValue data,
+                                QJSValue parameters = {},
+                                QJSValue headers = {}) const;
+
  Q_SIGNALS:
   void pathChanged(const QString& path);
   void clientChanged(QmlClient* client);
@@ -56,6 +76,15 @@ class QmlApi : public QObject, public QQmlParserStatus {
 
  private:
   void revaluateApi();
+  QmlReply* createQmlReply(egnite::rest::IReply* reply) const;
+  QmlReply* callImpl(const QByteArray& verb, const QJSValue& path,
+                     const QJSValue& parameters, const QJSValue& headers,
+                     const QJSValue& data = {}) const;
+
+  std::optional<QString> getPath(const QJSValue& object) const;
+  std::optional<egnite::rest::Data> getBody(const QJSValue& object) const;
+  std::optional<QUrlQuery> getParameters(const QJSValue& object) const;
+  std::optional<egnite::rest::Headers> getHeaders(const QJSValue& object) const;
 
  private:
   struct RevaluateData {
