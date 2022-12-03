@@ -56,5 +56,5 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${include_root}>
   PRIVATE ${source_root})
 
-egnite_add_schema_converter(api SOURCES ${schemas})
+egnite_add_schema_converter(api INTERFACE qt SOURCES ${schemas})
 # ----------------------------------------------------------------------- #

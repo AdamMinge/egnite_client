@@ -253,7 +253,7 @@ endfunction()
 # ----------------------------------------------------------------------- #
 macro(egnite_add_schema_converter target)
 
-  cmake_parse_arguments(THIS "" "NAMESPACE" "SOURCES" ${ARGN})
+  cmake_parse_arguments(THIS "" "NAMESPACE;INTERFACE" "SOURCES" ${ARGN})
 
   if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
     message(
@@ -266,7 +266,8 @@ macro(egnite_add_schema_converter target)
 
   set(generator
       ${CMAKE_BINARY_DIR}/tools/schema_converter/venv/bin/schema_converter)
-  set(generator_args --sources ${THIS_SOURCES} --destination ${output_dir})
+  set(generator_args --sources ${THIS_SOURCES} --destination ${output_dir}
+                     --interface ${THIS_INTERFACE})
 
   set(generator_command ${generator} ${generator_args})
   set(generator_depends ${THIS_SOURCES})

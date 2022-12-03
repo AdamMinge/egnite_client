@@ -91,8 +91,7 @@ class Parser():
         parser.add_argument("--interface",
                             type=valid_generation_interface,
                             nargs='?',
-                            default="qt",
-                            choices=["qt", "qml"])
+                            default="qt")
         parser.add_argument("--sources",
                             type=valid_source_paths, nargs="+",
                             required=True,
