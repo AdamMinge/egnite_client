@@ -5,23 +5,25 @@ cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
 # -------------------------- Generate headers --------------------------- #
 # ----------------------------------------------------------------------- #
-set(sniffer_root ${EGNITE_SOURCE_DIR}/apps/sniffer)
-set(source_root ${sniffer_root}/src)
-set(include_root ${sniffer_root}/include)
-set(qmls_root ${sniffer_root}/qml)
-set(resources_root ${sniffer_root}/resources)
+set(api_root ${EGNITE_SOURCE_DIR}/apps/api)
+set(source_root ${api_root}/src)
+set(include_root ${api_root}/include)
+set(schema_root ${api_root}/schema)
+set(qmls_root ${api_root}/qml)
+set(resources_root ${api_root}/resources)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(sources ${source_root}/main.cpp)
+set(sources)
 
 set(includes)
 
-set(qmls ${qmls_root}/AuthWindow.qml ${qmls_root}/LoginPage.qml
-         ${qmls_root}/Main.qml ${qmls_root}/SignUpPage.qml)
+set(schemas ${schema_root}/client.xml ${schema_root}/api.xml
+            ${schema_root}/model.xml)
 
-set(resources ${resources_root}/conf/qtquickcontrols2.conf
-              ${resources_root}/font/FontAwesome.ttf)
+set(resources)
+
+set(qmls)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #
@@ -29,14 +31,14 @@ set(CMAKE_AUTOMOC ON)
 # ----------------------------------------------------------------------- #
 # ----------------------- Find external libraries ----------------------- #
 # ----------------------------------------------------------------------- #
-find_package(Qt6 REQUIRED COMPONENTS Qml QuickControls2 Gui)
+find_package(Qt6 REQUIRED COMPONENTS Quick)
 # ----------------------------------------------------------------------- #
-# -------------------------- Create sniffer app ------------------------- #
+# ----------------------- Create egnite shared lib ---------------------- #
 # ----------------------------------------------------------------------- #
-egnite_add_qml_executable(
-  sniffer
+egnite_add_qml_module(
+  api
   URI
-  sniffer
+  egnite.api
   VERSION
   ${EGNITE_VERSION_MAJOR}.${EGNITE_VERSION_MINOR}
   SOURCES
@@ -47,14 +49,12 @@ egnite_add_qml_executable(
   RESOURCES
   ${resources}
   DEPENDENCIES
-  Qt::Gui
-  Qt::Qml
-  Qt::QuickControls2
-  egnite::egnite-cmd
   egnite::egnite-rest)
 
 target_include_directories(
-  sniffer
+  api
   PUBLIC $<BUILD_INTERFACE:${include_root}>
   PRIVATE ${source_root})
+
+egnite_add_schema_converter(api SOURCES ${schemas})
 # ----------------------------------------------------------------------- #

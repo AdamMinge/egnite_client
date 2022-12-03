@@ -3,24 +3,22 @@
 # ----------------------------------------------------------------------- #
 cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
-# -------------------------- Set files variable ------------------------- #
+# -------------------------- Generate headers --------------------------- #
 # ----------------------------------------------------------------------- #
 set(viewer_root ${EGNITE_SOURCE_DIR}/apps/viewer)
 set(source_root ${viewer_root}/src)
 set(include_root ${viewer_root}/include)
 set(qmls_root ${viewer_root}/qml)
-set(schema_root ${viewer_root}/schema)
 set(resources_root ${viewer_root}/resources)
-
+# ----------------------------------------------------------------------- #
+# -------------------------- Set files variable ------------------------- #
+# ----------------------------------------------------------------------- #
 set(sources ${source_root}/main.cpp)
 
 set(includes)
 
 set(qmls ${qmls_root}/AuthWindow.qml ${qmls_root}/LoginPage.qml
          ${qmls_root}/Main.qml ${qmls_root}/SignUpPage.qml)
-
-set(schemas ${schema_root}/client.xml ${schema_root}/api.xml
-            ${schema_root}/model.xml)
 
 set(resources ${resources_root}/conf/qtquickcontrols2.conf
               ${resources_root}/font/FontAwesome.ttf)
@@ -59,6 +57,4 @@ target_include_directories(
   viewer
   PUBLIC $<BUILD_INTERFACE:${include_root}>
   PRIVATE ${source_root})
-
-egnite_add_schema_converter(viewer NAMESPACE schema SOURCES ${schemas})
 # ----------------------------------------------------------------------- #
