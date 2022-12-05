@@ -2,6 +2,7 @@
 #include "api.h"
 
 #include "reply.h"
+#include "utils.h"
 /* ----------------------------------- Egnite ------------------------------- */
 #include <egnite/rest/api.h>
 /* -------------------------------------------------------------------------- */
@@ -36,34 +37,14 @@ QmlClient* QmlApi::getClient() const { return m_revaluate_data.client; }
 
 QJSValue QmlApi::getGlobalQmlHeaders() const {
   const auto headers = m_api->getGlobalHeaders();
-  auto headers_map = QVariantMap{};
-
-  for (const auto& header : headers)
-    headers_map.insert(QString(header), headers[header]);
-
   auto engine = QQmlEngine::contextForObject(this)->engine();
-  if (engine) {
-    qmlWarning(this) << "engine from context is nullptr";
-    return QJSValue{};
-  }
-
-  return engine->toScriptValue<QVariantMap>(headers_map);
+  return utils::headersToJSValue(headers, engine);
 }
 
 QJSValue QmlApi::getGlobalQmlParameters() const {
-  const auto parameters = m_api->getGlobalParameters().queryItems();
-  auto parameters_map = QVariantMap{};
-
-  for (const auto& parameter : parameters)
-    parameters_map.insert(parameter.first, parameter.second);
-
+  const auto parameters = m_api->getGlobalParameters();
   auto engine = QQmlEngine::contextForObject(this)->engine();
-  if (engine) {
-    qmlWarning(this) << "engine from context is nullptr";
-    return QJSValue{};
-  }
-
-  return engine->toScriptValue<QVariantMap>(parameters_map);
+  return utils::parametersToJSValue(parameters, engine);
 }
 
 void QmlApi::setGlobalQmlHeaders(QJSValue object) {
@@ -125,17 +106,6 @@ void QmlApi::revaluateApi() {
     m_api = m_revaluate_data.client->createApi(m_revaluate_data.path, this);
 }
 
-std::optional<QString> QmlApi::getPath(const QJSValue& object) const {
-  if (object.isString())
-    return object.toString();
-  else if (object.isUndefined())
-    return std::nullopt;
-
-  qmlWarning(this)
-      << "Unsupported parameter configuration: Argument is not a path.";
-  return std::nullopt;
-}
-
 QmlReply* QmlApi::createQmlReply(egnite::rest::IReply* reply) const {
   auto qml_reply = new QmlReply(QQmlEngine::contextForObject(this)->engine(),
                                 reply, nullptr);
@@ -174,6 +144,17 @@ QmlReply* QmlApi::callImpl(const QByteArray& verb, const QJSValue& path,
   }
 }
 
+std::optional<QString> QmlApi::getPath(const QJSValue& object) const {
+  if (object.isString())
+    return object.toString();
+  else if (object.isUndefined())
+    return std::nullopt;
+
+  qmlWarning(this)
+      << "Unsupported parameter configuration: Argument is not a path.";
+  return std::nullopt;
+}
+
 std::optional<egnite::rest::Data> QmlApi::getBody(
     const QJSValue& object) const {
   if (object.isObject() || object.isArray()) {
@@ -194,56 +175,16 @@ std::optional<egnite::rest::Data> QmlApi::getBody(
 }
 
 std::optional<QUrlQuery> QmlApi::getParameters(const QJSValue& object) const {
-  if (object.isVariant()) {
-    auto variant = object.toVariant();
-    if (variant.typeId() == QMetaType::QVariantMap) {
-      auto parameters_map = variant.toMap();
-      auto parameters = QUrlQuery{};
-
-      for (auto it = parameters_map.begin(); it != parameters_map.end(); ++it) {
-        if (!it.value().canConvert<QString>()) {
-          qmlWarning(this) << "unsupported value in headers object, it must be "
-                              "convertable to string";
-          continue;
-        }
-
-        parameters.addQueryItem(it.key(), it.value().toString());
-      }
-
-      return parameters;
-    }
-  } else if (object.isUndefined())
-    return std::nullopt;
-
-  qmlWarning(this)
-      << "Unsupported parameter configuration: Argument is not a parameters.";
+  auto opt_parameters = utils::JSValueToParameters(object);
+  if (opt_parameters) return opt_parameters;
+  qmlWarning(this) << "unsupported parameter, it must be parameters object";
   return std::nullopt;
 }
 
 std::optional<egnite::rest::Headers> QmlApi::getHeaders(
     const QJSValue& object) const {
-  if (object.isVariant()) {
-    auto variant = object.toVariant();
-    if (variant.typeId() == QMetaType::QVariantMap) {
-      auto headers_map = variant.toMap();
-      auto headers = egnite::rest::Headers{};
-
-      for (auto it = headers_map.begin(); it != headers_map.end(); ++it) {
-        if (!it.value().canConvert<QByteArray>()) {
-          qmlWarning(this) << "unsupported value in headers object, it must be "
-                              "convertable to bytes";
-          continue;
-        }
-
-        headers.emplace(it.key().toUtf8(), it.value().toByteArray());
-      }
-
-      return headers;
-    }
-  } else if (object.isUndefined())
-    return std::nullopt;
-
-  qmlWarning(this)
-      << "Unsupported parameter configuration: Argument is not a headers.";
+  auto opt_headers = utils::JSValueToHeaders(object);
+  if (opt_headers) return opt_headers;
+  qmlWarning(this) << "unsupported parameter, it must be headers object";
   return std::nullopt;
 }

@@ -1,5 +1,7 @@
 /* ----------------------------------- Local -------------------------------- */
 #include "client.h"
+
+#include "utils.h"
 /* -------------------------------------------------------------------------- */
 
 /* --------------------------------- QmlClient ------------------------------ */
@@ -36,76 +38,28 @@ QString QmlClient::getStrVersion() const {
 
 QJSValue QmlClient::getGlobalQmlHeaders() const {
   const auto headers = getGlobalHeaders();
-  auto headers_map = QVariantMap{};
-
-  for (const auto &header : headers)
-    headers_map.insert(QString(header), headers[header]);
-
   auto engine = QQmlEngine::contextForObject(this)->engine();
-  if (engine) {
-    qmlWarning(this) << "engine from context is nullptr";
-    return QJSValue{};
-  }
-
-  return engine->toScriptValue<QVariantMap>(headers_map);
+  return utils::headersToJSValue(headers, engine);
 }
 
 QJSValue QmlClient::getGlobalQmlParameters() const {
-  const auto parameters = getGlobalParameters().queryItems();
-  auto parameters_map = QVariantMap{};
-
-  for (const auto &parameter : parameters)
-    parameters_map.insert(parameter.first, parameter.second);
-
+  const auto parameters = getGlobalParameters();
   auto engine = QQmlEngine::contextForObject(this)->engine();
-  if (engine) {
-    qmlWarning(this) << "engine from context is nullptr";
-    return QJSValue{};
-  }
-
-  return engine->toScriptValue<QVariantMap>(parameters_map);
+  return utils::parametersToJSValue(parameters, engine);
 }
 
 void QmlClient::setGlobalQmlHeaders(QJSValue object) {
-  if (object.isObject() || object.isUndefined()) {
-    auto headers_map = object.toVariant().toMap();
-    auto headers = egnite::rest::Headers{};
-
-    for (auto it = headers_map.begin(); it != headers_map.end(); ++it) {
-      if (!it.value().canConvert<QByteArray>()) {
-        qmlWarning(this) << "unsupported value in headers object, it must be "
-                            "convertable to bytes";
-        continue;
-      }
-
-      headers.emplace(it.key().toUtf8(), it.value().toByteArray());
-    }
-
-    setGlobalHeaders(headers);
-
-  } else {
+  auto opt_headers = utils::JSValueToHeaders(object);
+  if (opt_headers)
+    setGlobalHeaders(opt_headers.value());
+  else
     qmlWarning(this) << "unsupported parameter, it must be headers object";
-  }
 }
 
 void QmlClient::setGlobalQmlParameters(QJSValue object) {
-  if (object.isObject() || object.isUndefined()) {
-    auto parameters_map = object.toVariant().toMap();
-    auto parameters = QUrlQuery{};
-
-    for (auto it = parameters_map.begin(); it != parameters_map.end(); ++it) {
-      if (!it.value().canConvert<QString>()) {
-        qmlWarning(this) << "unsupported value in headers object, it must be "
-                            "convertable to string";
-        continue;
-      }
-
-      parameters.addQueryItem(it.key(), it.value().toString());
-    }
-
-    setGlobalParameters(parameters);
-
-  } else {
+  auto opt_parameters = utils::JSValueToParameters(object);
+  if (opt_parameters)
+    setGlobalParameters(opt_parameters.value());
+  else
     qmlWarning(this) << "unsupported parameter, it must be parameters object";
-  }
 }
