@@ -32,7 +32,7 @@ egnite_add_qml_module(
   DEPENDENCIES
   Qt::Qml
   Qt::QuickControls2
-  egnite::egnite-rest)
+  egnite-rest-qml)
 
 egnite_add_schema_converter(api INTERFACE qt SOURCES ${schemas})
 # ----------------------------------------------------------------------- #

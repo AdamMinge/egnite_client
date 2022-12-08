@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Client name="ExampleClient">
-	<Include>api.h</Include>
 	<BaseUrl>https://localhost</BaseUrl>
 	<Version>1</Version>
-	<Header key="global_header" value="global_header_value"/>
-	<Parameter key="global_parameter" value="global_parameter_value"/>
-	<Api name="examples" type="ExampleApi"/>
+	<Includes>
+		<Include>api.h</Include>
+	</Includes>
+	<Headers>
+		<Header key="global_header" value="global_header_value"/>
+	</Headers>
+	<Parameters>
+		<Parameter key="global_parameter" value="global_parameter_value"/>
+	</Parameters>
+	<Apis>
+		<Api name="examples" type="ExampleApi"/>
+	</Apis>
 </Client>
 
