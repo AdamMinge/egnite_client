@@ -38,7 +38,8 @@ std::optional<egnite::rest::Headers> JSValueToHeaders(const QJSValue& object) {
 
       return headers;
     }
-  }
+  } else if (object.isUndefined())
+    return egnite::rest::Headers{};
 
   return std::nullopt;
 }
@@ -57,7 +58,8 @@ std::optional<QUrlQuery> JSValueToParameters(const QJSValue& object) {
 
       return parameters;
     }
-  }
+  } else if (object.isUndefined())
+    return QUrlQuery{};
 
   return std::nullopt;
 }
