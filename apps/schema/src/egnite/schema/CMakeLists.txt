@@ -5,13 +5,14 @@ cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
 # -------------------------- Generate headers --------------------------- #
 # ----------------------------------------------------------------------- #
-set(api_root ${EGNITE_SOURCE_DIR}/apps/api)
-set(schema_root ${api_root}/schema)
+set(schema_root ${EGNITE_SOURCE_DIR}/apps/schema)
+set(resources_root ${schema_root}/resources)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(schemas ${schema_root}/client.xml ${schema_root}/api.xml
-            ${schema_root}/model.xml)
+set(schemas
+    ${resources_root}/example_client.xml ${resources_root}/example_api.xml
+    ${resources_root}/example_model.xml)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #
@@ -24,9 +25,9 @@ find_package(Qt6 REQUIRED COMPONENTS Qml QuickControls2)
 # ----------------------- Create egnite shared lib ---------------------- #
 # ----------------------------------------------------------------------- #
 egnite_add_qml_module(
-  api
+  egnite-schema-qml
   URI
-  egnite.api
+  egnite.schema
   VERSION
   ${EGNITE_VERSION_MAJOR}.${EGNITE_VERSION_MINOR}
   DEPENDENCIES
@@ -34,5 +35,5 @@ egnite_add_qml_module(
   Qt::QuickControls2
   egnite-rest-qml)
 
-egnite_add_schema_converter(api INTERFACE qt SOURCES ${schemas})
+egnite_add_schema_converter(egnite-schema-qml INTERFACE qml SOURCES ${schemas})
 # ----------------------------------------------------------------------- #

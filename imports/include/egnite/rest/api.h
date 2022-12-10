@@ -6,14 +6,12 @@
 #include <QQmlParserStatus>
 #include <QtQml/QJSValue>
 #include <QtQml>
+/* ----------------------------------- Egnite ------------------------------- */
+#include <egnite/rest/api.h>
 /* ----------------------------------- Local -------------------------------- */
 #include "client.h"
 #include "reply.h"
 /* -------------------------------------------------------------------------- */
-
-namespace egnite::rest {
-class IApi;
-}  // namespace egnite::rest
 
 /* ----------------------------------- QmlApi ------------------------------- */
 
@@ -74,7 +72,7 @@ class QmlApi : public QObject, public QQmlParserStatus {
   void globalQmlHeadersChanged(const QJSValue& object);
   void globalQmlParametersChanged(const QJSValue& object);
 
- private:
+ protected:
   void revaluateApi();
   QmlReply* createQmlReply(egnite::rest::IReply* reply) const;
   QmlReply* callImpl(const QByteArray& verb, const QJSValue& path,
@@ -86,14 +84,14 @@ class QmlApi : public QObject, public QQmlParserStatus {
   std::optional<QUrlQuery> getParameters(const QJSValue& object) const;
   std::optional<egnite::rest::Headers> getHeaders(const QJSValue& object) const;
 
- private:
+ protected:
   struct RevaluateData {
     bool init = false;
     QString path = "";
     QmlClient* client = nullptr;
   };
 
- private:
+ protected:
   RevaluateData m_revaluate_data;
   egnite::rest::IApi* m_api;
 };

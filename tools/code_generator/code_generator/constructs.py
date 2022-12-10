@@ -182,8 +182,8 @@ class CppClass:
 
 class CppClassMethod(CppFunction):
     post_qualifiers = CppFunction.post_qualifiers + ["const", "override"]
-    pre_qualifiers = CppFunction.pre_qualifiers + ["virtual", "explicit"]
-    only_declaration_qualifiers = CppFunction.pre_qualifiers + ["override", "virtual", "explicit"]
+    pre_qualifiers = CppFunction.pre_qualifiers + ["Q_INVOKABLE", "virtual", "explicit"]
+    only_declaration_qualifiers = CppFunction.pre_qualifiers + ["Q_INVOKABLE", "override", "virtual", "explicit"]
     
     def __init__(self, 
                  name: str, 

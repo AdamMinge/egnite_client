@@ -67,7 +67,7 @@ class QmlSchemaGenerator:
     
     
 class QmlClientGenerator(QmlSchemaGenerator):
-    external_includes = ["egnite/rest/client.h"]
+    external_includes = ["client.h"]
     
     def __init__(self,
                  client_schema: client.Client) -> None:
@@ -85,21 +85,18 @@ class QmlClientGenerator(QmlSchemaGenerator):
         return wr
     
     def _class(self) -> constructs.CppClass:
-        model_class = constructs.CppClass(name=self.client_schema.name, parents="public egnite::rest::Client")
+        model_class = constructs.CppClass(name=self.client_schema.name, parents="public QmlClient")
         model_class.add_code("Q_OBJECT")
+        model_class.add_code("QML_ELEMENT")
         model_class.add_code("")
         model_class.add_code("public:")
         model_class.add_code((method.declaration for method in self._methods()))
-        model_class.add_code("")
-        model_class.add_code("private:")
-        model_class.add_code(self._variables().code)
         return model_class
     
     def _methods(self) -> list[constructs.CppClassMethod]:
         methods: list[constructs.CppClassMethod] = []
         methods.append(self._constructor())
         methods.append(self._destructor())
-        methods.extend(self._api_getters())
         return methods
     
     def _constructor(self) -> constructs.CppClassConstructor:
@@ -107,7 +104,7 @@ class QmlClientGenerator(QmlSchemaGenerator):
             class_owner=self.client_schema.name, 
             arguments="QObject* parent = nullptr",
             qualifiers="explicit")
-        constructor.add_initialization("egnite::rest::Client(parent)")
+        constructor.add_initialization("QmlClient(parent)")
         constructor.add_code(self._constructor_body().code)
         return constructor
     
@@ -146,35 +143,17 @@ class QmlClientGenerator(QmlSchemaGenerator):
             qualifiers="override")
         return destructor
     
-    def _api_getters(self) -> list[constructs.CppClassMethod]:
-        getters: list[constructs.CppClassMethod] = []
-        for api in self.client_schema.apis:
-            getter = constructs.CppClassMethod(
-                name=api.name,
-                class_owner=self.client_schema.name, 
-                return_type=f"{api.type}*",
-                qualifiers=["const", "[[nodiscard]]"])
-            getter.add_code(f"return m_{api.name};")
-            getters.append(getter)
-        return getters
-        
-    def _variables(self) -> writer.CodeWriter:
-        wr = writer.CodeWriter()
-        for api in self.client_schema.apis:
-            wr.add_line(f"{api.type}* m_{api.name};")
-        return wr
-    
 
 class QmlApiGenerator(QmlSchemaGenerator):
-    external_includes = ["egnite/rest/api.h"]
+    external_includes = ["api.h"]
     verb_use_body = ["POST", "PUT", "PATCH"]
-    reply_methods = {
-        "POST": "post",
-        "PUT": "put",
-        "PATCH": "patch",
-        "DELETE": "deleteResource",
-        "HEAD": "head",
-        "GET": "get"
+    verbs = {
+        "POST": "egnite::rest::IApi::PostVerb",
+        "PUT": "egnite::rest::IApi::PutVerb",
+        "PATCH": "egnite::rest::IApi::PatchVerb",
+        "DELETE": "egnite::rest::IApi::DeleteVerb",
+        "HEAD": "egnite::rest::IApi::HeadVerb",
+        "GET": "egnite::rest::IApi::GetVerb"
     }
     
     def __init__(self,
@@ -193,8 +172,9 @@ class QmlApiGenerator(QmlSchemaGenerator):
         return wr
         
     def _class(self) -> constructs.CppClass:
-        model_class = constructs.CppClass(name=self.api_schema.name, parents="public egnite::rest::Api")
+        model_class = constructs.CppClass(name=self.api_schema.name, parents="public QmlApi")
         model_class.add_code("Q_OBJECT")
+        model_class.add_code("QML_ELEMENT")
         model_class.add_code("")
         model_class.add_code("public:")
         model_class.add_code((method.declaration for method in self._methods()))
@@ -210,18 +190,10 @@ class QmlApiGenerator(QmlSchemaGenerator):
     def _constructor(self) -> constructs.CppClassConstructor:
         constructor = constructs.CppClassConstructor(
             class_owner=self.api_schema.name, 
-            arguments=["egnite::rest::IClient* client", "QObject* parent = nullptr"],
+            arguments=["QObject* parent = nullptr"],
             qualifiers="explicit")
-        constructor.add_initialization('egnite::rest::Api(client, "", parent)')
-        constructor.add_code(self._constructor_body().code)
+        constructor.add_initialization('QmlApi(parent)')
         return constructor
-        
-    def _constructor_body(self) -> writer.CodeWriter:
-        wr = writer.CodeWriter()
-        wr.add_lines(self._set_global_headers("_headers").code)
-        wr.add_line()
-        wr.add_lines(self._set_global_parameters("_parameters").code)
-        return wr
     
     def _set_global_headers(self, 
                             variable: str) -> writer.CodeWriter:
@@ -255,9 +227,9 @@ class QmlApiGenerator(QmlSchemaGenerator):
             reply_method = constructs.CppClassMethod(
                 name=method.name,
                 class_owner=self.api_schema.name, 
-                return_type=f"egnite::rest::GenericReply<{method.returns}, {method.excepts}>*",
+                return_type=f"QmlReply*",
                 arguments=self._reply_method_arguments(method),
-                qualifiers="[[nodiscard]]")
+                qualifiers=["Q_INVOKABLE", "[[nodiscard]]"])
             reply_methods.append(reply_method)    
             reply_method.add_code(self._reply_method_body(method).code)
         return reply_methods
@@ -266,14 +238,13 @@ class QmlApiGenerator(QmlSchemaGenerator):
                                 method: api.Method) -> list[str]:
         arguments: list[str] = []
         for api_segment in self.api_schema.path.param_segments:
-            arguments.append(f"{api_segment.type} {api_segment.name}")
+            arguments.append(f"const QJSValue& {api_segment.name}")
         if self._reply_method_use_body(method):
-            arguments.append(f"const {method.body}& data")
+            arguments.append(f"const QJSValue& data")
         for method_segment in method.path.param_segments:
-            arguments.append(f"{method_segment.type} {method_segment.name}")
+            arguments.append(f"const QJSValue& {method_segment.name}")
         for argument in method.arguments:
-            arguments.append(f"{argument.type} {argument.name}") 
-        arguments.append("QObject* parent = nullptr")
+            arguments.append(f"const QJSValue& {argument.name}") 
         return arguments
     
     def _reply_method_body(self, 
@@ -303,7 +274,7 @@ class QmlApiGenerator(QmlSchemaGenerator):
                                     variable: str) -> writer.CodeWriter:
         def segment_to_value(segment):
              if isinstance(segment, api.ParamSegment): 
-                return segment.name
+                return f"{segment.name}.toVariant().value<{segment.type}>()"
              elif isinstance(segment, api.FixedSegment):
                 return f'"{segment.value}"'
 
@@ -323,7 +294,7 @@ class QmlApiGenerator(QmlSchemaGenerator):
         for parameter in method.parameters:
             wr.add_line(f'{variable}.addQueryItem("{parameter.key}", "{parameter.value}");') 
         for argument in method.arguments:
-            wr.add_line(f'{variable}.addQueryItem("{argument.key}", {argument.name});')    
+            wr.add_line(f'{variable}.addQueryItem("{argument.key}", {argument.name}.toVariant().value<{argument.type}>());')    
         return wr
     
     def _reply_method_headers_variable(self, 
@@ -341,15 +312,26 @@ class QmlApiGenerator(QmlSchemaGenerator):
                     parameters: str, 
                     headers: str) -> writer.CodeWriter:
         wr = writer.CodeWriter()
-        function = self.__class__.reply_methods[method.verb]
-        template = f"<{method.returns}, {method.excepts}>"
-        arguments = f'({path}, {parameters}, {headers}, parent)' 
-        if self._reply_method_use_body(method):
-            template = f"<{method.returns}, {method.excepts}, {method.body}>"
-            arguments = f'({path}, data, {parameters}, {headers}, parent)'
-        wr.add_line(f"return {function}{template}{arguments};")
-        return wr
+        verb = self.__class__.verbs[method.verb]
+        arguments_without_data = f'{verb}, {path}, {parameters}, {headers}' 
+        arguments_with_data = f'{verb}, {path}, body, {parameters}, {headers}'
+        if not self._reply_method_use_body(method):
+            wr.add_line(f"return createQmlReply(m_api->callRaw({arguments_without_data}));")
+            return wr
         
+        wr.add_line(f"const auto _opt_body = getBody(data);")
+        wr.add_line("\n".join([
+        "return createQmlReply(",
+        "  std::visit(egnite::core::utils::overloaded{",
+        "    [&](std::nullopt_t) -> egnite::rest::IReply* {",
+        "      return m_api->callRaw({args});".format(args=arguments_without_data),
+        "    },",
+        "    [&](const auto& body) -> egnite::rest::IReply* {",
+        "      return m_api->callRaw({args});".format(args=arguments_with_data),
+        "    }},",
+        "  *_opt_body));"]))
+        return wr
+    
     def _reply_method_use_body(self, 
                                method: api.Method) -> bool:
         return method.verb in self.__class__.verb_use_body

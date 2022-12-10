@@ -8,7 +8,7 @@
 
 QmlReplyDecorator::QmlReplyDecorator(egnite::rest::IReplyDecorator* decorator,
                                      QObject* parent)
-    : egnite::rest::ReplyDecorator(parent) {}
+    : egnite::rest::WrappedReplyDecorator(decorator, parent) {}
 
 QmlReplyDecorator::~QmlReplyDecorator() = default;
 

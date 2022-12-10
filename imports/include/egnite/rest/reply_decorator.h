@@ -9,7 +9,7 @@
 
 /* ----------------------------- QmlReplyDecorator -------------------------- */
 
-class QmlReplyDecorator : public egnite::rest::ReplyDecorator {
+class QmlReplyDecorator : public egnite::rest::WrappedReplyDecorator {
   Q_OBJECT
   QML_ELEMENT
 

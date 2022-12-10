@@ -3,8 +3,6 @@
 
 #include "reply.h"
 #include "utils.h"
-/* ----------------------------------- Egnite ------------------------------- */
-#include <egnite/rest/api.h>
 /* -------------------------------------------------------------------------- */
 
 /* ----------------------------------- QmlApi ------------------------------- */
@@ -107,8 +105,8 @@ void QmlApi::revaluateApi() {
 }
 
 QmlReply* QmlApi::createQmlReply(egnite::rest::IReply* reply) const {
-  auto qml_reply = new QmlReply(QQmlEngine::contextForObject(this)->engine(),
-                                reply, nullptr);
+  auto qml_reply =
+      new QmlReply(QQmlEngine::contextForObject(this)->engine(), reply);
   QQmlEngine::setObjectOwnership(qml_reply, QQmlEngine::JavaScriptOwnership);
   return qml_reply;
 }

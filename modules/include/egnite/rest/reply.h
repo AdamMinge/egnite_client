@@ -393,7 +393,7 @@ class LoggerReply : public WrappedReply {
 
 template <typename Logger>
 LoggerReply<Logger>::LoggerReply(Logger logger, IReply* reply, QObject* parent)
-    : WrappedReply(reply, parent), m_logger(logger) {
+    : WrappedReply(reply, parent), m_logger(std::move(logger)) {
   onCompleted([this](int code, const Data& data) { logCompleted(code, data); });
   onSucceeded([this](int code, const Data& data) { logSucceeded(code, data); });
   onFailed([this](int code, const Data& data) { logFailed(code, data); });
@@ -459,11 +459,12 @@ template <typename Logger>
 void LoggerReply<Logger>::logData(const Data& data) {
   m_logger << "\t"
            << "data: ";
-  std::visit(core::utils::overloaded{
-                 [this](std::nullopt_t) { m_logger << "null"; },
-                 [this](const QJsonValue& body) { m_logger << body; },
-                 [this](const QCborValue& body) { m_logger << body; }},
-             data);
+  std::visit(
+      core::utils::overloaded{
+          [this](std::nullopt_t) { m_logger << "null"; },
+          [this](const QJsonValue& body) { m_logger << body.toString(); },
+          [this](const QCborValue& body) { m_logger << body.toString(); }},
+      data);
   m_logger << "\n";
 }
 

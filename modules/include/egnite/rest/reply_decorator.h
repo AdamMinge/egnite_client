@@ -11,6 +11,7 @@ namespace egnite::rest {
 
 namespace detail {
 class ReplyDecoratorPrivate;
+class WrappedReplyDecoratorPrivate;
 }  // namespace detail
 
 class IReply;
@@ -58,12 +59,34 @@ class EGNITE_REST_API ReplyDecorator : public IReplyDecorator {
   void prepend(IReplyFactory* factory) override;
   void remove(IReplyFactory* factory) override;
 
- protected:
-  ReplyDecorator(detail::ReplyDecoratorPrivate& impl,
-                 QObject* parent = nullptr);
-
  private:
   Q_DECLARE_PRIVATE(detail::ReplyDecorator);
+};
+
+/* -------------------------- WrappedReplyDecorator ------------------------- */
+
+class EGNITE_REST_API WrappedReplyDecorator : public IReplyDecorator {
+  Q_OBJECT
+
+ public:
+  ~WrappedReplyDecorator() override;
+
+  [[nodiscard]] IReply* decorate(IReply* reply) const override;
+
+  IReplyFactory* at(qsizetype i) const override;
+  qsizetype count() const override;
+  void clear() override;
+
+  void append(IReplyFactory* factory) override;
+  void prepend(IReplyFactory* factory) override;
+  void remove(IReplyFactory* factory) override;
+
+ protected:
+  explicit WrappedReplyDecorator(IReplyDecorator* reply_decorator,
+                                 QObject* parent = nullptr);
+
+ private:
+  Q_DECLARE_PRIVATE(detail::WrappedReplyDecorator);
 };
 
 }  // namespace egnite::rest

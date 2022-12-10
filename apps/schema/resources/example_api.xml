@@ -5,7 +5,7 @@
 		<ParamSegment name="api_param" type="int"/>
 	</Path>
 	<Includes>
-		<Include>model.h</Include>
+		<Include>example_model.h</Include>
 	</Includes>
 	<Headers>
 		<Header key="global_header" value="global_header_value"/>

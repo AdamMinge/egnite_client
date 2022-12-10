@@ -3,7 +3,7 @@
 	<BaseUrl>https://localhost</BaseUrl>
 	<Version>1</Version>
 	<Includes>
-		<Include>api.h</Include>
+		<Include>example_api.h</Include>
 	</Includes>
 	<Headers>
 		<Header key="global_header" value="global_header_value"/>

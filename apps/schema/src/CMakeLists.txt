@@ -5,7 +5,5 @@ cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
 # -------------------------- Add subdirectories ------------------------- #
 # ----------------------------------------------------------------------- #
-add_subdirectory(schema/src)
-add_subdirectory(sniffer/src)
-add_subdirectory(viewer/src)
+add_subdirectory(egnite/schema)
 # ----------------------------------------------------------------------- #

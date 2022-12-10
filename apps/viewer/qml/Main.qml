@@ -5,11 +5,14 @@ import QtQuick.Controls.Material
 import egnite.rest 1.0
 import egnite.auth 1.0
 
+import egnite.schema 1.0
+
+
 QtObject {
 
     readonly property FontLoader font_awesome: FontLoader { id: font_awesome; source: "qrc:/viewer/FontAwesome.ttf" }
 
-    property var rest_client: QmlClient {
+    property var rest_client: ExampleClient {
         baseUrl: "http://localhost/api"
         version: "1"
 
@@ -22,6 +25,14 @@ QtObject {
 
         globalHeaders: {}
         globalParameters: {}
+    }
+
+    property var rest_api: ExampleApi {
+        client: rest_client    
+
+        Component.onCompleted: {
+            rest_api.getExamples(20)
+        }
     }
 
     property var rest_authenticator: QmlJwtAuthenticator {

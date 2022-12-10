@@ -19,11 +19,7 @@ IReplyDecorator::~IReplyDecorator() = default;
 /* ------------------------------ ReplyDecorator ---------------------------- */
 
 ReplyDecorator::ReplyDecorator(QObject* parent)
-    : ReplyDecorator(*new detail::ReplyDecoratorPrivate(), parent) {}
-
-ReplyDecorator::ReplyDecorator(detail::ReplyDecoratorPrivate& impl,
-                               QObject* parent)
-    : IReplyDecorator(impl, parent) {}
+    : IReplyDecorator(*new detail::ReplyDecoratorPrivate(), parent) {}
 
 ReplyDecorator::~ReplyDecorator() = default;
 
@@ -62,6 +58,50 @@ void ReplyDecorator::remove(IReplyFactory* factory) {
   d->remove(factory);
 }
 
+/* -------------------------- WrappedReplyDecorator ------------------------- */
+
+WrappedReplyDecorator::WrappedReplyDecorator(IReplyDecorator* reply_decorator,
+                                             QObject* parent)
+    : IReplyDecorator(
+          *new detail::WrappedReplyDecoratorPrivate(reply_decorator), parent) {}
+
+WrappedReplyDecorator::~WrappedReplyDecorator() = default;
+
+IReply* WrappedReplyDecorator::decorate(IReply* reply) const {
+  Q_D(const detail::WrappedReplyDecorator);
+  return d->decorate(reply);
+}
+
+IReplyFactory* WrappedReplyDecorator::at(qsizetype i) const {
+  Q_D(const detail::WrappedReplyDecorator);
+  return d->at(i);
+}
+
+qsizetype WrappedReplyDecorator::count() const {
+  Q_D(const detail::WrappedReplyDecorator);
+  return d->count();
+}
+
+void WrappedReplyDecorator::clear() {
+  Q_D(detail::WrappedReplyDecorator);
+  d->clear();
+}
+
+void WrappedReplyDecorator::append(IReplyFactory* factory) {
+  Q_D(detail::WrappedReplyDecorator);
+  d->append(factory);
+}
+
+void WrappedReplyDecorator::prepend(IReplyFactory* factory) {
+  Q_D(detail::WrappedReplyDecorator);
+  d->prepend(factory);
+}
+
+void WrappedReplyDecorator::remove(IReplyFactory* factory) {
+  Q_D(detail::WrappedReplyDecorator);
+  d->remove(factory);
+}
+
 /* -------------------------- ReplyDecoratorPrivate ------------------------- */
 
 namespace detail {
@@ -91,6 +131,38 @@ void ReplyDecoratorPrivate::prepend(IReplyFactory* factory) {
 
 void ReplyDecoratorPrivate::remove(IReplyFactory* factory) {
   m_factories.removeAll(factory);
+}
+
+/* ----------------------- WrappedReplyDecoratorPrivate --------------------- */
+
+WrappedReplyDecoratorPrivate::WrappedReplyDecoratorPrivate(
+    IReplyDecorator* reply_decorator)
+    : m_reply_decorator(reply_decorator) {}
+
+IReply* WrappedReplyDecoratorPrivate::decorate(IReply* reply) const {
+  return m_reply_decorator->decorate(reply);
+}
+
+IReplyFactory* WrappedReplyDecoratorPrivate::at(qsizetype i) const {
+  return m_reply_decorator->at(i);
+}
+
+qsizetype WrappedReplyDecoratorPrivate::count() const {
+  return m_reply_decorator->count();
+}
+
+void WrappedReplyDecoratorPrivate::clear() { m_reply_decorator->clear(); }
+
+void WrappedReplyDecoratorPrivate::append(IReplyFactory* factory) {
+  m_reply_decorator->append(factory);
+}
+
+void WrappedReplyDecoratorPrivate::prepend(IReplyFactory* factory) {
+  m_reply_decorator->prepend(factory);
+}
+
+void WrappedReplyDecoratorPrivate::remove(IReplyFactory* factory) {
+  m_reply_decorator->remove(factory);
 }
 
 }  // namespace detail

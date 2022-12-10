@@ -5,15 +5,13 @@
 #include <QtQml/QJSEngine>
 #include <QtQml/QJSValue>
 #include <QtQml>
+/* ----------------------------------- Egnite ------------------------------- */
+#include <egnite/rest/reply.h>
 /* -------------------------------------------------------------------------- */
-
-namespace egnite::rest {
-class IReply;
-}
 
 /* ----------------------------- QmlReplyDecorator -------------------------- */
 
-class QmlReply : public QObject {
+class QmlReply : public egnite::rest::WrappedReply {
   Q_OBJECT
   QML_ELEMENT
 
@@ -32,12 +30,14 @@ class QmlReply : public QObject {
   void addDownloadProgressHandler(const QJSValue& handler);
   void addUploadProgressHandler(const QJSValue& handler);
 
+  void setAutoDelete(bool enable) override;
+  [[nodiscard]] bool isAutoDelete() const override;
+
  private:
   bool validate(const QJSValue& handler) const;
 
  private:
   QQmlEngine* m_engine;
-  egnite::rest::IReply* m_reply;
 };
 
 #endif  // EGNITE_QML_REST_REPLY_H
