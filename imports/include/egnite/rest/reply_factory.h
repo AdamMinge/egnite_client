@@ -8,24 +8,24 @@
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
-class DebugReplyFactory;
+class LoggerReplyFactory;
 }
 
-/* ---------------------------- QmlDebugReplyFactory ------------------------ */
+/* ---------------------------- QmlLoggerReplyFactory ----------------------- */
 
-class QmlDebugReplyFactory : public egnite::rest::IReplyFactory {
+class QmlLoggerReplyFactory : public egnite::rest::IReplyFactory {
   Q_OBJECT
   QML_ELEMENT
 
  public:
-  explicit QmlDebugReplyFactory(QObject* parent = nullptr);
-  ~QmlDebugReplyFactory() override;
+  explicit QmlLoggerReplyFactory(QObject* parent = nullptr);
+  ~QmlLoggerReplyFactory() override;
 
   [[nodiscard]] egnite::rest::IReply* create(
       egnite::rest::IReply* reply) override;
 
  private:
-  egnite::rest::DebugReplyFactory* m_factory;
+  egnite::rest::LoggerReplyFactory* m_factory;
 };
 
 #endif  // EGNITE_QML_REST_REPLY_DECORATOR_H

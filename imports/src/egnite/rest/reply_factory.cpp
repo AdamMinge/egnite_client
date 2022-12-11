@@ -4,15 +4,15 @@
 #include <egnite/rest/reply_factory.h>
 /* -------------------------------------------------------------------------- */
 
-/* ----------------------------- QmlDebugReplyFactory ----------------------- */
+/* ----------------------------- QmlLoggerReplyFactory ---------------------- */
 
-QmlDebugReplyFactory::QmlDebugReplyFactory(QObject* parent)
+QmlLoggerReplyFactory::QmlLoggerReplyFactory(QObject* parent)
     : egnite::rest::IReplyFactory(parent),
-      m_factory(new egnite::rest::DebugReplyFactory(this)) {}
+      m_factory(new egnite::rest::LoggerReplyFactory(this)) {}
 
-QmlDebugReplyFactory::~QmlDebugReplyFactory() = default;
+QmlLoggerReplyFactory::~QmlLoggerReplyFactory() = default;
 
-egnite::rest::IReply* QmlDebugReplyFactory::create(
+egnite::rest::IReply* QmlLoggerReplyFactory::create(
     egnite::rest::IReply* reply) {
   return m_factory->create(reply);
 }

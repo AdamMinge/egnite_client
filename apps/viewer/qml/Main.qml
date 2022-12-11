@@ -18,7 +18,7 @@ QtObject {
 
         replyDecorator {
             factories: [
-                QmlDebugReplyFactory {},
+                QmlLoggerReplyFactory {},
                 QmlJwtAuthenticatorReplyFactory { authenticator: rest_authenticator }
             ]
         }
@@ -29,10 +29,6 @@ QtObject {
 
     property var rest_api: ExampleApi {
         client: rest_client    
-
-        Component.onCompleted: {
-            rest_api.getExamples(20)
-        }
     }
 
     property var rest_authenticator: QmlJwtAuthenticator {

@@ -13,15 +13,16 @@ IReplyFactory::IReplyFactory(QObjectPrivate& impl, QObject* parent)
 
 IReplyFactory::~IReplyFactory() = default;
 
-/* ----------------------------- DebugReplyFactory -------------------------- */
+/* ----------------------------- LoggerReplyFactory ------------------------- */
 
-DebugReplyFactory::DebugReplyFactory(QObject* parent) : IReplyFactory(parent) {}
+LoggerReplyFactory::LoggerReplyFactory(QObject* parent)
+    : IReplyFactory(parent) {}
 
-DebugReplyFactory::~DebugReplyFactory() = default;
+LoggerReplyFactory::~LoggerReplyFactory() = default;
 
-IReply* DebugReplyFactory::create(IReply* reply) {
-  auto decorated_reply =
-      new LoggerReply<QDebug>(qDebug().nospace(), reply, reply->parent());
+IReply* LoggerReplyFactory::create(IReply* reply) {
+  auto decorated_reply = new LoggerReply<QTextStream>(
+      std::make_unique<QTextStream>(stdout), reply, reply->parent());
   reply->setParent(decorated_reply);
   return decorated_reply;
 }

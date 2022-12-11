@@ -50,14 +50,14 @@ class ReplyFactoryWithArgs : public IReplyFactory {
   std::tuple<Args...> m_values;
 };
 
-/* ----------------------------- DebugReplyFactory -------------------------- */
+/* ----------------------------- LoggerReplyFactory ------------------------- */
 
-class EGNITE_REST_API DebugReplyFactory : public IReplyFactory {
+class EGNITE_REST_API LoggerReplyFactory : public IReplyFactory {
   Q_OBJECT
 
  public:
-  explicit DebugReplyFactory(QObject* parent);
-  ~DebugReplyFactory() override;
+  explicit LoggerReplyFactory(QObject* parent);
+  ~LoggerReplyFactory() override;
 
   [[nodiscard]] IReply* create(IReply* reply) override;
 };

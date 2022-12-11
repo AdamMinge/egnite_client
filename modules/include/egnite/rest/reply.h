@@ -371,7 +371,8 @@ GenericReply<void, ErrorType>* GenericReply<void, ErrorType>::onFailed(
 template <typename Logger>
 class LoggerReply : public WrappedReply {
  public:
-  explicit LoggerReply(Logger logger, IReply* reply, QObject* parent = nullptr);
+  explicit LoggerReply(std::unique_ptr<Logger> logger, IReply* reply,
+                       QObject* parent = nullptr);
   ~LoggerReply() override;
 
  protected:
@@ -386,20 +387,40 @@ class LoggerReply : public WrappedReply {
  private:
   void logTheme(const QString& action);
   void logData(const Data& data);
+  void flush();
 
  private:
-  Logger m_logger;
+  std::unique_ptr<Logger> m_logger;
 };
 
 template <typename Logger>
-LoggerReply<Logger>::LoggerReply(Logger logger, IReply* reply, QObject* parent)
+LoggerReply<Logger>::LoggerReply(std::unique_ptr<Logger> logger, IReply* reply,
+                                 QObject* parent)
     : WrappedReply(reply, parent), m_logger(std::move(logger)) {
-  onCompleted([this](int code, const Data& data) { logCompleted(code, data); });
-  onSucceeded([this](int code, const Data& data) { logSucceeded(code, data); });
-  onFailed([this](int code, const Data& data) { logFailed(code, data); });
-  onError([this](const QString& str, Error type) { logError(str, type); });
-  onDownloadProgress([this](qint64 r, qint64 t) { logDownloadProgress(r, t); });
-  onUploadProgress([this](qint64 s, qint64 t) { logUploadProgress(s, t); });
+  onCompleted([this](int code, const Data& data) {
+    logCompleted(code, data);
+    flush();
+  });
+  onSucceeded([this](int code, const Data& data) {
+    logSucceeded(code, data);
+    flush();
+  });
+  onFailed([this](int code, const Data& data) {
+    logFailed(code, data);
+    flush();
+  });
+  onError([this](const QString& str, Error type) {
+    logError(str, type);
+    flush();
+  });
+  onDownloadProgress([this](qint64 r, qint64 t) {
+    logDownloadProgress(r, t);
+    flush();
+  });
+  onUploadProgress([this](qint64 s, qint64 t) {
+    logUploadProgress(s, t);
+    flush();
+  });
 }
 
 template <typename Logger>
@@ -408,64 +429,69 @@ LoggerReply<Logger>::~LoggerReply() = default;
 template <typename Logger>
 void LoggerReply<Logger>::logCompleted(int http_code, const Data& data) {
   logTheme("Completed");
-  m_logger << "\t" << QString("http_code: %1").arg(http_code) << "\n";
+  *m_logger << "\t" << QString("http_code: %1").arg(http_code) << "\n";
   logData(data);
 }
 
 template <typename Logger>
 void LoggerReply<Logger>::logSucceeded(int http_code, const Data& data) {
   logTheme("Succeeded");
-  m_logger << "\t" << QString("http_code: %1").arg(http_code) << "\n";
+  *m_logger << "\t" << QString("http_code: %1").arg(http_code) << "\n";
   logData(data);
 }
 
 template <typename Logger>
 void LoggerReply<Logger>::logFailed(int http_code, const Data& data) {
   logTheme("Failed");
-  m_logger << "\t" << QString("http code: %1").arg(http_code) << "\n";
+  *m_logger << "\t" << QString("http code: %1").arg(http_code) << "\n";
   logData(data);
 }
 
 template <typename Logger>
 void LoggerReply<Logger>::logError(const QString& error_str, Error error_type) {
   logTheme("Error");
-  m_logger << "\t" << QString("detail: %1").arg(error_str) << "\n"
-           << "\t" << QString("type: %1").arg(static_cast<size_t>(error_type))
-           << "\n";
+  *m_logger << "\t" << QString("detail: %1").arg(error_str) << "\n"
+            << "\t" << QString("type: %1").arg(static_cast<size_t>(error_type))
+            << "\n";
 }
 
 template <typename Logger>
 void LoggerReply<Logger>::logDownloadProgress(qint64 bytes_received,
                                               qint64 bytes_total) {
   logTheme("Download Progress");
-  m_logger << "\t" << QString("bytes received: %1").arg(bytes_received) << "\n"
-           << "\t" << QString("bytes total: %1").arg(bytes_total) << "\n";
+  *m_logger << "\t" << QString("bytes received: %1").arg(bytes_received) << "\n"
+            << "\t" << QString("bytes total: %1").arg(bytes_total) << "\n";
 }
 
 template <typename Logger>
 void LoggerReply<Logger>::logUploadProgress(qint64 bytes_sent,
                                             qint64 bytes_total) {
   logTheme("Upload Progress");
-  m_logger << "\t" << QString("bytes sent: %1").arg(bytes_sent) << "\n"
-           << "\t" << QString("bytes total: %1").arg(bytes_total) << "\n";
+  *m_logger << "\t" << QString("bytes sent: %1").arg(bytes_sent) << "\n"
+            << "\t" << QString("bytes total: %1").arg(bytes_total) << "\n";
 }
 
 template <typename Logger>
 void LoggerReply<Logger>::logTheme(const QString& action) {
-  m_logger << QString("%1 Reply ").arg(action) << "[" << this << "]: \n";
+  *m_logger << QString("%1 Reply ").arg(action) << "[" << this << "]: \n";
 }
 
 template <typename Logger>
 void LoggerReply<Logger>::logData(const Data& data) {
-  m_logger << "\t"
-           << "data: ";
+  *m_logger << "\t"
+            << "data: ";
   std::visit(
       core::utils::overloaded{
-          [this](std::nullopt_t) { m_logger << "null"; },
-          [this](const QJsonValue& body) { m_logger << body.toString(); },
-          [this](const QCborValue& body) { m_logger << body.toString(); }},
+          [this](std::nullopt_t) { *m_logger << "null"; },
+          [this](const QJsonValue& body) { *m_logger << body.toString(); },
+          [this](const QCborValue& body) { *m_logger << body.toString(); }},
       data);
-  m_logger << "\n";
+  *m_logger << "\n";
+}
+
+template <typename Logger>
+void LoggerReply<Logger>::flush() {
+  m_logger->flush();
 }
 
 }  // namespace egnite::rest
