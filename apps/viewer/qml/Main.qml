@@ -29,6 +29,9 @@ QtObject {
 
     property var rest_api: ExampleApi {
         client: rest_client    
+
+        globalHeaders: {}
+        globalParameters: {}
     }
 
     property var rest_authenticator: QmlJwtAuthenticator {

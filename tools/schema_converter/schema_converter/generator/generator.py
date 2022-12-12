@@ -20,39 +20,24 @@ class Generator(abc.ABC):
     def generate(self,
                  schemas: Iterable[tuple[Schema, Path]],
                  destination: Path) -> None:
+        supported_schemas = self._supported_schemas()
         for schema, path in schemas:
+            if not isinstance(schema, supported_schemas):
+                continue
+            
             header_path = destination / f"{path.stem}.{self._hpp_file_suffix}"
             src_path = destination / f"{path.stem}.{self._cpp_file_suffix}"
             
             with header_path.open("w") as header_stream, src_path.open("w") as src_stream:
-                match schema:
-                    case Client():
-                        self._generate_client(
-                            schema, header_stream, src_stream)
-                    case Api():
-                        self._generate_api(
-                            schema, header_stream, src_stream)
-                    case Model():
-                        self._generate_model(
-                            schema, header_stream, src_stream)
+                self._generate(schema, header_stream, src_stream)
+                        
+    @abc.abstractmethod
+    def _supported_schemas(self) -> tuple[type, ...]:
+        pass
 
     @abc.abstractmethod
-    def _generate_client(self,
-                         client_schema: Client,
-                         header_stream: TextIOWrapper,
-                         src_stream: TextIOWrapper) -> None:
-        pass
-
-    @ abc.abstractmethod
-    def _generate_api(self,
-                      api_schema: Api,
-                      header_stream: TextIOWrapper,
-                      src_stream: TextIOWrapper) -> None:
-        pass
-
-    @ abc.abstractmethod
-    def _generate_model(self,
-                        model_schema: Model,
-                        header_stream: TextIOWrapper,
-                        src_stream: TextIOWrapper) -> None:
+    def _generate(self,
+                  schema: Schema,
+                  header_stream: TextIOWrapper,
+                  src_stream: TextIOWrapper) -> None:
         pass

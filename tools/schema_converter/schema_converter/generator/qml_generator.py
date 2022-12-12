@@ -121,7 +121,7 @@ class QmlClientGenerator(QmlSchemaGenerator):
                             variable: str) -> writer.CodeWriter:
         wr = writer.CodeWriter()
         if self.client_schema.headers:
-            wr.add_line(f"auto {variable} = getGlobalHeaders();")
+            wr.add_line(f"egnite::rest::Headers {variable};")
             for header in self.client_schema.headers:
                 wr.add_line(f'{variable}["{header.key}"] = "{header.value}";')
             wr.add_line(f"setGlobalHeaders({variable});")
@@ -131,7 +131,7 @@ class QmlClientGenerator(QmlSchemaGenerator):
                                variable: str) -> writer.CodeWriter:
         wr = writer.CodeWriter()
         if self.client_schema.parameters:
-            wr.add_line(f"auto {variable} = getGlobalParameters();")
+            wr.add_line(f"QUrlQuery {variable};")
             for parameter in self.client_schema.parameters:
                 wr.add_line(f'{variable}.addQueryItem("{parameter.key}", "{parameter.value}");')
             wr.add_line(f"setGlobalParameters({variable});")
@@ -193,13 +193,21 @@ class QmlApiGenerator(QmlSchemaGenerator):
             arguments=["QObject* parent = nullptr"],
             qualifiers="explicit")
         constructor.add_initialization('QmlApi(parent)')
+        constructor.add_code(self._constructor_body().code)
         return constructor
+    
+    def _constructor_body(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        wr.add_lines(self._set_global_headers("_headers").code)
+        wr.add_line()
+        wr.add_lines(self._set_global_parameters("_parameters").code)
+        return wr
     
     def _set_global_headers(self, 
                             variable: str) -> writer.CodeWriter:
         wr = writer.CodeWriter()
         if self.api_schema.headers:
-            wr.add_line(f"auto {variable} = getGlobalHeaders();")
+            wr.add_line(f"egnite::rest::Headers {variable};")
             for header in self.api_schema.headers:
                 wr.add_line(f'{variable}["{header.key}"] = "{header.value}";')
             wr.add_line(f"setGlobalHeaders({variable});")
@@ -209,7 +217,7 @@ class QmlApiGenerator(QmlSchemaGenerator):
                                variable: str) -> writer.CodeWriter:
         wr = writer.CodeWriter()
         if self.api_schema.parameters:
-            wr.add_line(f"auto {variable} = getGlobalParameters();")
+            wr.add_line(f"QUrlQuery {variable};")
             for parameter in self.api_schema.parameters:
                 wr.add_line(f'{variable}.addQueryItem("{parameter.key}", "{parameter.value}");')
             wr.add_line(f"setGlobalParameters({variable});")
@@ -335,55 +343,35 @@ class QmlApiGenerator(QmlSchemaGenerator):
     def _reply_method_use_body(self, 
                                method: api.Method) -> bool:
         return method.verb in self.__class__.verb_use_body
-        
-    
-class QmlModelGenerator(QmlSchemaGenerator):
-    external_includes = ["QObject"]
-    
-    def __init__(self,
-                 model_schema: model.Model) -> None:
-        super().__init__(model_schema)
-        self.model_schema = model_schema
-    
-    def _header_body(self) -> writer.CodeWriter:
-        wr = writer.CodeWriter()
-        wr.add_lines(self._class().definition)
-        return wr
-    
-    def _class(self) -> constructs.CppClass:
-        model_class = constructs.CppClass(
-            name=self.schema.name,
-            is_struct=True
-        )
-        model_class.add_code("Q_GADGET")
-        for property in self.model_schema.properties:
-            model_class.add_code(f"Q_PROPERTY({property.type} {property.name} MEMBER {property.name})")
-        model_class.add_code("")
-        for property in self.model_schema.properties:
-            model_class.add_code(f"{property.type} {property.name};")
-        return model_class
 
 
 class QmlGenerator(Generator):
+    def _supported_schemas(self) -> tuple[type, ...]:
+        return (client.Client, api.Api)
+    
+    def _generate(self,
+                  schema: Schema,
+                  header_stream: TextIOWrapper,
+                  src_stream: TextIOWrapper) -> None:
+        match schema:
+            case client.Client():
+                self._generate_client(
+                    schema, header_stream, src_stream)
+            case api.Api():
+                self._generate_api(
+                    schema, header_stream, src_stream)
+    
     def _generate_client(self,
                          client_schema: client.Client,
                          header_stream: TextIOWrapper,
                          src_stream: TextIOWrapper) -> None:
         client_generator = QmlClientGenerator(client_schema=client_schema)
         client_generator.write(header_stream=header_stream, 
-                              src_stream=src_stream)
+                               src_stream=src_stream)
         
     def _generate_api(self, api_schema: api.Api,
                       header_stream: TextIOWrapper,
                       src_stream: TextIOWrapper) -> None:
         api_generator = QmlApiGenerator(api_schema=api_schema)
         api_generator.write(header_stream=header_stream, 
-                              src_stream=src_stream)
-
-    def _generate_model(self,
-                        model_schema: model.Model,
-                        header_stream: TextIOWrapper,
-                        src_stream: TextIOWrapper) -> None:
-        model_generator = QmlModelGenerator(model_schema=model_schema)
-        model_generator.write(header_stream=header_stream, 
-                              src_stream=src_stream)
+                            src_stream=src_stream)

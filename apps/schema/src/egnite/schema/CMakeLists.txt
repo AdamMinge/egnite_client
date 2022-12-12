@@ -10,9 +10,8 @@ set(resources_root ${schema_root}/resources)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(schemas
-    ${resources_root}/example_client.xml ${resources_root}/example_api.xml
-    ${resources_root}/example_model.xml)
+set(schemas ${resources_root}/example_client.xml
+            ${resources_root}/example_api.xml)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #

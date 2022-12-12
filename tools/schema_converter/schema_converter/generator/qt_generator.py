@@ -124,7 +124,7 @@ class QtClientGenerator(QtSchemaGenerator):
                             variable: str) -> writer.CodeWriter:
         wr = writer.CodeWriter()
         if self.client_schema.headers:
-            wr.add_line(f"auto {variable} = getGlobalHeaders();")
+            wr.add_line(f"egnite::rest::Headers {variable};")
             for header in self.client_schema.headers:
                 wr.add_line(f'{variable}["{header.key}"] = "{header.value}";')
             wr.add_line(f"setGlobalHeaders({variable});")
@@ -134,7 +134,7 @@ class QtClientGenerator(QtSchemaGenerator):
                                variable: str) -> writer.CodeWriter:
         wr = writer.CodeWriter()
         if self.client_schema.parameters:
-            wr.add_line(f"auto {variable} = getGlobalParameters();")
+            wr.add_line(f"QUrlQuery {variable};")
             for parameter in self.client_schema.parameters:
                 wr.add_line(f'{variable}.addQueryItem("{parameter.key}", "{parameter.value}");')
             wr.add_line(f"setGlobalParameters({variable});")
@@ -227,7 +227,7 @@ class QtApiGenerator(QtSchemaGenerator):
                             variable: str) -> writer.CodeWriter:
         wr = writer.CodeWriter()
         if self.api_schema.headers:
-            wr.add_line(f"auto {variable} = getGlobalHeaders();")
+            wr.add_line(f"egnite::rest::Headers {variable};")
             for header in self.api_schema.headers:
                 wr.add_line(f'{variable}["{header.key}"] = "{header.value}";')
             wr.add_line(f"setGlobalHeaders({variable});")
@@ -237,7 +237,7 @@ class QtApiGenerator(QtSchemaGenerator):
                                variable: str) -> writer.CodeWriter:
         wr = writer.CodeWriter()
         if self.api_schema.parameters:
-            wr.add_line(f"auto {variable} = getGlobalParameters();")
+            wr.add_line(f"QUrlQuery {variable};")
             for parameter in self.api_schema.parameters:
                 wr.add_line(f'{variable}.addQueryItem("{parameter.key}", "{parameter.value}");')
             wr.add_line(f"setGlobalParameters({variable});")
@@ -383,6 +383,24 @@ class QtModelGenerator(QtSchemaGenerator):
 
 
 class QtGenerator(Generator):
+    def _supported_schemas(self) -> tuple[type, ...]:
+        return (client.Client, api.Api, model.Model)
+    
+    def _generate(self,
+                  schema: Schema,
+                  header_stream: TextIOWrapper,
+                  src_stream: TextIOWrapper) -> None:
+        match schema:
+            case client.Client():
+                self._generate_client(
+                    schema, header_stream, src_stream)
+            case api.Api():
+                self._generate_api(
+                    schema, header_stream, src_stream)
+            case model.Model():
+                self._generate_model(
+                    schema, header_stream, src_stream)
+    
     def _generate_client(self,
                          client_schema: client.Client,
                          header_stream: TextIOWrapper,

@@ -34,25 +34,21 @@ void QmlApi::setClient(QmlClient* client) {
 QmlClient* QmlApi::getClient() const { return m_revaluate_data.client; }
 
 QJSValue QmlApi::getGlobalQmlHeaders() const {
-  const auto headers = m_api->getGlobalHeaders();
   auto engine = QQmlEngine::contextForObject(this)->engine();
-  return utils::headersToJSValue(headers, engine);
+  return utils::headersToJSValue(m_revaluate_data.headers, engine);
 }
 
 QJSValue QmlApi::getGlobalQmlParameters() const {
-  const auto parameters = m_api->getGlobalParameters();
   auto engine = QQmlEngine::contextForObject(this)->engine();
-  return utils::parametersToJSValue(parameters, engine);
+  return utils::parametersToJSValue(m_revaluate_data.parameters, engine);
 }
 
 void QmlApi::setGlobalQmlHeaders(QJSValue object) {
-  auto opt_headers = getHeaders(object);
-  if (opt_headers) m_api->setGlobalHeaders(opt_headers.value());
+  setGlobalHeaders(getHeaders(object).value_or(egnite::rest::Headers{}));
 }
 
 void QmlApi::setGlobalQmlParameters(QJSValue object) {
-  auto opt_parameters = getParameters(object);
-  if (opt_parameters) m_api->setGlobalParameters(opt_parameters.value());
+  setGlobalParameters(getParameters(object).value_or(QUrlQuery{}));
 }
 
 void QmlApi::classBegin() {}
@@ -100,8 +96,11 @@ void QmlApi::revaluateApi() {
 
   if (!m_revaluate_data.client)
     qmlWarning(this) << "client property must be set";
-  else
+  else {
     m_api = m_revaluate_data.client->createApi(m_revaluate_data.path, this);
+    m_api->setGlobalParameters(m_revaluate_data.parameters);
+    m_api->setGlobalHeaders(m_revaluate_data.headers);
+  }
 }
 
 QmlReply* QmlApi::createQmlReply(egnite::rest::IReply* reply) const {
@@ -140,6 +139,16 @@ QmlReply* QmlApi::callImpl(const QByteArray& verb, const QJSValue& path,
         verb, opt_path.value_or(""), opt_parameters.value_or(QUrlQuery{}),
         opt_headers.value_or(egnite::rest::Headers{})));
   }
+}
+
+void QmlApi::setGlobalHeaders(const egnite::rest::Headers& headers) {
+  m_revaluate_data.headers = headers;
+  if (m_api) m_api->setGlobalHeaders(m_revaluate_data.headers);
+}
+
+void QmlApi::setGlobalParameters(const QUrlQuery& parameters) {
+  m_revaluate_data.parameters = parameters;
+  if (m_api) m_api->setGlobalParameters(m_revaluate_data.parameters);
 }
 
 std::optional<QString> QmlApi::getPath(const QJSValue& object) const {

@@ -79,6 +79,9 @@ class QmlApi : public QObject, public QQmlParserStatus {
                      const QJSValue& parameters, const QJSValue& headers,
                      const QJSValue& data = {}) const;
 
+  void setGlobalHeaders(const egnite::rest::Headers& headers);
+  void setGlobalParameters(const QUrlQuery& parameters);
+
   std::optional<QString> getPath(const QJSValue& object) const;
   std::optional<egnite::rest::Data> getBody(const QJSValue& object) const;
   std::optional<QUrlQuery> getParameters(const QJSValue& object) const;
@@ -89,6 +92,8 @@ class QmlApi : public QObject, public QQmlParserStatus {
     bool init = false;
     QString path = "";
     QmlClient* client = nullptr;
+    QUrlQuery parameters;
+    egnite::rest::Headers headers;
   };
 
  protected:

@@ -4,9 +4,6 @@
 		<FixedSegment value="ApiFixedSegment"/>
 		<ParamSegment name="api_param" type="int"/>
 	</Path>
-	<Includes>
-		<Include>example_model.h</Include>
-	</Includes>
 	<Headers>
 		<Header key="global_header" value="global_header_value"/>
 	</Headers>
