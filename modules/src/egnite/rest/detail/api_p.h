@@ -48,11 +48,6 @@ class ApiPrivate : public QObjectPrivate {
 
   [[nodiscard]] RequestBuilder getRequestBuilder() const;
 
- public:
-  [[nodiscard]] static QByteArray convertData(const Data& body);
-  [[nodiscard]] static QByteArray convertData(const QJsonValue& body);
-  [[nodiscard]] static QByteArray convertData(const QCborValue& body);
-
  private:
   IClient* m_client;
   QNetworkAccessManager* m_manager;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Client name="EgniteClient">
-	<BaseUrl>http://localhost/api</BaseUrl>
+	<BaseUrl>http://localhost:8000/api</BaseUrl>
 	<Version>1</Version>
 	<Includes>
 	</Includes>

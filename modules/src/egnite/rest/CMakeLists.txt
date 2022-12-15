@@ -11,6 +11,7 @@ set(include_root ${EGNITE_SOURCE_DIR}/modules/include/egnite/rest)
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
 set(sources
+    ${source_root}/global.cpp
     ${source_root}/api.cpp
     ${source_root}/client.cpp
     ${source_root}/reply.cpp

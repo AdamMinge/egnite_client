@@ -12,17 +12,17 @@ QtObject {
 
     readonly property FontLoader font_awesome: FontLoader { id: font_awesome; source: "qrc:/viewer/FontAwesome.ttf" }
 
-    property var rest_client: EgniteClient {
+    property var egnite_client: EgniteClient {
         replyDecorator {
             factories: [
                 QmlLoggerReplyFactory {},
-                QmlJwtAuthenticatorReplyFactory { authenticator: rest_authenticator }
+                QmlJwtAuthenticatorReplyFactory { authenticator: egnite_authenticator }
             ]
         }
     }
 
-    property var rest_authenticator: QmlJwtAuthenticator {
-        client: rest_client
+    property var egnite_authenticator: QmlJwtAuthenticator {
+        client: egnite_client
         path: "token"
 
         routing {
@@ -33,7 +33,7 @@ QtObject {
     }
 
     property var auth_window: AuthWindow{
-
+        
     }
 
 }

@@ -233,8 +233,8 @@ static QNetworkReply::NetworkError convertError(IReply::Error error) {
 const QByteArray ReplyPrivate::PropertyBody =
     QByteArray{"__Egnite_Rest_ReplyPrivate_PropertyBody"};
 
-const QByteArray ReplyPrivate::ContentType = QByteArray{"ContentType"};
-const QByteArray ReplyPrivate::Accept = QByteArray{"Accept"};
+const QByteArray ReplyPrivate::ContentType = QByteArray{"Content-Type"};
+const QByteArray ReplyPrivate::Accept = QByteArray{"accept"};
 
 const QByteArray ReplyPrivate::ContentTypeJson = QByteArray{"application/json"};
 const QByteArray ReplyPrivate::ContentTypeCbor = QByteArray{"application/cbor"};

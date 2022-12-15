@@ -94,11 +94,11 @@ void RequestBuilderPrivate::addPath(const QString& path) {
 }
 
 void RequestBuilderPrivate::addParameters(const QUrlQuery& parameters) {
-  m_parameters = parameters;
+  m_parameters.setQueryItems(parameters.queryItems());
 }
 
 void RequestBuilderPrivate::addHeaders(const Headers& headers) {
-  m_headers = headers;
+  m_headers.insert(headers);
 }
 
 QUrl RequestBuilderPrivate::buildUrl() const {

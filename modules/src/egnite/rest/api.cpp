@@ -201,7 +201,8 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
           .addHeader(ReplyPrivate::Accept, ReplyPrivate::ContentTypeJson)
           .build();
 
-  return ReplyPrivate::send(m_manager, request, verb, convertData(data));
+  return ReplyPrivate::send(m_manager, request, verb,
+                            convertDataToByteArray(data));
 }
 
 QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
@@ -217,45 +218,17 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
           .addHeader(ReplyPrivate::Accept, ReplyPrivate::ContentTypeCbor)
           .build();
 
-  return ReplyPrivate::send(m_manager, request, verb, convertData(data));
+  return ReplyPrivate::send(m_manager, request, verb,
+                            convertDataToByteArray(data));
 }
 
 RequestBuilder ApiPrivate::getRequestBuilder() const {
   return m_client->getRequestBuilder()
+      .addParameters(m_client->getGlobalParameters())
+      .addHeaders(m_client->getGlobalHeaders())
       .addPath(m_path)
       .addParameters(m_parameters)
       .addHeaders(m_headers);
-}
-
-QByteArray ApiPrivate::convertData(const Data& body) {
-  return std::visit(
-      core::utils::overloaded{
-          [](std::nullopt_t) -> QByteArray { return QByteArray{}; },
-          [](const QJsonValue& body) -> QByteArray {
-            return ApiPrivate::convertData(body);
-          },
-          [](const QCborValue& body) -> QByteArray {
-            return ApiPrivate::convertData(body);
-          }},
-      body);
-}
-
-QByteArray ApiPrivate::convertData(const QJsonValue& body) {
-  switch (body.type()) {
-    case QJsonValue::Array:
-      return QJsonDocument(body.toArray()).toJson(QJsonDocument::Compact);
-    case QJsonValue::Object:
-      return QJsonDocument(body.toArray()).toJson(QJsonDocument::Compact);
-    default:
-      auto converted =
-          QJsonDocument(QJsonArray{body}).toJson(QJsonDocument::Compact);
-      converted = converted.mid(1, converted.size() - 2);
-      return converted;
-  }
-}
-
-QByteArray ApiPrivate::convertData(const QCborValue& body) {
-  return body.toCbor();
 }
 
 }  // namespace detail

@@ -481,10 +481,10 @@ void LoggerReply<Logger>::logData(const Data& data) {
   *m_logger << "\t"
             << "data: ";
   std::visit(
-      core::utils::overloaded{
-          [this](std::nullopt_t) { *m_logger << "null"; },
-          [this](const QJsonValue& body) { *m_logger << body.toString(); },
-          [this](const QCborValue& body) { *m_logger << body.toString(); }},
+      core::utils::overloaded{[this](std::nullopt_t) { *m_logger << "null"; },
+                              [this](const auto& body) {
+                                *m_logger << convertDataToByteArray(body);
+                              }},
       data);
   *m_logger << "\n";
 }
