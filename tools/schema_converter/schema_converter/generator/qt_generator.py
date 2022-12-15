@@ -115,9 +115,18 @@ class QtClientGenerator(QtSchemaGenerator):
         wr = writer.CodeWriter()
         wr.add_line(f'setBaseUrl(QUrl("{self.client_schema.base_url}"));')
         wr.add_line(f'setVersion(QVersionNumber::fromString("{self.client_schema.version}"));')
-        wr.add_lines(self._set_global_headers("_headers").code)
-        wr.add_line()
-        wr.add_lines(self._set_global_parameters("_parameters").code)
+        
+        set_global_headers_writer = self._set_global_headers("_headers")
+        set_global_parameters_writer = self._set_global_parameters("_parameters")
+        
+        if set_global_headers_writer:
+            wr.add_line()
+            wr.add_lines(set_global_headers_writer.code)
+            
+        if set_global_parameters_writer:
+            wr.add_line()
+            wr.add_lines(set_global_parameters_writer.code)
+            
         return wr
     
     def _set_global_headers(self, 
@@ -218,9 +227,17 @@ class QtApiGenerator(QtSchemaGenerator):
         
     def _constructor_body(self) -> writer.CodeWriter:
         wr = writer.CodeWriter()
-        wr.add_lines(self._set_global_headers("_headers").code)
-        wr.add_line()
-        wr.add_lines(self._set_global_parameters("_parameters").code)
+        
+        set_global_headers_writer = self._set_global_headers("_headers")
+        set_global_parameters_writer = self._set_global_parameters("_parameters")
+        
+        if set_global_headers_writer:
+            wr.add_lines(set_global_headers_writer.code)
+            
+        if set_global_parameters_writer:
+            wr.add_line()
+            wr.add_lines(set_global_parameters_writer.code)
+
         return wr
     
     def _set_global_headers(self, 

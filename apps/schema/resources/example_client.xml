@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Client name="ExampleClient">
-	<BaseUrl>https://localhost</BaseUrl>
+<Client name="EgniteClient">
+	<BaseUrl>http://localhost/api</BaseUrl>
 	<Version>1</Version>
 	<Includes>
-		<Include>example_api.h</Include>
 	</Includes>
 	<Headers>
-		<Header key="global_header" value="global_header_value"/>
+		<Header key="Api-Key" value="pqZ8is3t.PEk3h5lNDR9E84Sty8gJCDW2FlmiczcX"/>
 	</Headers>
 	<Parameters>
-		<Parameter key="global_parameter" value="global_parameter_value"/>
 	</Parameters>
 	<Apis>
-		<Api name="examples" type="ExampleApi"/>
 	</Apis>
 </Client>
 

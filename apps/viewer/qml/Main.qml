@@ -12,26 +12,13 @@ QtObject {
 
     readonly property FontLoader font_awesome: FontLoader { id: font_awesome; source: "qrc:/viewer/FontAwesome.ttf" }
 
-    property var rest_client: ExampleClient {
-        baseUrl: "http://localhost/api"
-        version: "1"
-
+    property var rest_client: EgniteClient {
         replyDecorator {
             factories: [
                 QmlLoggerReplyFactory {},
                 QmlJwtAuthenticatorReplyFactory { authenticator: rest_authenticator }
             ]
         }
-
-        globalHeaders: {}
-        globalParameters: {}
-    }
-
-    property var rest_api: ExampleApi {
-        client: rest_client    
-
-        globalHeaders: {}
-        globalParameters: {}
     }
 
     property var rest_authenticator: QmlJwtAuthenticator {
