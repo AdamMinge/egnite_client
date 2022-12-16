@@ -30,6 +30,30 @@ QtObject {
             refresh: "refresh"
             blacklist: "blacklist"
         }
+
+        onLoginSucceeded: function(){
+            
+        }
+
+        onLogoutSucceeded: function(){
+                    
+        }
+
+        onRefreshSucceeded: function(){
+                    
+        }
+
+        onLoginFailed: function(detail){
+                    
+        }
+
+        onLogoutFailed: function(detail){
+                    
+        }
+
+        onRefreshFailed: function(detail){
+                    
+        }
     }
 
     property var auth_window: AuthWindow{

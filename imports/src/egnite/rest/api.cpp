@@ -113,6 +113,11 @@ QmlReply* QmlApi::createQmlReply(egnite::rest::IReply* reply) const {
 QmlReply* QmlApi::callImpl(const QByteArray& verb, const QJSValue& path,
                            const QJSValue& parameters, const QJSValue& headers,
                            const QJSValue& data) const {
+  if (!m_api) {
+    qmlWarning(this) << "components wasn't evaluate correctly or not at all";
+    return nullptr;
+  }
+
   const auto opt_path = getPath(path);
   const auto opt_parameters = getParameters(parameters);
   const auto opt_headers = getHeaders(headers);

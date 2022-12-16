@@ -105,5 +105,27 @@ void QmlJwtAuthenticator::revaluateAuthenticator() {
     m_authenticator = new egnite::auth::JwtAuthenticator(
         m_revaluate_data.client, m_revaluate_data.path, this);
     m_authenticator->setRouting(m_revaluate_data.routing);
+
+    connect(m_authenticator, &IJwtAuthenticator::accessTokenChanged, this,
+            &QmlJwtAuthenticator::accessTokenChanged);
+    connect(m_authenticator, &IJwtAuthenticator::refreshTokenChanged, this,
+            &QmlJwtAuthenticator::refreshTokenChanged);
+
+    connect(m_authenticator, &IJwtAuthenticator::routingChanged, this,
+            &QmlJwtAuthenticator::routingChanged);
+
+    connect(m_authenticator, &IJwtAuthenticator::loginSucceeded, this,
+            &QmlJwtAuthenticator::loginSucceeded);
+    connect(m_authenticator, &IJwtAuthenticator::logoutSucceeded, this,
+            &QmlJwtAuthenticator::logoutSucceeded);
+    connect(m_authenticator, &IJwtAuthenticator::refreshSucceeded, this,
+            &QmlJwtAuthenticator::refreshSucceeded);
+
+    connect(m_authenticator, &IJwtAuthenticator::loginFailed, this,
+            &QmlJwtAuthenticator::loginFailed);
+    connect(m_authenticator, &IJwtAuthenticator::logoutFailed, this,
+            &QmlJwtAuthenticator::logoutFailed);
+    connect(m_authenticator, &IJwtAuthenticator::refreshFailed, this,
+            &QmlJwtAuthenticator::refreshFailed);
   }
 }
