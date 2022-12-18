@@ -17,8 +17,10 @@ set(sources ${source_root}/main.cpp)
 
 set(includes)
 
-set(qmls ${qmls_root}/AuthWindow.qml ${qmls_root}/LoginPage.qml
-         ${qmls_root}/Main.qml ${qmls_root}/SignUpPage.qml)
+set(qmls
+    ${qmls_root}/MainWindow.qml ${qmls_root}/MainMenu.qml
+    ${qmls_root}/MainStack.qml ${qmls_root}/Auth/Authentication.qml
+    ${qmls_root}/Auth/LoginPage.qml ${qmls_root}/Auth/SignUpPage.qml)
 
 set(resources ${resources_root}/conf/qtquickcontrols2.conf
               ${resources_root}/font/FontAwesome.ttf)
@@ -42,6 +44,8 @@ egnite_add_qml_executable(
   SOURCES
   ${sources}
   ${includes}
+  QML_DIR
+  ${qmls_root}
   QML_FILES
   ${qmls}
   RESOURCES

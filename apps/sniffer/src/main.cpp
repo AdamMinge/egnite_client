@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
   parseCommandLine(app);
 
   QQmlApplicationEngine engine;
-  const auto url = QUrl("qrc:/sniffer/Main.qml");
+  const auto url = QUrl("qrc:/sniffer/MainWindow.qml");
   QObject::connect(
       &engine, &QQmlApplicationEngine::objectCreated, &app,
       [url](QObject *obj, const QUrl &objUrl) {

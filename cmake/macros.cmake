@@ -4,7 +4,7 @@
 function(egnite_add_qml_module target)
 
   cmake_parse_arguments(
-    THIS "" "URI;VERSION"
+    THIS "" "URI;VERSION;QML_DIR;RESOURCES_DIR"
     "SOURCES;QML_FILES;RESOURCES;QML_DEPENDENCIES;DEPENDENCIES" ${ARGN})
 
   if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
@@ -14,8 +14,10 @@ function(egnite_add_qml_module target)
     )
   endif()
 
-  _egnite_add_qt_resource_alias(RESOURCES ${THIS_QML_FILES})
-  _egnite_add_qt_resource_alias(RESOURCES ${THIS_RESOURCES})
+  _egnite_add_qt_resource_alias(RESOURCES_DIR ${THIS_QML_DIR} RESOURCES
+                                ${THIS_QML_FILES})
+  _egnite_add_qt_resource_alias(RESOURCES_DIR ${THIS_RESOURCES_DIR} RESOURCES
+                                ${THIS_RESOURCES})
 
   qt_add_qml_module(
     ${target}
@@ -124,7 +126,7 @@ endfunction()
 function(egnite_add_qml_executable target)
 
   cmake_parse_arguments(
-    THIS "" "URI;VERSION"
+    THIS "" "URI;VERSION;QML_DIR;RESOURCES_DIR"
     "SOURCES;QML_FILES;RESOURCES;QML_DEPENDENCIES;DEPENDENCIES" ${ARGN})
 
   if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
@@ -134,8 +136,10 @@ function(egnite_add_qml_executable target)
     )
   endif()
 
-  _egnite_add_qt_resource_alias(RESOURCES ${THIS_QML_FILES})
-  _egnite_add_qt_resource_alias(RESOURCES ${THIS_RESOURCES})
+  _egnite_add_qt_resource_alias(RESOURCES_DIR ${THIS_QML_DIR} RESOURCES
+                                ${THIS_QML_FILES})
+  _egnite_add_qt_resource_alias(RESOURCES_DIR ${THIS_RESOURCES_DIR} RESOURCES
+                                ${THIS_RESOURCES})
 
   qt_add_executable(${target} ${THIS_SOURCES})
   qt_add_qml_module(
@@ -353,7 +357,7 @@ endfunction()
 # ---------- Define a function that helps add resources aliases --------- #
 # ----------------------------------------------------------------------- #
 function(_egnite_add_qt_resource_alias)
-  cmake_parse_arguments(THIS "" "" "RESOURCES" ${ARGN})
+  cmake_parse_arguments(THIS "" "RESOURCES_DIR" "RESOURCES" ${ARGN})
 
   if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
     message(
@@ -363,7 +367,12 @@ function(_egnite_add_qt_resource_alias)
   endif()
 
   foreach(resource ${THIS_RESOURCES})
-    get_filename_component(file ${resource} NAME)
+    if(THIS_RESOURCES_DIR)
+      file(RELATIVE_PATH file ${THIS_RESOURCES_DIR} ${resource})
+    else()
+      get_filename_component(file ${resource} NAME)
+    endif()
+
     set_source_files_properties(${resource} PROPERTIES QT_RESOURCE_ALIAS
                                                        ${file})
   endforeach()

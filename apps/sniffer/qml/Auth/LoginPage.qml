@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-Page {
+Rectangle {
     id: login_page
 
     Rectangle {
@@ -92,7 +92,7 @@ Page {
             Layout.alignment: Qt.AlignHCenter
 
             onClicked: {
-                auth_window.show_sign_up()
+                authentication.showSignUpPage()
             }
         }
     }
