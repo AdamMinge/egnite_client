@@ -14,7 +14,10 @@ JwtAuthenticatorReply::JwtAuthenticatorReply(IJwtAuthenticator* authenticator,
     : rest::WrappedReply(reply, parent) {
   disconnect(reply, &rest::IReply::failed, this, &rest::IReply::failed);
   reply->onFailed([this, authenticator](int code, const rest::Data& data) {
-    if (code == 401) {
+    auto correct_code = code == 401;
+    auto refresh_token_exist = !authenticator->getRefreshToken().isEmpty();
+
+    if (correct_code && refresh_token_exist) {
       authenticator
           ->onRefreshFailed([this, code, data]() { Q_EMIT failed(code, data); })
           ->onRefreshSucceeded([this]() { retry(); });

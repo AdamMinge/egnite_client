@@ -161,6 +161,16 @@ TEST_F(DataJsonSerializerTest, StringListIsSerializable) {
   ASSERT_EQ(mock, mock_deserialized);
 }
 
+TEST_F(DataJsonSerializerTest, ByteArrayIsSerializable) {
+  auto mock = mocks::MockWithByteArray{QByteArray{"array"}};
+  auto rest_data =
+      m_serializer->serialize(mock, egnite::rest::DataSerializer::Format::Json);
+  auto mock_deserialized =
+      m_serializer->deserialize<mocks::MockWithByteArray>(rest_data);
+
+  ASSERT_EQ(mock, mock_deserialized);
+}
+
 TEST_F(DataJsonSerializerTest, StringIsSerializable) {
   auto mock = mocks::MockWithString{QString("str")};
 

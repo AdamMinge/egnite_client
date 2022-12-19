@@ -21,9 +21,6 @@ class QmlJwtAuthenticator : public egnite::auth::IJwtAuthenticator,
   Q_PROPERTY(egnite::auth::JwtAuthenticator::Routing routing READ getRouting
                  WRITE setRouting NOTIFY routingChanged)
 
-  Q_PROPERTY(QByteArray accessToken READ getAccessToken)
-  Q_PROPERTY(QByteArray refreshToken READ getRefreshToken)
-
  public:
   explicit QmlJwtAuthenticator(QObject* parent = nullptr);
   ~QmlJwtAuthenticator() override;

@@ -190,6 +190,9 @@ JwtAuthenticator::Routing JwtAuthenticatorPrivate::getRouting() const {
 }
 
 void JwtAuthenticatorPrivate::updateAccessToken(const QByteArray& token) {
+  Q_Q(JwtAuthenticator);
+  if (m_access_token == token) return;
+
   m_access_token = token;
 
   auto client = m_api->getClient();
@@ -197,10 +200,16 @@ void JwtAuthenticatorPrivate::updateAccessToken(const QByteArray& token) {
   headers[TokenHeader] = TokenPrefix + " " + m_access_token;
 
   client->setGlobalHeaders(headers);
+  Q_EMIT q->accessTokenChanged(m_access_token);
 }
 
 void JwtAuthenticatorPrivate::updateRefreshToken(const QByteArray& token) {
+  Q_Q(JwtAuthenticator);
+  if (m_refresh_token == token) return;
+
   m_refresh_token = token;
+
+  Q_EMIT q->refreshTokenChanged(m_refresh_token);
 }
 
 }  // namespace detail
