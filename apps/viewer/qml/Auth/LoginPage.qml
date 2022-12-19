@@ -81,7 +81,9 @@ Rectangle {
             }
 
             onClicked: {
-                
+                egnite_authenticator.login(
+                    username_field.text, 
+                    password_field.text)
             }
         }
 

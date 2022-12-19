@@ -5,7 +5,7 @@ import QtQuick.Controls.Material
 import egnite.rest 1.0
 import egnite.auth 1.0
 
-import egnite.schema 1.0
+import egnite.api 1.0
 
 
 Window {
