@@ -9,6 +9,7 @@ set(viewer_root ${EGNITE_SOURCE_DIR}/apps/viewer)
 set(source_root ${viewer_root}/src)
 set(include_root ${viewer_root}/include)
 set(qmls_root ${viewer_root}/qml)
+set(scripts_root ${viewer_root}/scripts)
 set(resources_root ${viewer_root}/resources)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
@@ -21,6 +22,8 @@ set(qmls
     ${qmls_root}/MainWindow.qml ${qmls_root}/MainMenu.qml
     ${qmls_root}/MainStack.qml ${qmls_root}/Auth/Authentication.qml
     ${qmls_root}/Auth/LoginPage.qml ${qmls_root}/Auth/SignUpPage.qml)
+
+set(scripts)
 
 set(resources ${resources_root}/conf/qtquickcontrols2.conf
               ${resources_root}/font/FontAwesome.ttf)
@@ -46,8 +49,12 @@ egnite_add_qml_executable(
   ${includes}
   QML_DIR
   ${qmls_root}
+  SCRIPTS_DIR
+  ${scripts_root}
   QML_FILES
   ${qmls}
+  SCRIPTS
+  ${scripts}
   RESOURCES
   ${resources}
   DEPENDENCIES

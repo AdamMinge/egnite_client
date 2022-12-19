@@ -4,8 +4,8 @@
 function(egnite_add_qml_module target)
 
   cmake_parse_arguments(
-    THIS "" "URI;VERSION;QML_DIR;RESOURCES_DIR"
-    "SOURCES;QML_FILES;RESOURCES;QML_DEPENDENCIES;DEPENDENCIES" ${ARGN})
+    THIS "" "URI;VERSION;SCRIPTS_DIR;QML_DIR;RESOURCES_DIR"
+    "SOURCES;SCRIPTS;QML_FILES;RESOURCES;QML_DEPENDENCIES;DEPENDENCIES" ${ARGN})
 
   if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
     message(
@@ -14,6 +14,8 @@ function(egnite_add_qml_module target)
     )
   endif()
 
+  _egnite_add_qt_resource_alias(RESOURCES_DIR ${THIS_SCRIPTS_DIR} RESOURCES
+                                ${THIS_SCRIPTS})
   _egnite_add_qt_resource_alias(RESOURCES_DIR ${THIS_QML_DIR} RESOURCES
                                 ${THIS_QML_FILES})
   _egnite_add_qt_resource_alias(RESOURCES_DIR ${THIS_RESOURCES_DIR} RESOURCES
@@ -27,6 +29,7 @@ function(egnite_add_qml_module target)
     ${THIS_VERSION}
     QML_FILES
     ${THIS_QML_FILES}
+    ${THIS_SCRIPTS}
     SOURCES
     ${THIS_SOURCES}
     RESOURCES
@@ -126,8 +129,8 @@ endfunction()
 function(egnite_add_qml_executable target)
 
   cmake_parse_arguments(
-    THIS "" "URI;VERSION;QML_DIR;RESOURCES_DIR"
-    "SOURCES;QML_FILES;RESOURCES;QML_DEPENDENCIES;DEPENDENCIES" ${ARGN})
+    THIS "" "URI;VERSION;SCRIPTS_DIR;QML_DIR;RESOURCES_DIR"
+    "SOURCES;SCRIPTS;QML_FILES;RESOURCES;QML_DEPENDENCIES;DEPENDENCIES" ${ARGN})
 
   if(NOT "${THIS_UNPARSED_ARGUMENTS}" STREQUAL "")
     message(
@@ -136,6 +139,8 @@ function(egnite_add_qml_executable target)
     )
   endif()
 
+  _egnite_add_qt_resource_alias(RESOURCES_DIR ${THIS_SCRIPTS_DIR} RESOURCES
+                                ${THIS_SCRIPTS})
   _egnite_add_qt_resource_alias(RESOURCES_DIR ${THIS_QML_DIR} RESOURCES
                                 ${THIS_QML_FILES})
   _egnite_add_qt_resource_alias(RESOURCES_DIR ${THIS_RESOURCES_DIR} RESOURCES
@@ -150,6 +155,7 @@ function(egnite_add_qml_executable target)
     ${THIS_VERSION}
     QML_FILES
     ${THIS_QML_FILES}
+    ${THIS_SCRIPTS}
     RESOURCES
     ${THIS_RESOURCES}
     DEPENDENCIES
