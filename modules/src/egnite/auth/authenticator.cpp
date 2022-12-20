@@ -98,6 +98,11 @@ JwtAuthenticatorPrivate::~JwtAuthenticatorPrivate() = default;
 void JwtAuthenticatorPrivate::login(const QString& username,
                                     const QString& password) {
   Q_Q(JwtAuthenticator);
+  if (username.isEmpty() || password.isEmpty()) {
+    Q_EMIT q->loginFailed(QObject::tr("The username or password is empty"));
+    return;
+  }
+
   const auto request = IJwtAuthenticator::ObtainTokenRequest{
       .username = username, .password = password};
 
@@ -122,6 +127,11 @@ void JwtAuthenticatorPrivate::login(const QString& username,
 
 void JwtAuthenticatorPrivate::refresh() {
   Q_Q(JwtAuthenticator);
+  if (m_refresh_token.isEmpty()) {
+    Q_EMIT q->refreshFailed(QObject::tr("The refresh token is empty"));
+    return;
+  }
+
   const auto request =
       IJwtAuthenticator::TokenRefreshRequest{.refresh = m_refresh_token};
 
@@ -145,6 +155,11 @@ void JwtAuthenticatorPrivate::refresh() {
 
 void JwtAuthenticatorPrivate::logout() {
   Q_Q(JwtAuthenticator);
+  if (m_refresh_token.isEmpty()) {
+    Q_EMIT q->logoutFailed(QObject::tr("The refresh token is empty"));
+    return;
+  }
+
   const auto request =
       IJwtAuthenticator::TokenBlacklistRequest{.refresh = m_refresh_token};
 
