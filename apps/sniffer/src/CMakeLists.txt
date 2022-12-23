@@ -19,9 +19,13 @@ set(sources ${source_root}/main.cpp)
 set(includes)
 
 set(qmls
-    ${qmls_root}/MainWindow.qml ${qmls_root}/MainMenu.qml
-    ${qmls_root}/MainStack.qml ${qmls_root}/Auth/Authentication.qml
-    ${qmls_root}/Auth/LoginPage.qml ${qmls_root}/Auth/SignUpPage.qml)
+    ${qmls_root}/MainWindow.qml
+    ${qmls_root}/MainPage.qml
+    ${qmls_root}/AuthPage.qml
+    ${qmls_root}/MainMenu/MainMenu.qml
+    ${qmls_root}/Pages/Auth/LoginPage.qml
+    ${qmls_root}/Pages/Auth/SignUpPage.qml
+    ${qmls_root}/Framework/PagesView.qml)
 
 set(scripts)
 

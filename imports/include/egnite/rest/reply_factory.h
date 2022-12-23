@@ -7,25 +7,20 @@
 #include <egnite/rest/reply_factory.h>
 /* -------------------------------------------------------------------------- */
 
-namespace egnite::rest {
-class LoggerReplyFactory;
-}
-
 /* ---------------------------- QmlLoggerReplyFactory ----------------------- */
 
-class QmlLoggerReplyFactory : public egnite::rest::IReplyFactory {
+class QmlLoggerReplyFactory : public egnite::rest::LoggerReplyFactory {
   Q_OBJECT
   QML_ELEMENT
 
+  Q_ENUM(egnite::rest::ILoggerReply::LogDetail)
+
  public:
-  explicit QmlLoggerReplyFactory(QObject* parent = nullptr);
+  explicit QmlLoggerReplyFactory(
+      egnite::rest::ILoggerReply::LogDetail log_detail =
+          egnite::rest::ILoggerReply::LogDetail::LogAll,
+      QObject* parent = nullptr);
   ~QmlLoggerReplyFactory() override;
-
-  [[nodiscard]] egnite::rest::IReply* create(
-      egnite::rest::IReply* reply) override;
-
- private:
-  egnite::rest::LoggerReplyFactory* m_factory;
 };
 
 #endif  // EGNITE_QML_REST_REPLY_DECORATOR_H

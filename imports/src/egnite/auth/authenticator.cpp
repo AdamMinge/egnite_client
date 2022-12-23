@@ -57,42 +57,38 @@ void QmlJwtAuthenticator::componentComplete() {
 
 void QmlJwtAuthenticator::login(const QString& username,
                                 const QString& password) {
-  if (!m_authenticator)
+  if (!m_authenticator) {
     qmlWarning(this) << "components wasn't evaluate correctly or not at all";
-  else
-    m_authenticator->login(username, password);
+    return;
+  }
+
+  m_authenticator->login(username, password);
 }
 
 void QmlJwtAuthenticator::refresh() {
-  if (!m_authenticator)
+  if (!m_authenticator) {
     qmlWarning(this) << "components wasn't evaluate correctly or not at all";
-  else
-    m_authenticator->refresh();
+    return;
+  }
+
+  m_authenticator->refresh();
 }
 
 void QmlJwtAuthenticator::logout() {
-  if (!m_authenticator)
+  if (!m_authenticator) {
     qmlWarning(this) << "components wasn't evaluate correctly or not at all";
-  else
-    m_authenticator->logout();
+    return;
+  }
+
+  m_authenticator->logout();
 }
 
 QByteArray QmlJwtAuthenticator::getAccessToken() const {
-  if (!m_authenticator) {
-    qmlWarning(this) << "components wasn't evaluate correctly or not at all";
-    return QByteArray{};
-  }
-
-  return m_authenticator->getAccessToken();
+  return m_authenticator ? m_authenticator->getAccessToken() : QByteArray{};
 }
 
 QByteArray QmlJwtAuthenticator::getRefreshToken() const {
-  if (!m_authenticator) {
-    qmlWarning(this) << "components wasn't evaluate correctly or not at all";
-    return QByteArray{};
-  }
-
-  return m_authenticator->getRefreshToken();
+  return m_authenticator ? m_authenticator->getRefreshToken() : QByteArray{};
 }
 
 void QmlJwtAuthenticator::revaluateAuthenticator() {

@@ -366,16 +366,34 @@ GenericReply<void, ErrorType>* GenericReply<void, ErrorType>::onFailed(
   return this;
 }
 
-/* -------------------------------- LoggerReply ----------------------------- */
+/* -------------------------------- ILoggerReply ---------------------------- */
 
-template <typename Logger>
-class LoggerReply : public WrappedReply {
+class ILoggerReply : public WrappedReply {
+  Q_OBJECT
+
  public:
-  explicit LoggerReply(std::unique_ptr<Logger> logger, IReply* reply,
-                       QObject* parent = nullptr);
-  ~LoggerReply() override;
+  enum LogDetail {
+    LogCompleted = 1 << 0,
+    LogSucceeded = 1 << 1,
+    LogFailed = 1 << 2,
+    LogError = 1 << 3,
+    LogDownloadProgress = 1 << 4,
+    LogUploadProgress = 1 << 5,
 
- protected:
+    LogOnlyResult = LogSucceeded | LogFailed | LogError,
+    LogAll = LogCompleted | LogSucceeded | LogFailed | LogError |
+             LogDownloadProgress | LogUploadProgress
+  };
+  Q_ENUM(LogDetail)
+
+ public:
+  explicit ILoggerReply(IReply* reply, QObject* parent = nullptr);
+  ~ILoggerReply() override;
+
+  virtual void setLogDetail(LogDetail log_detail) = 0;
+  [[nodiscard]] virtual LogDetail getLogDetail() const = 0;
+
+ private:
   void logCompleted(int http_code, const Data& data);
   void logSucceeded(int http_code, const Data& data);
   void logFailed(int http_code, const Data& data);
@@ -384,114 +402,63 @@ class LoggerReply : public WrappedReply {
   void logDownloadProgress(qint64 bytes_received, qint64 bytes_total);
   void logUploadProgress(qint64 bytes_sent, qint64 bytes_total);
 
- private:
   void logTheme(const QString& action);
   void logData(const Data& data);
-  void flush();
+
+  virtual void flush() = 0;
+  virtual void write(QStringView text) = 0;
+};
+
+/* -------------------------------- LoggerReply ----------------------------- */
+
+template <typename Logger>
+class LoggerReply : public ILoggerReply {
+ public:
+  explicit LoggerReply(std::unique_ptr<Logger> logger, IReply* reply,
+                       LogDetail log_detail = LogDetail::LogAll,
+                       QObject* parent = nullptr);
+  ~LoggerReply() override;
+
+  void setLogDetail(LogDetail log_detail) override;
+  [[nodiscard]] LogDetail getLogDetail() const override;
+
+ private:
+  void flush() override;
+  void write(QStringView text) override;
 
  private:
   std::unique_ptr<Logger> m_logger;
+  LogDetail m_log_detail;
 };
 
 template <typename Logger>
 LoggerReply<Logger>::LoggerReply(std::unique_ptr<Logger> logger, IReply* reply,
-                                 QObject* parent)
-    : WrappedReply(reply, parent), m_logger(std::move(logger)) {
-  onCompleted([this](int code, const Data& data) {
-    logCompleted(code, data);
-    flush();
-  });
-  onSucceeded([this](int code, const Data& data) {
-    logSucceeded(code, data);
-    flush();
-  });
-  onFailed([this](int code, const Data& data) {
-    logFailed(code, data);
-    flush();
-  });
-  onError([this](const QString& str, Error type) {
-    logError(str, type);
-    flush();
-  });
-  onDownloadProgress([this](qint64 r, qint64 t) {
-    logDownloadProgress(r, t);
-    flush();
-  });
-  onUploadProgress([this](qint64 s, qint64 t) {
-    logUploadProgress(s, t);
-    flush();
-  });
-}
+                                 LogDetail log_detail, QObject* parent)
+    : ILoggerReply(reply, parent),
+      m_logger(std::move(logger)),
+      m_log_detail(log_detail) {}
 
 template <typename Logger>
 LoggerReply<Logger>::~LoggerReply() = default;
 
 template <typename Logger>
-void LoggerReply<Logger>::logCompleted(int http_code, const Data& data) {
-  logTheme("Completed");
-  *m_logger << "\t" << QString("http_code: %1").arg(http_code) << "\n";
-  logData(data);
+void LoggerReply<Logger>::setLogDetail(LogDetail log_detail) {
+  m_log_detail = log_detail;
 }
 
 template <typename Logger>
-void LoggerReply<Logger>::logSucceeded(int http_code, const Data& data) {
-  logTheme("Succeeded");
-  *m_logger << "\t" << QString("http_code: %1").arg(http_code) << "\n";
-  logData(data);
-}
-
-template <typename Logger>
-void LoggerReply<Logger>::logFailed(int http_code, const Data& data) {
-  logTheme("Failed");
-  *m_logger << "\t" << QString("http code: %1").arg(http_code) << "\n";
-  logData(data);
-}
-
-template <typename Logger>
-void LoggerReply<Logger>::logError(const QString& error_str, Error error_type) {
-  logTheme("Error");
-  *m_logger << "\t" << QString("detail: %1").arg(error_str) << "\n"
-            << "\t" << QString("type: %1").arg(static_cast<size_t>(error_type))
-            << "\n";
-}
-
-template <typename Logger>
-void LoggerReply<Logger>::logDownloadProgress(qint64 bytes_received,
-                                              qint64 bytes_total) {
-  logTheme("Download Progress");
-  *m_logger << "\t" << QString("bytes received: %1").arg(bytes_received) << "\n"
-            << "\t" << QString("bytes total: %1").arg(bytes_total) << "\n";
-}
-
-template <typename Logger>
-void LoggerReply<Logger>::logUploadProgress(qint64 bytes_sent,
-                                            qint64 bytes_total) {
-  logTheme("Upload Progress");
-  *m_logger << "\t" << QString("bytes sent: %1").arg(bytes_sent) << "\n"
-            << "\t" << QString("bytes total: %1").arg(bytes_total) << "\n";
-}
-
-template <typename Logger>
-void LoggerReply<Logger>::logTheme(const QString& action) {
-  *m_logger << QString("%1 Reply ").arg(action) << "[" << this << "]: \n";
-}
-
-template <typename Logger>
-void LoggerReply<Logger>::logData(const Data& data) {
-  *m_logger << "\t"
-            << "data: ";
-  std::visit(
-      core::utils::overloaded{[this](std::nullopt_t) { *m_logger << "null"; },
-                              [this](const auto& body) {
-                                *m_logger << convertDataToByteArray(body);
-                              }},
-      data);
-  *m_logger << "\n";
+ILoggerReply::LogDetail LoggerReply<Logger>::getLogDetail() const {
+  return m_log_detail;
 }
 
 template <typename Logger>
 void LoggerReply<Logger>::flush() {
   m_logger->flush();
+}
+
+template <typename Logger>
+void LoggerReply<Logger>::write(QStringView text) {
+  *m_logger << text;
 }
 
 }  // namespace egnite::rest

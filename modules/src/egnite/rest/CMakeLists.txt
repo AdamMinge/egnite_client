@@ -23,6 +23,7 @@ set(sources
     ${source_root}/detail/client_p.h
     ${source_root}/detail/reply_p.h
     ${source_root}/detail/reply_decorator_p.h
+    ${source_root}/detail/reply_factory_p.h
     ${source_root}/detail/request_builder_p.h)
 
 set(includes

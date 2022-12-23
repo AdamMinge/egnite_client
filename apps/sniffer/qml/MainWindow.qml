@@ -9,7 +9,7 @@ import egnite.api 1.0
 
 
 Window {
-    id: main_window
+    id: root
     minimumWidth: 800
     minimumHeight: 600
     visible: true
@@ -21,7 +21,7 @@ Window {
 
         replyDecorator {
             factories: [
-                QmlLoggerReplyFactory {},
+                QmlLoggerReplyFactory { logDetail: QmlLoggerReplyFactory.LogOnlyResult },
                 QmlJwtAuthenticatorReplyFactory { authenticator: egnite_authenticator }
             ]
         }
@@ -40,23 +40,18 @@ Window {
         }
     }
 
-    MainMenu {
-        id: main_menu
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-    }
+    PagesView {
+        id: pages_view
+        anchors.fill: parent
 
-    MainStack {
-        id: main_stack
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.left: main_menu.left
-        anchors.right: parent.right
-    }
+        AuthPage {
+            id: auth_page
+            anchors.centerIn: parent
+        }
 
-    Authentication {
-        id: authentication
-        anchors.centerIn: parent
-    }
+        MainPage {
+            id: main_page
+            anchors.fill: parent
+        }
+    }  
 }

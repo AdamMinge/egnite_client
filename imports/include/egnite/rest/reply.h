@@ -15,6 +15,8 @@ class QmlReply : public egnite::rest::WrappedReply {
   Q_OBJECT
   QML_ELEMENT
 
+  Q_ENUM(egnite::rest::IReply::Error)
+
  public:
   explicit QmlReply(QQmlEngine* engine, egnite::rest::IReply* reply,
                     QObject* parent = nullptr);

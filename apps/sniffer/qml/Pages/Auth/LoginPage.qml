@@ -3,7 +3,10 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 Rectangle {
-    id: login_page
+    id: root
+
+    signal login(string username, string password)
+    signal signUp()
 
     Rectangle {
         id: icon
@@ -76,13 +79,14 @@ Rectangle {
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
             enabled: {
-                var fields_not_empty = username_field.text && password_field.text
+                let fields_not_empty = username_field.text && password_field.text
                 return fields_not_empty
             }
 
-            onClicked: {
-                
-            }
+            onClicked: root.login(
+                username_field.text, 
+                password_field.text
+            )
         }
 
         Button {
@@ -91,9 +95,7 @@ Rectangle {
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
 
-            onClicked: {
-                authentication.showSignUpPage()
-            }
+            onClicked: root.signUp()
         }
     }
 }

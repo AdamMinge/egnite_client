@@ -3,7 +3,10 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 Rectangle {
-    id: sign_up_page
+    id: root
+
+    signal signUp(string email, string username, string password)
+    signal cancel()
 
     Label {
         id: sign_up_label
@@ -21,7 +24,6 @@ Rectangle {
         width: parent.width
         anchors.top: sign_up_label.bottom
         spacing: 10
-
 
         TextField {
             id: username_field
@@ -111,15 +113,17 @@ Rectangle {
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
             enabled: {
-                var fields_not_empty = username_field.text && email_field.text && password_field.text && confirm_password_field.text
-                var confirm_password_correct = password_field.text == confirm_password_field.text
+                let fields_not_empty = username_field.text && email_field.text && password_field.text && confirm_password_field.text
+                let confirm_password_correct = password_field.text == confirm_password_field.text
 
                 return fields_not_empty && confirm_password_correct
             }
 
-            onClicked: {
-
-            }
+            onClicked: root.signUp(
+                email_field.text,
+                username_field.text,
+                password_field.text
+            )
         }
 
         Button {
@@ -128,9 +132,7 @@ Rectangle {
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
 
-            onClicked: {
-                authentication.showLoginPage()
-            }
+            onClicked: root.cancel()
         }
     }
 }

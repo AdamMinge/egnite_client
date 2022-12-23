@@ -6,13 +6,8 @@
 
 /* ----------------------------- QmlLoggerReplyFactory ---------------------- */
 
-QmlLoggerReplyFactory::QmlLoggerReplyFactory(QObject* parent)
-    : egnite::rest::IReplyFactory(parent),
-      m_factory(new egnite::rest::LoggerReplyFactory(this)) {}
+QmlLoggerReplyFactory::QmlLoggerReplyFactory(
+    egnite::rest::ILoggerReply::LogDetail log_detail, QObject* parent)
+    : egnite::rest::LoggerReplyFactory(log_detail, parent) {}
 
 QmlLoggerReplyFactory::~QmlLoggerReplyFactory() = default;
-
-egnite::rest::IReply* QmlLoggerReplyFactory::create(
-    egnite::rest::IReply* reply) {
-  return m_factory->create(reply);
-}

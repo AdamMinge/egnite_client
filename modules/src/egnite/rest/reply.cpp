@@ -118,6 +118,108 @@ bool WrappedReply::isAutoDelete() const {
   return d->isAutoDelete();
 }
 
+/* ------------------------------- ILoggerReply ----------------------------- */
+
+ILoggerReply::ILoggerReply(IReply* reply, QObject* parent)
+    : WrappedReply(reply, parent) {
+  onCompleted([this](int code, const Data& data) {
+    if (getLogDetail() & LogDetail::LogCompleted) {
+      logCompleted(code, data);
+      flush();
+    }
+  });
+  onSucceeded([this](int code, const Data& data) {
+    if (getLogDetail() & LogDetail::LogSucceeded) {
+      logSucceeded(code, data);
+      flush();
+    }
+  });
+  onFailed([this](int code, const Data& data) {
+    if (getLogDetail() & LogDetail::LogFailed) {
+      logFailed(code, data);
+      flush();
+    }
+  });
+  onError([this](const QString& str, Error type) {
+    if (getLogDetail() & LogDetail::LogError) {
+      logError(str, type);
+      flush();
+    }
+  });
+  onDownloadProgress([this](qint64 r, qint64 t) {
+    if (getLogDetail() & LogDetail::LogDownloadProgress) {
+      logDownloadProgress(r, t);
+      flush();
+    }
+  });
+  onUploadProgress([this](qint64 s, qint64 t) {
+    if (getLogDetail() & LogDetail::LogUploadProgress) {
+      logUploadProgress(s, t);
+      flush();
+    }
+  });
+}
+
+ILoggerReply::~ILoggerReply() = default;
+
+void ILoggerReply::logCompleted(int http_code, const Data& data) {
+  logTheme("Completed");
+  write(QString("\thttp_code: %1 \n").arg(http_code));
+  logData(data);
+}
+
+void ILoggerReply::logSucceeded(int http_code, const Data& data) {
+  logTheme("Succeeded");
+  write(QString("\thttp_code: %1\n").arg(http_code));
+  logData(data);
+}
+
+void ILoggerReply::logFailed(int http_code, const Data& data) {
+  logTheme("Failed");
+  write(QString("\thttp code: %1\n").arg(http_code));
+  logData(data);
+}
+
+void ILoggerReply::logError(const QString& error_str, Error error_type) {
+  logTheme("Error");
+  write(QString("\tdetail: %1\n\ttype: %2\n")
+            .arg(error_str)
+            .arg(static_cast<size_t>(error_type)));
+}
+
+void ILoggerReply::logDownloadProgress(qint64 bytes_received,
+                                       qint64 bytes_total) {
+  logTheme("Download Progress");
+  write(QString("\tbytes received: %1\n\tbytes total: %2\n")
+            .arg(bytes_received)
+            .arg(bytes_total));
+}
+
+void ILoggerReply::logUploadProgress(qint64 bytes_sent, qint64 bytes_total) {
+  logTheme("Upload Progress");
+  write(QString("\tbytes sent: %1\n\tbytes total: %2\n")
+            .arg(bytes_sent)
+            .arg(bytes_total));
+}
+
+void ILoggerReply::logTheme(const QString& action) {
+  write(QString("%1 Reply [0x%2]\n")
+            .arg(action)
+            .arg(reinterpret_cast<quintptr>(this), QT_POINTER_SIZE * 2, 16,
+                 QChar('0')));
+}
+
+void ILoggerReply::logData(const Data& data) {
+  write(QString("\tdata: "));
+  std::visit(core::utils::overloaded{
+                 [this](std::nullopt_t) { write(QString("null")); },
+                 [this](const auto& body) {
+                   write(QString(convertDataToByteArray(body)));
+                 }},
+             data);
+  write(QString("\n"));
+}
+
 namespace detail {
 
 /* ------------------------------- ReplyPrivate ----------------------------- */

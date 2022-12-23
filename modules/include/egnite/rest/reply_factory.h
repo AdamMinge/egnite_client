@@ -10,6 +10,10 @@
 
 namespace egnite::rest {
 
+namespace detail {
+class LoggerReplyFactoryPrivate;
+}  // namespace detail
+
 /* -------------------------------- IReplyFactory --------------------------- */
 
 class EGNITE_REST_API IReplyFactory : public QObject {
@@ -55,11 +59,25 @@ class ReplyFactoryWithArgs : public IReplyFactory {
 class EGNITE_REST_API LoggerReplyFactory : public IReplyFactory {
   Q_OBJECT
 
+  Q_PROPERTY(ILoggerReply::LogDetail logDetail READ getLogDetail WRITE
+                 setLogDetail NOTIFY logDetailChanged)
+
  public:
-  explicit LoggerReplyFactory(QObject* parent);
+  explicit LoggerReplyFactory(
+      ILoggerReply::LogDetail log_detail = ILoggerReply::LogDetail::LogAll,
+      QObject* parent = nullptr);
   ~LoggerReplyFactory() override;
 
+  void setLogDetail(ILoggerReply::LogDetail log_detail);
+  [[nodiscard]] ILoggerReply::LogDetail getLogDetail() const;
+
   [[nodiscard]] IReply* create(IReply* reply) override;
+
+ Q_SIGNALS:
+  void logDetailChanged(ILoggerReply::LogDetail log_detail);
+
+ private:
+  Q_DECLARE_PRIVATE(detail::LoggerReplyFactory);
 };
 
 }  // namespace egnite::rest
