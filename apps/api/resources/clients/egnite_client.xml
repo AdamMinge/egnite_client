@@ -3,13 +3,15 @@
 	<BaseUrl>http://localhost:8000/api</BaseUrl>
 	<Version>1</Version>
 	<Includes>
+		<Include>registration_api.h</Include>
 	</Includes>
 	<Headers>
-		<Header key="Api-Key" value="pqZ8is3t.PEk3h5lNDR9E84Sty8gJCDW2FlmiczcX"/>
+		<Header key="Api-Key" value="e9KUzxsV.4iOlAtHBLjG4Jxpx32c0QbQzGtdW4sKR"/>
 	</Headers>
 	<Parameters>
 	</Parameters>
 	<Apis>
+		<Api name="auth" type="AuthenticationApi"/>
 	</Apis>
 </Client>
 

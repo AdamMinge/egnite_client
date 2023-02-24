@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model name="RegisterRequest">
+    <Includes>
+    </Includes>
+    <Properties>
+        <Property name="email" type="QString"/>
+        <Property name="username" type="QString"/>
+        <Property name="password" type="QString"/>
+    </Properties>
+</Model>

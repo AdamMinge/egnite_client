@@ -2,7 +2,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
 
-Rectangle {
+
+AnimatedHideableItem {
     id: root
     anchors.fill: parent
 

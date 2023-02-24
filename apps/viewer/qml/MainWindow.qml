@@ -11,7 +11,7 @@ import egnite.api 1.0
 Window {
     id: root
     minimumWidth: 800
-    minimumHeight: 600
+    minimumHeight: 700
     visible: true
 
     FontLoader { id: font_awesome; source: "qrc:/viewer/FontAwesome.ttf" }
@@ -29,20 +29,28 @@ Window {
 
     QmlJwtAuthenticator {
         id: egnite_authenticator
-
         client: egnite_client
-        path: "token"
+        path: "auth"
 
         routing {
-            obtain: ""
-            refresh: "refresh"
-            blacklist: "blacklist"
+            obtain: "login"
+            refresh: "login/refresh"
+            blacklist: "login/blacklist"
         }
+
+        property bool isLogin: egnite_authenticator.accessToken != ""
+        property bool isLogout: !isLogin
     }
 
-    PagesView {
+    RegistrationApi {
+        id: registration_api
+        client: egnite_client
+    }
+
+    AnimatedPagesView {
         id: pages_view
         anchors.fill: parent
+        currentItem: egnite_authenticator.isLogout ? auth_page : main_page
 
         AuthPage {
             id: auth_page

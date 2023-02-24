@@ -2,11 +2,28 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-Rectangle {
+import "../../Framework"
+
+
+AnimatedHideableItem {
     id: root
 
     signal signUp(string email, string username, string password)
     signal cancel()
+
+    function clearPage() {
+        clearInputs()
+        setError("")
+    }
+    function clearInputs() {
+        username_field.text = ""
+        email_field.text = ""
+        password_field.text = ""
+        confirm_password_field.text = ""
+    }
+    function setError(error) {
+        error_message.text = error
+    }
 
     Label {
         id: sign_up_label
@@ -101,6 +118,16 @@ Rectangle {
                 leftPadding: 5
                 color: Material.foreground
             }
+        }
+
+        Text {
+            id: error_message
+            visible: text != ""
+            font.pointSize: 10
+            font.family: "FontAwesome"
+            Layout.alignment: Qt.AlignCenter
+            Material.foreground: Material.Red
+            color: Material.foreground
         }
 
         Item {

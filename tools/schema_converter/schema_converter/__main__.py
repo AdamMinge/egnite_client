@@ -116,7 +116,7 @@ def read_schema(path: Path) -> Schema:
         try:
             schema = parser.from_path(path, supported_schema)
             return schema
-        except (ParserError, TypeError):
+        except (ParserError, TypeError) as e:
             continue
     raise ArgumentTypeError(
         f"given source path: ({path}) isn't correct schema format")

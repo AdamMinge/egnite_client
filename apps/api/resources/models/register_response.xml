@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model name="RegisterResponse">
+    <Includes>
+    </Includes>
+    <Properties>
+        <Property name="email" type="QString"/>
+        <Property name="username" type="QString"/>
+    </Properties>
+</Model>

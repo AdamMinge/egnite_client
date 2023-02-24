@@ -41,9 +41,9 @@ JwtAuthenticator::JwtAuthenticator(detail::JwtAuthenticatorPrivate& impl,
 
 JwtAuthenticator::~JwtAuthenticator() {}
 
-void JwtAuthenticator::login(const QString& username, const QString& password) {
+void JwtAuthenticator::login(const QString& email, const QString& password) {
   Q_D(detail::JwtAuthenticator);
-  d->login(username, password);
+  d->login(email, password);
 }
 
 void JwtAuthenticator::refresh() {
@@ -95,16 +95,19 @@ JwtAuthenticatorPrivate::JwtAuthenticatorPrivate(rest::IClient* client,
 
 JwtAuthenticatorPrivate::~JwtAuthenticatorPrivate() = default;
 
-void JwtAuthenticatorPrivate::login(const QString& username,
+void JwtAuthenticatorPrivate::login(const QString& email,
                                     const QString& password) {
   Q_Q(JwtAuthenticator);
-  if (username.isEmpty() || password.isEmpty()) {
-    Q_EMIT q->loginFailed(QObject::tr("The username or password is empty"));
+  if (email.isEmpty() || password.isEmpty()) {
+    Q_EMIT q->loginFailed(QObject::tr("The email or password is empty"));
     return;
   }
 
+  updateAccessToken(QByteArray{});
+  updateRefreshToken(QByteArray{});
+
   const auto request = IJwtAuthenticator::ObtainTokenRequest{
-      .username = username, .password = password};
+      .email = email, .password = password};
 
   auto reply = m_api->post<IJwtAuthenticator::ObtainTokenResponse,
                            IAuthenticator::ErrorResponse>(m_routing.obtain,
@@ -131,6 +134,9 @@ void JwtAuthenticatorPrivate::refresh() {
     Q_EMIT q->refreshFailed(QObject::tr("The refresh token is empty"));
     return;
   }
+
+  updateAccessToken(QByteArray{});
+  updateRefreshToken(QByteArray{});
 
   const auto request =
       IJwtAuthenticator::TokenRefreshRequest{.refresh = m_refresh_token};
@@ -160,6 +166,9 @@ void JwtAuthenticatorPrivate::logout() {
     return;
   }
 
+  updateAccessToken(QByteArray{});
+  updateRefreshToken(QByteArray{});
+
   const auto request =
       IJwtAuthenticator::TokenBlacklistRequest{.refresh = m_refresh_token};
 
@@ -167,12 +176,7 @@ void JwtAuthenticatorPrivate::logout() {
       m_routing.blacklist, request, {}, {}, q);
 
   reply->setAutoDelete(true);
-  reply
-      ->onSucceeded([q, this](int code) {
-        updateAccessToken(QByteArray{});
-        updateRefreshToken(QByteArray{});
-        Q_EMIT q->logoutSucceeded();
-      })
+  reply->onSucceeded([q, this](int code) { Q_EMIT q->logoutSucceeded(); })
       ->onError([q](const QString& detail) { Q_EMIT q->logoutFailed(detail); })
       ->onFailed([q](int code, const IAuthenticator::ErrorResponse& data) {
         Q_EMIT q->logoutFailed(data.detail);

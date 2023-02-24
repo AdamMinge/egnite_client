@@ -6,7 +6,7 @@ from io import TextIOWrapper
 from pathlib import Path
 from typing import Iterable
 
-from ..schema import Schema, Client, Api, Model
+from ..schema import Schema
 
 
 class Generator(abc.ABC):

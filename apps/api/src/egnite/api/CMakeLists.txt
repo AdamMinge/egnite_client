@@ -10,7 +10,14 @@ set(resources_root ${schema_root}/resources)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(schemas ${resources_root}/egnite_client.xml)
+set(schemas
+    ${resources_root}/clients/egnite_client.xml
+    ${resources_root}/apis/registration_api.xml
+    ${resources_root}/models/activate_email_request.xml
+    ${resources_root}/models/exception_response.xml
+    ${resources_root}/models/register_request.xml
+    ${resources_root}/models/register_response.xml
+    ${resources_root}/models/resend_activation_email_request.xml)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #

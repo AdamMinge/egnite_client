@@ -37,7 +37,7 @@ class QmlJwtAuthenticator : public egnite::auth::IJwtAuthenticator,
   void classBegin() override;
   void componentComplete() override;
 
-  Q_INVOKABLE void login(const QString& username,
+  Q_INVOKABLE void login(const QString& email,
                          const QString& password) override;
   Q_INVOKABLE void refresh() override;
   Q_INVOKABLE void logout() override;

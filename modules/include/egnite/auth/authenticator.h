@@ -75,7 +75,7 @@ class EGNITE_AUTH_API IJwtAuthenticator : public IAuthenticator {
  public:
   ~IJwtAuthenticator() override;
 
-  virtual void login(const QString& username, const QString& password) = 0;
+  virtual void login(const QString& email, const QString& password) = 0;
   virtual void refresh() = 0;
   virtual void logout() = 0;
 
@@ -128,11 +128,11 @@ struct EGNITE_AUTH_API IJwtAuthenticator::Routing {
 
 struct EGNITE_AUTH_API IJwtAuthenticator::ObtainTokenRequest {
   Q_GADGET
-  Q_PROPERTY(QString username MEMBER username)
+  Q_PROPERTY(QString email MEMBER email)
   Q_PROPERTY(QString password MEMBER password)
 
  public:
-  QString username;
+  QString email;
   QString password;
 };
 
@@ -180,7 +180,7 @@ class EGNITE_AUTH_API JwtAuthenticator : public IJwtAuthenticator {
                             QObject* parent = nullptr);
   ~JwtAuthenticator() override;
 
-  void login(const QString& username, const QString& password) override;
+  void login(const QString& email, const QString& password) override;
   void refresh() override;
   void logout() override;
 

@@ -55,14 +55,13 @@ void QmlJwtAuthenticator::componentComplete() {
   revaluateAuthenticator();
 }
 
-void QmlJwtAuthenticator::login(const QString& username,
-                                const QString& password) {
+void QmlJwtAuthenticator::login(const QString& email, const QString& password) {
   if (!m_authenticator) {
     qmlWarning(this) << "components wasn't evaluate correctly or not at all";
     return;
   }
 
-  m_authenticator->login(username, password);
+  m_authenticator->login(email, password);
 }
 
 void QmlJwtAuthenticator::refresh() {

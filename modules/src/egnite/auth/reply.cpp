@@ -16,8 +16,9 @@ JwtAuthenticatorReply::JwtAuthenticatorReply(IJwtAuthenticator* authenticator,
   reply->onFailed([this, authenticator](int code, const rest::Data& data) {
     if (code == 401) {
       authenticator
-          ->onRefreshFailed([this, code, data]() { Q_EMIT failed(code, data); })
-          ->onRefreshSucceeded([this]() { retry(); });
+          ->onRefreshFailed([this, code, data]() { Q_EMIT failed(code, data); },
+                            this)
+          ->onRefreshSucceeded([this]() { retry(); }, this);
       authenticator->refresh();
     } else {
       Q_EMIT failed(code, data);

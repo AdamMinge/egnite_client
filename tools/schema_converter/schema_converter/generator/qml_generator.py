@@ -360,11 +360,38 @@ class QmlApiGenerator(QmlSchemaGenerator):
     def _reply_method_use_body(self, 
                                method: api.Method) -> bool:
         return method.verb in self.__class__.verb_use_body
+    
+
+class QmlModelGenerator(QmlSchemaGenerator):
+    external_includes = ["QObject"]
+    
+    def __init__(self,
+                 model_schema: model.Model) -> None:
+        super().__init__(model_schema)
+        self.model_schema = model_schema
+    
+    def _header_body(self) -> writer.CodeWriter:
+        wr = writer.CodeWriter()
+        wr.add_lines(self._class().definition)
+        return wr
+    
+    def _class(self) -> constructs.CppClass:
+        model_class = constructs.CppClass(
+            name=self.schema.name,
+            is_struct=True
+        )
+        model_class.add_code("Q_GADGET")
+        for property in self.model_schema.properties:
+            model_class.add_code(f"Q_PROPERTY({property.type} {property.name} MEMBER {property.name})")
+        model_class.add_code("")
+        for property in self.model_schema.properties:
+            model_class.add_code(f"{property.type} {property.name};")
+        return model_class  
 
 
 class QmlGenerator(Generator):
     def _supported_schemas(self) -> tuple[type, ...]:
-        return (client.Client, api.Api)
+        return (client.Client, api.Api, model.Model)
     
     def _generate(self,
                   schema: Schema,
@@ -376,6 +403,9 @@ class QmlGenerator(Generator):
                     schema, header_stream, src_stream)
             case api.Api():
                 self._generate_api(
+                    schema, header_stream, src_stream)
+            case model.Model():
+                self._generate_model(
                     schema, header_stream, src_stream)
     
     def _generate_client(self,
@@ -392,3 +422,11 @@ class QmlGenerator(Generator):
         api_generator = QmlApiGenerator(api_schema=api_schema)
         api_generator.write(header_stream=header_stream, 
                             src_stream=src_stream)
+        
+    def _generate_model(self,
+                        model_schema: model.Model,
+                        header_stream: TextIOWrapper,
+                        src_stream: TextIOWrapper) -> None:
+        model_generator = QmlModelGenerator(model_schema=model_schema)
+        model_generator.write(header_stream=header_stream, 
+                              src_stream=src_stream)

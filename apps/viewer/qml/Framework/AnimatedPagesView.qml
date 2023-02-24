@@ -13,7 +13,8 @@ Item {
 
     onNewContentChanged: {
         newContent.parent = root
-        newContent.visible = Qt.binding(bindingsClosure(root.children.length - 1))
+        newContent.opacity = 0
+        newContent.stateVisible = Qt.binding(bindingsClosure(root.children.length - 1))  
     }
 
     onCurrentIndexChanged: {

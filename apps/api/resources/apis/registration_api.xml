@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Api name="RegistrationApi">
+	<Includes>
+		<Include>register_request.h</Include>
+		<Include>activate_email_request.h</Include>
+		<Include>resend_activation_email_request.h</Include>
+
+		<Include>register_response.h</Include>
+		<Include>exception_response.h</Include>
+	</Includes>
+	<Headers>
+	</Headers>
+	<Parameters>
+	</Parameters>
+	<Path>
+		<FixedSegment value="auth"/>
+	</Path>
+	<Methods>
+		<Method name="registerUser" verb="POST" returns="RegisterResponse" excepts="ExceptionResponse" body="RegisterRequest">
+			<Path>
+				<FixedSegment value="register"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+		<Method name="activateEmail" verb="POST" returns="void" excepts="ExceptionResponse" body="ActivateEmailRequest">
+			<Path>
+				<FixedSegment value="register/activation"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+		<Method name="resendActivationEmail" verb="POST" returns="void" excepts="ExceptionResponse" body="ResendActivationEmailRequest">
+			<Path>
+				<FixedSegment value="register/resend_activation"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+	</Methods>
+</Api>
+

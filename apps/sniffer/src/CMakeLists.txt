@@ -25,7 +25,8 @@ set(qmls
     ${qmls_root}/MainMenu/MainMenu.qml
     ${qmls_root}/Pages/Auth/LoginPage.qml
     ${qmls_root}/Pages/Auth/SignUpPage.qml
-    ${qmls_root}/Framework/PagesView.qml)
+    ${qmls_root}/Framework/AnimatedPagesView.qml
+    ${qmls_root}/Framework/AnimatedHideableItem.qml)
 
 set(scripts)
 

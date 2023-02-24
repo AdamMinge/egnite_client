@@ -108,7 +108,8 @@ QUrl RequestBuilderPrivate::buildUrl() const {
   if (!m_version.isNull())
     paths.append(QLatin1Char('v') + m_version.normalized().toString());
   paths.append(m_paths);
-  url.setPath(QLatin1Char('/') + paths.join(QLatin1Char('/')));
+  url.setPath(QLatin1Char('/') + paths.join(QLatin1Char('/')) +
+              QLatin1Char('/'));
 
   if (!m_parameters.isEmpty()) url.setQuery(m_parameters);
 

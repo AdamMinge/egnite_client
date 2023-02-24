@@ -2,11 +2,26 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-Rectangle {
+import "../../Framework"
+
+
+AnimatedHideableItem {
     id: root
 
-    signal login(string username, string password)
+    signal login(string email, string password)
     signal signUp()
+
+    function clearPage() {
+        clearInputs()
+        setError("")
+    }
+    function clearInputs() {
+        email_field.text = ""
+        password_field.text = ""
+    }
+    function setError(error) {
+        error_message.text = error
+    }
 
     Rectangle {
         id: icon
@@ -31,14 +46,14 @@ Rectangle {
         spacing: 10
 
         TextField {
-            id: username_field
-            placeholderText: qsTr("Username")
+            id: email_field
+            placeholderText: qsTr("Email")
             leftPadding: 30
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
 
             Text {
-                text: "\uf007"
+                text: "\uf0e0"
                 font.pointSize: 14
                 font.family: "FontAwesome"
                 anchors.left: parent.left
@@ -69,6 +84,16 @@ Rectangle {
             }
         }
 
+        Text {
+            id: error_message
+            visible: text != ""
+            font.pointSize: 10
+            font.family: "FontAwesome"
+            Layout.alignment: Qt.AlignCenter
+            Material.foreground: Material.Red
+            color: Material.foreground
+        }
+
         Item {
             height: 20
         }
@@ -78,13 +103,14 @@ Rectangle {
             text: "Log In"
             Layout.preferredWidth: parent.width - 20
             Layout.alignment: Qt.AlignHCenter
+
             enabled: {
-                let fields_not_empty = username_field.text && password_field.text
+                let fields_not_empty = email_field.text && password_field.text
                 return fields_not_empty
             }
 
             onClicked: root.login(
-                username_field.text, 
+                email_field.text, 
                 password_field.text
             )
         }
