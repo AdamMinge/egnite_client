@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Api name="RegistrationApi">
+	<Includes>
+	</Includes>
+	<Headers>
+	</Headers>
+	<Parameters>
+	</Parameters>
+	<Path>
+		<FixedSegment value="auth"/>
+	</Path>
+	<Methods>
+		<Method name="registerUser" verb="POST">
+			<Path>
+				<FixedSegment value="register"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+		<Method name="activateEmail" verb="POST">
+			<Path>
+				<FixedSegment value="register/activation"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+		<Method name="resendActivationEmail" verb="POST">
+			<Path>
+				<FixedSegment value="register/resend_activation"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+	</Methods>
+</Api>
+

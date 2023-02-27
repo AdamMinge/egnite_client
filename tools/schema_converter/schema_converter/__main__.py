@@ -16,12 +16,10 @@ Options:
 from argparse import ArgumentParser, ArgumentTypeError, Action, Namespace
 from pathlib import Path
 from typing import Sequence, Any
-from xsdata.exceptions import ParserError
-from xsdata.formats.dataclass.parsers import XmlParser
-from xsdata.formats.dataclass.parsers.config import ParserConfig
 
-from .schema import Schema, Client, Api, Model
-from .generator import generate_interfaces, Interface
+from .generator import Interface
+from .qml_generator import QmlGenerator
+from .qt_generator import QtGenerator
 
 
 def valid_generation_interface(arg: str) -> Interface:
@@ -106,27 +104,7 @@ class Parser():
         return parser.parse_args()
 
 
-def read_schema(path: Path) -> Schema:
-    config = ParserConfig(fail_on_unknown_properties=True, 
-                          fail_on_unknown_attributes=True, 
-                          fail_on_converter_warnings=True)
-    supported_schemas = [Client, Api, Model]
-    for supported_schema in supported_schemas:
-        parser = XmlParser(config=config)
-        try:
-            schema = parser.from_path(path, supported_schema)
-            return schema
-        except (ParserError, TypeError) as e:
-            continue
-    raise ArgumentTypeError(
-        f"given source path: ({path}) isn't correct schema format")
-
-
 def main() -> None:
     args = Parser.get_args()
-
-    schemas: list[tuple[Schema, Path]] = []
-    for source in args.sources:
-        schemas.append((read_schema(source), source))
-
-    generate_interfaces(schemas, args.destination, args.interface)
+    generator = QmlGenerator() if args.interface == Interface.QmlInterface else QtGenerator()
+    generator.generate(args.sources, args.destination)

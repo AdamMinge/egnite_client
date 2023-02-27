@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Client name="EgniteClient">
+	<BaseUrl>http://localhost:8000/api</BaseUrl>
+	<Version>1</Version>
+	<Includes>
+		<Include>registration_api.h</Include>
+	</Includes>
+	<Headers>
+		<Header key="Api-Key" value="e9KUzxsV.4iOlAtHBLjG4Jxpx32c0QbQzGtdW4sKR"/>
+	</Headers>
+	<Parameters>
+	</Parameters>
+	<Apis>
+		<Api name="registration" type="RegistrationApi"/>
+	</Apis>
+</Client>
+

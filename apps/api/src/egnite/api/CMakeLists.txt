@@ -10,14 +10,21 @@ set(resources_root ${schema_root}/resources)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(schemas
-    ${resources_root}/clients/egnite_client.xml
-    ${resources_root}/apis/registration_api.xml
-    ${resources_root}/models/activate_email_request.xml
-    ${resources_root}/models/exception_response.xml
-    ${resources_root}/models/register_request.xml
-    ${resources_root}/models/register_response.xml
-    ${resources_root}/models/resend_activation_email_request.xml)
+set(interface qml)
+
+if(interface MATCHES qml)
+  set(schemas ${resources_root}/schemas/qml/clients/egnite_client.xml
+              ${resources_root}/schemas/qml/apis/registration_api.xml)
+else()
+  set(schemas
+      ${resources_root}/schemas/qt/clients/egnite_client.xml
+      ${resources_root}/schemas/qt/apis/registration_api.xml
+      ${resources_root}/schemas/qt/models/activate_email_request.xml
+      ${resources_root}/schemas/qt/models/exception_response.xml
+      ${resources_root}/schemas/qt/models/register_request.xml
+      ${resources_root}/schemas/qt/models/register_response.xml
+      ${resources_root}/schemas/qt/models/resend_activation_email_request.xml)
+endif()
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #
@@ -40,5 +47,6 @@ egnite_add_qml_module(
   Qt::QuickControls2
   egnite-rest-qml)
 
-egnite_add_schema_converter(egnite-api-qml INTERFACE qml SOURCES ${schemas})
+egnite_add_schema_converter(egnite-api-qml INTERFACE ${interface} SOURCES
+                            ${schemas})
 # ----------------------------------------------------------------------- #
