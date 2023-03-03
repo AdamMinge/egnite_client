@@ -31,7 +31,7 @@ egnite_set_option(
 egnite_set_option(
   EGNITE_DEPRECATED_WARNINGS TRUE BOOL
   "FALSE to disable deprecated warning, TRUE to enable depracated warning")
-egnite_set_option(EGNITE_BUILD_DEPS FALSE BOOL
+egnite_set_option(EGNITE_BUILD_DEPS TRUE BOOL
                   "TRUE to build dependecies , FALSE to ignore them")
 egnite_set_option(EGNITE_BUILD_TEST TRUE BOOL
                   "TRUE to build the egnite-tests, FALSE to ignore them")

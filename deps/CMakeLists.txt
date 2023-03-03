@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
 # -------------------------- Setup Dependency --------------------------- #
 # ----------------------------------------------------------------------- #
-macro(egnite_setup_dependency dependency)
+macro(egnite_setup_dependency directory dependency)
   if(EGNITE_BUILD_DEPS)
     configure_file(external_${dependency}.txt.in ${dependency}/CMakeLists.txt
                    @ONLY)
@@ -26,15 +26,18 @@ macro(egnite_setup_dependency dependency)
       message(FATAL_ERROR "Build step for ${dependency} failed: ${result}")
     endif()
   endif()
-  set(CMAKE_PREFIX_PATH
-      ${CMAKE_CURRENT_BINARY_DIR}/${dependency}/src/${dependency}-install
-      ${CMAKE_PREFIX_PATH})
+  set(CMAKE_PREFIX_PATH ${directory}/${dependency}/src/${dependency}-install
+                        ${CMAKE_PREFIX_PATH})
   set(CMAKE_PREFIX_PATH
       ${CMAKE_PREFIX_PATH}
       PARENT_SCOPE)
 endmacro()
 
-egnite_setup_dependency(gtest)
-egnite_setup_dependency(boost)
-egnite_setup_dependency(qt)
+if(NOT EGNITE_BUILD_DEPS_DIR)
+  set(EGNITE_BUILD_DEPS_DIR ${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
+egnite_setup_dependency(${EGNITE_BUILD_DEPS_DIR} gtest)
+egnite_setup_dependency(${EGNITE_BUILD_DEPS_DIR} boost)
+egnite_setup_dependency(${EGNITE_BUILD_DEPS_DIR} qt)
 # ----------------------------------------------------------------------- #
