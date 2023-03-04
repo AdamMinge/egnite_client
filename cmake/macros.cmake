@@ -261,7 +261,7 @@ endfunction()
 # ----------------------------------------------------------------------- #
 # ----------- Define a macro that execute rest generator tool ----------- #
 # ----------------------------------------------------------------------- #
-macro(egnite_add_schema_converter target)
+macro(egnite_add_schema_converter target output)
 
   cmake_parse_arguments(THIS "" "NAMESPACE;INTERFACE" "SOURCES" ${ARGN})
 
@@ -300,10 +300,7 @@ macro(egnite_add_schema_converter target)
     COMMENT "Generating EGNIME-REST sources with SchemaConverter"
     VERBATIM)
 
-  target_sources(${target} PRIVATE ${generator_output})
-
-  target_include_directories(
-    ${target} PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/schema/>)
+  list(APPEND ${output} ${generator_output})
 
 endmacro()
 # ----------------------------------------------------------------------- #

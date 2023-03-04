@@ -36,17 +36,24 @@ find_package(Qt6 REQUIRED COMPONENTS Qml QuickControls2)
 # ----------------------------------------------------------------------- #
 # ----------------------- Create egnite shared lib ---------------------- #
 # ----------------------------------------------------------------------- #
+egnite_add_schema_converter(egnite-api-qml generated_sources INTERFACE
+                            ${interface} SOURCES ${schemas})
+
 egnite_add_qml_module(
   egnite-api-qml
   URI
   egnite.api
   VERSION
   ${EGNITE_VERSION_MAJOR}.${EGNITE_VERSION_MINOR}
+  SOURCES
+  ${generated_sources}
   DEPENDENCIES
   Qt::Qml
   Qt::QuickControls2
   egnite-rest-qml)
 
-egnite_add_schema_converter(egnite-api-qml INTERFACE ${interface} SOURCES
-                            ${schemas})
+target_sources(egnite-api-qml PRIVATE ${generated_sources})
+
+target_include_directories(
+  egnite-api-qml PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/schema/>)
 # ----------------------------------------------------------------------- #
