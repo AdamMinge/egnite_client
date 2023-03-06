@@ -18,10 +18,8 @@ set(sources ${source_root}/main.cpp)
 
 set(includes)
 
-set(qmls
-    ${qmls_root}/MainWindow.qml ${qmls_root}/MainPage.qml
-    ${qmls_root}/AuthPage.qml ${qmls_root}/Pages/Auth/LoginPage.qml
-    ${qmls_root}/Pages/Auth/SignUpPage.qml)
+set(qmls ${qmls_root}/MainWindow.qml ${qmls_root}/MainPage.qml
+         ${qmls_root}/AuthPage.qml ${qmls_root}/Pages/WelcomePage.qml)
 
 set(scripts)
 

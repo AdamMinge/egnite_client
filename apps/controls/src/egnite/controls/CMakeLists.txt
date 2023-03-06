@@ -16,7 +16,9 @@ set(qmls
     ${qmls_root}/AnimatedPagesView/AnimatedPagesView.qml
     ${qmls_root}/AnimatedPagesView/AnimatedHideableItem.qml
     ${qmls_root}/NavigationBar/NavigationBar.qml
-    ${qmls_root}/NavigationBar/NavigationItem.qml)
+    ${qmls_root}/NavigationBar/NavigationItem.qml
+    ${qmls_root}/Pages/LoginPage.qml
+    ${qmls_root}/Pages/SignUpPage.qml)
 
 set(scripts)
 
