@@ -1,16 +1,11 @@
-import QtQuick
-import QtQuick.Controls
-import QtQuick.Controls.Material
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Controls.Material 2.15
+
+import egnite.controls 1.0
 
 
 AnimatedHideableItem {
     id: root
     anchors.fill: parent
-
-    MainMenu {
-        id: main_menu
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-    }
 }

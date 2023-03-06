@@ -1,12 +1,15 @@
-import QtQuick
-import QtQuick.Controls
-import QtQuick.Controls.Material
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Controls.Material 2.15
+
+import egnite.controls 1.0
 
 
 AnimatedHideableItem {
     id: root
     width: 400
     height: 600
+    anchors.centerIn: parent
 
     AnimatedPagesView {
         id: pages_view

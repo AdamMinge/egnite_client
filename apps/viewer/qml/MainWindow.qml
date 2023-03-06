@@ -1,11 +1,12 @@
-import QtQuick
-import QtQuick.Controls
-import QtQuick.Controls.Material
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Controls.Material 2.15
 
 import egnite.rest 1.0
 import egnite.auth 1.0
 
 import egnite.api 1.0
+import egnite.controls 1.0
 
 
 Window {
@@ -54,12 +55,10 @@ Window {
 
         AuthPage {
             id: auth_page
-            anchors.centerIn: parent
         }
 
         MainPage {
             id: main_page
-            anchors.fill: parent
         }
     }  
 }
