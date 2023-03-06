@@ -56,11 +56,14 @@ AnimatedHideableItem {
                 text: "\uf0e0"
                 font.pointSize: 14
                 font.family: "FontAwesome"
-                anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
                 leftPadding: 5
                 color: Material.foreground
+
+                anchors { 
+                    left: parent.left
+                    verticalCenter: parent.verticalCenter 
+                    horizontalCenter: parent.horizontalCenter
+                }
             }
         }
 
@@ -76,11 +79,14 @@ AnimatedHideableItem {
                 text: "\uf023"
                 font.pointSize: 14
                 font.family: "FontAwesome"
-                anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
                 leftPadding: 5
                 color: Material.foreground
+
+                anchors { 
+                    left: parent.left
+                    verticalCenter: parent.verticalCenter 
+                    horizontalCenter: parent.horizontalCenter
+                }
             }
         }
 
@@ -88,7 +94,6 @@ AnimatedHideableItem {
             id: error_message
             visible: text != ""
             font.pointSize: 10
-            font.family: "FontAwesome"
             Layout.alignment: Qt.AlignCenter
             Material.foreground: Material.Red
             color: Material.foreground

@@ -23,7 +23,7 @@ set(qmls ${qmls_root}/MainWindow.qml ${qmls_root}/MainPage.qml
 
 set(scripts)
 
-set(resources ${resources_root}/conf/qtquickcontrols2.conf
+set(resources ${resources_root}/qtquickcontrols2.conf
               ${resources_root}/font/FontAwesome.ttf)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
@@ -49,6 +49,8 @@ egnite_add_qml_executable(
   ${qmls_root}
   SCRIPTS_DIR
   ${scripts_root}
+  RESOURCES_DIR
+  ${resources_root}
   QML_FILES
   ${qmls}
   SCRIPTS

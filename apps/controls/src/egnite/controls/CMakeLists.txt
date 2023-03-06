@@ -22,7 +22,7 @@ set(qmls
 
 set(scripts)
 
-set(resources)
+set(resources ${resources_root}/icons/menu.svg)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #
@@ -44,6 +44,8 @@ egnite_add_qml_module(
   ${qmls_root}
   SCRIPTS_DIR
   ${scripts_root}
+  RESOURCES_DIR
+  ${resources_root}
   QML_FILES
   ${qmls}
   SCRIPTS
