@@ -7,6 +7,8 @@ Item {
     id: root
     state: 'close'
 
+    property alias models: navigation_model.models
+
     states: [
         State {
             name: 'open'
@@ -110,6 +112,8 @@ Item {
                 id: navigation_items
 
                 model: ListModel {
+                    id: navigation_model
+                    
                     ListElement { 
                         name: "Menu"
                         icon: "qrc:/egnite/controls/icons/menu.svg"
@@ -117,8 +121,29 @@ Item {
                             root.state = (root.state == 'close') ? 'open' : 'close'
                         }
                     }
-                    default property list<ListElement> other_models 
+
+                    default property list<ListModel> models
+
+                    onModelsChanged: {
+                        var i = models.length - 1;
+                        if (i < 0) return;
+
+                        for (var j = 0; j < models[i].count; j++)
+                        {
+                            var element = models[i].get(j)
+                            navigation_model.append({ 
+                                "name": element.name,
+                                "icon": element.icon
+                            })
+                            navigation_model.setProperty(
+                                navigation_model.count - 1,
+                                "handler",
+                                element.handler
+                            )
+                        }
+                    }
                 }
+
                 delegate: NavigationItem {}
             }
         }

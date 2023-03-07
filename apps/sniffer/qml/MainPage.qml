@@ -17,5 +17,15 @@ AnimatedHideableItem {
             bottom: parent.bottom 
             left: parent.left
         }
+
+        models: [
+            ListModel {
+                ListElement { 
+                    name: "A1"
+                    icon: "qrc:/egnite/controls/icons/A1.svg"
+                    handler: function(){}
+                }
+            }
+        ]
     }
 }
