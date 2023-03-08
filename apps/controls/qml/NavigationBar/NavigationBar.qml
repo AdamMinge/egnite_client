@@ -95,8 +95,7 @@ Item {
     }
 
     Rectangle {
-        radius: 10
-        color: Material.background
+        color: Material.rippleColor
         anchors.fill: parent
 
         ColumnLayout {
@@ -116,7 +115,7 @@ Item {
                     
                     ListElement { 
                         name: "Menu"
-                        icon: "qrc:/egnite/controls/icons/menu.svg"
+                        icon: "qrc:/egnite/controls/icon/menu.svg"
                         handler: function(){
                             root.state = (root.state == 'close') ? 'open' : 'close'
                         }

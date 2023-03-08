@@ -18,13 +18,26 @@ set(sources ${source_root}/main.cpp)
 
 set(includes)
 
-set(qmls ${qmls_root}/MainWindow.qml ${qmls_root}/MainPage.qml
-         ${qmls_root}/AuthPage.qml ${qmls_root}/Pages/WelcomePage.qml)
+set(qmls
+    ${qmls_root}/MainWindow.qml
+    ${qmls_root}/MainPage.qml
+    ${qmls_root}/AuthPage.qml
+    ${qmls_root}/Pages/home/HomePage.qml
+    ${qmls_root}/Pages/messages/MessagesPage.qml
+    ${qmls_root}/Pages/notifications/NotificationsPage.qml
+    ${qmls_root}/Pages/profile/ProfilePage.qml
+    ${qmls_root}/Pages/setting/SettingPage.qml)
 
 set(scripts)
 
-set(resources ${resources_root}/qtquickcontrols2.conf
-              ${resources_root}/font/FontAwesome.ttf)
+set(resources
+    ${resources_root}/qtquickcontrols2.conf
+    ${resources_root}/font/FontAwesome.ttf
+    ${resources_root}/icon/home.svg
+    ${resources_root}/icon/messages.svg
+    ${resources_root}/icon/notifications.svg
+    ${resources_root}/icon/profile.svg
+    ${resources_root}/icon/setting.svg)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #

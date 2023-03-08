@@ -1,13 +1,14 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import Qt5Compat.GraphicalEffects 6.0
 
 
 Rectangle {
     id: root
     radius: 10
-    color: mouse_area.containsMouse ? Material.background.darker() : "transparent"
     state: 'middle'
+    color: mouse_area.containsMouse ? Material.highlightedRippleColor : "transparent"
 
     Layout.preferredWidth: 50
     Layout.preferredHeight: 50
@@ -96,12 +97,18 @@ Rectangle {
         }
     }
 
+    ColorOverlay {
+        anchors.fill: icon
+        source: icon
+        color: Material.foreground
+    }
+
     Text {
         id: title
 
         text: model.index === 0 ? '' : model.name
-        color: Material.foreground
         font.pointSize: 14
+        color: Material.foreground
 
         anchors { 
             verticalCenter: parent.verticalCenter

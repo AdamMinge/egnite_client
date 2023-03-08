@@ -9,7 +9,7 @@ import egnite.api 1.0
 import egnite.controls 1.0
 
 
-Window {
+ApplicationWindow  {
     id: root
     minimumWidth: 800
     minimumHeight: 700
@@ -60,5 +60,5 @@ Window {
         MainPage {
             id: main_page
         }
-    }  
+    } 
 }

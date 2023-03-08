@@ -22,7 +22,7 @@ set(qmls
 
 set(scripts)
 
-set(resources ${resources_root}/icons/menu.svg)
+set(resources ${resources_root}/icon/menu.svg)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #

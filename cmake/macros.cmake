@@ -36,6 +36,7 @@ function(egnite_add_qml_module target)
     ${THIS_RESOURCES}
     DEPENDENCIES
     ${THIS_QML_DEPENDENCIES})
+
   add_library(egnite::${target} ALIAS ${target})
 
   _egnite_config_module(${target} egniteQmlConfigExport)

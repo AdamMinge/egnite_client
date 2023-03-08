@@ -7,4 +7,5 @@ import egnite.controls 1.0
 
 AnimatedHideableItem {
     id: root
+    anchors.fill: parent
 }
