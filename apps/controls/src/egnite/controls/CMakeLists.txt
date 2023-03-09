@@ -20,9 +20,11 @@ set(qmls
     ${qmls_root}/Pages/LoginPage.qml
     ${qmls_root}/Pages/SignUpPage.qml)
 
+set(qmls_singletons ${qmls_root}/Globals/Fonts.qml)
+
 set(scripts)
 
-set(resources ${resources_root}/icon/menu.svg)
+set(resources ${resources_root}/font/icofont.ttf)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #
@@ -48,6 +50,8 @@ egnite_add_qml_module(
   ${resources_root}
   QML_FILES
   ${qmls}
+  QML_SINGLETON_FILES
+  ${qmls_singletons}
   SCRIPTS
   ${scripts}
   RESOURCES

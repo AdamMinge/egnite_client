@@ -115,7 +115,7 @@ Item {
                     
                     ListElement { 
                         name: "Menu"
-                        icon: "qrc:/egnite/controls/icon/menu.svg"
+                        icon: "\uefa2"
                         handler: function(){
                             root.state = (root.state == 'close') ? 'open' : 'close'
                         }

@@ -30,14 +30,7 @@ set(qmls
 
 set(scripts)
 
-set(resources
-    ${resources_root}/qtquickcontrols2.conf
-    ${resources_root}/font/FontAwesome.ttf
-    ${resources_root}/icon/home.svg
-    ${resources_root}/icon/messages.svg
-    ${resources_root}/icon/notifications.svg
-    ${resources_root}/icon/profile.svg
-    ${resources_root}/icon/setting.svg)
+set(resources ${resources_root}/qtquickcontrols2.conf)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #

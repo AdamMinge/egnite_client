@@ -23,27 +23,27 @@ AnimatedHideableItem {
             ListModel {
                 ListElement { 
                     name: "Home"
-                    icon: "qrc:/sniffer/icon/home.svg"
+                    icon: "\uef47"
                     handler: function(){ pages_view.currentItem = home_page }
                 }
                 ListElement { 
                     name: "Messages"
-                    icon: "qrc:/sniffer/icon/messages.svg"
+                    icon: "\ueed5"
                     handler: function(){ pages_view.currentItem = messages_page }
                 }
                 ListElement { 
                     name: "Notifications"
-                    icon: "qrc:/sniffer/icon/notifications.svg"
+                    icon: "\ueea3"
                     handler: function(){ pages_view.currentItem = notifications_page }
                 }
                 ListElement { 
                     name: "Profile"
-                    icon: "qrc:/sniffer/icon/profile.svg"
+                    icon: "\ued05"
                     handler: function(){ pages_view.currentItem = profile_page }
                 }
                 ListElement { 
                     name: "Setting"
-                    icon: "qrc:/sniffer/icon/setting.svg"
+                    icon: "\uef3a"
                     handler: function(){ pages_view.currentItem = setting_page }
                 }
             }

@@ -15,8 +15,6 @@ Window {
     minimumHeight: 700
     visible: true
 
-    FontLoader { id: font_awesome; source: "qrc:/viewer/font/FontAwesome.ttf" }
-
     EgniteClient {
         id: egnite_client
 

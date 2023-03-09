@@ -32,10 +32,10 @@ AnimatedHideableItem {
         color: "transparent"
 
         Text {
-            text: qsTr("\uf169")
+            text: "\ue929"
             anchors.centerIn: parent
             font.pointSize: 112
-            font.family: "FontAwesome"
+            font.family: Fonts.icofont.font.family
             color: Material.foreground
         }
     }
@@ -53,9 +53,9 @@ AnimatedHideableItem {
             Layout.alignment: Qt.AlignHCenter
 
             Text {
-                text: "\uf0e0"
+                text: "\uec67"
                 font.pointSize: 14
-                font.family: "FontAwesome"
+                font.family: Fonts.icofont.font.family
                 leftPadding: 5
                 color: Material.foreground
 
@@ -76,9 +76,9 @@ AnimatedHideableItem {
             echoMode: TextInput.Password
 
             Text {
-                text: "\uf023"
+                text: "\uf01a"
                 font.pointSize: 14
-                font.family: "FontAwesome"
+                font.family: Fonts.icofont.font.family
                 leftPadding: 5
                 color: Material.foreground
 

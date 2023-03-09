@@ -3,12 +3,14 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import Qt5Compat.GraphicalEffects 6.0
 
+import egnite.controls 1.0
+
 
 Rectangle {
     id: root
     radius: 10
     state: 'middle'
-    color: mouse_area.containsMouse ? Material.highlightedRippleColor : "transparent"
+    color: "transparent"
 
     Layout.preferredWidth: 50
     Layout.preferredHeight: 50
@@ -84,11 +86,13 @@ Rectangle {
         onClicked: model.handler()
     }
 
-    Image {
+    Text {
         id: icon
 
-        source: model.icon
-        sourceSize: Qt.size(30, 30)
+        text: model.icon
+        font.pointSize: 18
+        font.family: Fonts.icofont.font.family
+        color: mouse_area.containsMouse ? Material.foreground : Material.hintTextColor
 
         anchors { 
             verticalCenter: parent.verticalCenter
@@ -97,18 +101,12 @@ Rectangle {
         }
     }
 
-    ColorOverlay {
-        anchors.fill: icon
-        source: icon
-        color: Material.foreground
-    }
-
     Text {
         id: title
 
         text: model.index === 0 ? '' : model.name
         font.pointSize: 14
-        color: Material.foreground
+        color: mouse_area.containsMouse ? Material.foreground : Material.hintTextColor
 
         anchors { 
             verticalCenter: parent.verticalCenter
