@@ -25,26 +25,31 @@ AnimatedHideableItem {
                     name: "Home"
                     icon: "\uef47"
                     handler: function(){ pages_view.currentItem = home_page }
+                    checkable: true
                 }
                 ListElement { 
                     name: "Messages"
                     icon: "\ueed5"
                     handler: function(){ pages_view.currentItem = messages_page }
+                    checkable: true
                 }
                 ListElement { 
                     name: "Notifications"
                     icon: "\ueea3"
                     handler: function(){ pages_view.currentItem = notifications_page }
+                    checkable: true
                 }
                 ListElement { 
                     name: "Profile"
                     icon: "\ued05"
                     handler: function(){ pages_view.currentItem = profile_page }
+                    checkable: true
                 }
                 ListElement { 
                     name: "Setting"
                     icon: "\uef3a"
                     handler: function(){ pages_view.currentItem = setting_page }
+                    checkable: true
                 }
             }
         ]

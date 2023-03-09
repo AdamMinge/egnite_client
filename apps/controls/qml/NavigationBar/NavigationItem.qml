@@ -17,6 +17,8 @@ Rectangle {
     Layout.alignment: Qt.AlignLeft
     Layout.topMargin: model.index === 1 ? 20 : 0
 
+    property bool checked: false
+
     Behavior on color {
         ColorAnimation {
             duration: 200
@@ -86,13 +88,25 @@ Rectangle {
         onClicked: model.handler()
     }
 
+    Rectangle {
+        width: 5
+        height: parent.height
+        color: Material.accent 
+        visible: root.checked
+        
+        anchors { 
+            left: parent.left
+            leftMargin: -root.Layout.leftMargin
+        }
+    }
+
     Text {
         id: icon
 
         text: model.icon
         font.pointSize: 18
         font.family: Fonts.icofont.font.family
-        color: mouse_area.containsMouse ? Material.foreground : Material.hintTextColor
+        color: mouse_area.containsMouse || root.checked ? Material.foreground : Material.hintTextColor
 
         anchors { 
             verticalCenter: parent.verticalCenter
@@ -106,7 +120,7 @@ Rectangle {
 
         text: model.index === 0 ? '' : model.name
         font.pointSize: 14
-        color: mouse_area.containsMouse ? Material.foreground : Material.hintTextColor
+        color: mouse_area.containsMouse || root.checked ? Material.foreground : Material.hintTextColor
 
         anchors { 
             verticalCenter: parent.verticalCenter

@@ -14,7 +14,7 @@ Item {
             name: 'open'
             PropertyChanges { 
                 target: root
-                width: 270 
+                width: 240 
             }
 
             PropertyChanges { 
@@ -100,7 +100,6 @@ Item {
 
         ColumnLayout {
             width: parent.width
-            spacing: 20
 
             anchors { 
                 top: parent.top
@@ -134,11 +133,26 @@ Item {
                                 "name": element.name,
                                 "icon": element.icon
                             })
-                            navigation_model.setProperty(
-                                navigation_model.count - 1,
-                                "handler",
-                                element.handler
-                            )
+
+                            let handler = element.handler
+                            let index = navigation_model.count - 1
+
+                            if(element.checkable)
+                            {   
+                                handler = function(){
+                                    navigation_items.itemAt(index).checked = true
+                                    for (var j = 0; j < navigation_items.model.count; j++)
+                                    {
+                                        if(j === index) continue
+                                        navigation_items.itemAt(j).checked = false
+                                    }
+                                        
+
+                                    element.handler()
+                                }
+                            }
+
+                            navigation_model.setProperty(index, "handler", handler)
                         }
                     }
                 }
