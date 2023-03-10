@@ -9,6 +9,38 @@ AnimatedHideableItem {
     id: root
     anchors.fill: parent
 
+    AnimatedPagesView {
+        id: pages_view
+        currentItem: home_page
+
+        anchors { 
+            top: parent.top
+            bottom: parent.bottom 
+            left: navigation_bar.right
+            right: parent.right
+        }
+
+        HomePage {
+            id: home_page
+        }
+
+        MessagesPage {
+            id: messages_page
+        }
+
+        NotificationsPage {
+            id: notifications_page
+        }
+
+        ProfilePage {
+            id: profile_page
+        }
+
+        SettingPage {
+            id: setting_page
+        }
+    }  
+
     NavigationBar {
         id: navigation_bar
         width: 105
@@ -54,36 +86,4 @@ AnimatedHideableItem {
             }
         ]
     }
-
-    AnimatedPagesView {
-        id: pages_view
-        currentItem: home_page
-
-        anchors { 
-            top: parent.top
-            bottom: parent.bottom 
-            left: navigation_bar.right
-            right: parent.right
-        }
-
-        HomePage {
-            id: home_page
-        }
-
-        MessagesPage {
-            id: messages_page
-        }
-
-        NotificationsPage {
-            id: notifications_page
-        }
-
-        ProfilePage {
-            id: profile_page
-        }
-
-        SettingPage {
-            id: setting_page
-        }
-    }  
 }

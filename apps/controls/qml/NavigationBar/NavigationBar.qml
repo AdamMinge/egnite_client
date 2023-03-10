@@ -120,36 +120,41 @@ Item {
                         }
                     }
 
-                    default property list<ListModel> models
+                    property list<ListModel> models
+                    property var checked_index: null
 
                     onModelsChanged: {
-                        var i = models.length - 1;
+                        let i = models.length - 1;
                         if (i < 0) return;
 
-                        for (var j = 0; j < models[i].count; j++)
+                        for (let j = 0; j < models[i].count; j++)
                         {
-                            var element = models[i].get(j)
+                            let element = models[i].get(j)
                             navigation_model.append({ 
                                 "name": element.name,
-                                "icon": element.icon
+                                "icon": element.icon,
+                                "checked": false
                             })
 
                             let handler = element.handler
                             let index = navigation_model.count - 1
-
+                            
                             if(element.checkable)
                             {   
                                 handler = function(){
-                                    navigation_items.itemAt(index).checked = true
-                                    for (var j = 0; j < navigation_items.model.count; j++)
-                                    {
-                                        if(j === index) continue
-                                        navigation_items.itemAt(j).checked = false
-                                    }
-                                        
+                                    if(checked_index !== null) 
+                                        navigation_model.setProperty(checked_index, "checked", false)
+
+                                    checked_index = index
+
+                                    if(checked_index !== null) 
+                                        navigation_model.setProperty(checked_index, "checked", true)
 
                                     element.handler()
                                 }
+
+                                if(checked_index === null)
+                                    handler()
                             }
 
                             navigation_model.setProperty(index, "handler", handler)
