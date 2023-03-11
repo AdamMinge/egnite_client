@@ -15,7 +15,7 @@ Rectangle {
     Layout.preferredWidth: 50
     Layout.preferredHeight: 50
     Layout.alignment: Qt.AlignLeft
-    Layout.topMargin: model.index === 1 ? 20 : 0
+    Layout.bottomMargin: model.bottomMargin
 
     Behavior on color {
         ColorAnimation {
@@ -30,7 +30,7 @@ Rectangle {
             PropertyChanges {
                 target: root
                 Layout.leftMargin: 10
-                Layout.preferredWidth: model.index !== 0 ? 240 : 50
+                Layout.preferredWidth: 240
             }
 
             PropertyChanges {
@@ -116,7 +116,7 @@ Rectangle {
     Text {
         id: title
 
-        text: model.index === 0 ? '' : model.name
+        text: model.name
         font.pointSize: 14
         color: mouse_area.containsMouse || model.checked ? Material.foreground : Material.hintTextColor
 

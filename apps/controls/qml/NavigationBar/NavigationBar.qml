@@ -113,8 +113,8 @@ Item {
                     id: navigation_model
                     
                     ListElement { 
-                        name: "Menu"
                         icon: "\uefa2"
+                        bottomMargin: 20
                         handler: function(){
                             root.state = (root.state == 'close') ? 'open' : 'close'
                         }
@@ -133,7 +133,6 @@ Item {
                             navigation_model.append({ 
                                 "name": element.name,
                                 "icon": element.icon,
-                                "checked": false
                             })
 
                             let handler = element.handler
