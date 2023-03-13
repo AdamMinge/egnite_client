@@ -9,47 +9,6 @@ AnimatedHideableItem {
     id: root
     anchors.fill: parent
 
-    NavigationBar {
-        id: navigation_bar
-        width: 105
-
-        anchors { 
-            top: parent.top
-            bottom: parent.bottom 
-            left: parent.left
-        }
-
-        models: [
-            ListModel {
-                ListElement { 
-                    name: "Home"
-                    icon: "\uf015"
-                    handler: function(){ pages_view.currentItem = home_page }
-                }
-                ListElement { 
-                    name: "Messages"
-                    icon: "\uf4b6"
-                    handler: function(){ pages_view.currentItem = messages_page }
-                }
-                ListElement { 
-                    name: "Notifications"
-                    icon: "\uf0f3"
-                    handler: function(){ pages_view.currentItem = notifications_page }
-                }
-                ListElement { 
-                    name: "Profile"
-                    icon: "\uf007"
-                    handler: function(){ pages_view.currentItem = profile_page }
-                }
-                ListElement { 
-                    name: "Setting"
-                    icon: "\uf013"
-                    handler: function(){ pages_view.currentItem = setting_page }
-                }
-            }
-        ]
-    }
-
     AnimatedPagesView {
         id: pages_view
         currentItem: home_page
@@ -65,10 +24,6 @@ AnimatedHideableItem {
             id: home_page
         }
 
-        MessagesPage {
-            id: messages_page
-        }
-
         NotificationsPage {
             id: notifications_page
         }
@@ -77,8 +32,48 @@ AnimatedHideableItem {
             id: profile_page
         }
 
-        SettingPage {
-            id: setting_page
+        SettingsPage {
+            id: settings_page
         }
     }  
+
+    NavigationBar {
+        id: navigation_bar
+        width: 105
+
+        anchors { 
+            top: parent.top
+            bottom: parent.bottom 
+            left: parent.left
+        }
+
+        models: [
+            ListModel {
+                ListElement { 
+                    name: "Home"
+                    icon: "\uef47"
+                    handler: function(){ pages_view.currentItem = home_page }
+                    checkable: true
+                }
+                ListElement { 
+                    name: "Notifications"
+                    icon: "\ueea3"
+                    handler: function(){ pages_view.currentItem = notifications_page }
+                    checkable: true
+                }
+                ListElement { 
+                    name: "Profile"
+                    icon: "\ued05"
+                    handler: function(){ pages_view.currentItem = profile_page }
+                    checkable: true
+                }
+                ListElement { 
+                    name: "Settings"
+                    icon: "\uef3a"
+                    handler: function(){ pages_view.currentItem = settings_page }
+                    checkable: true
+                }
+            }
+        ]
+    }
 }

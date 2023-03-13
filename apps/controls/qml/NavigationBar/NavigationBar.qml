@@ -118,6 +118,7 @@ Item {
                         handler: function(){
                             root.state = (root.state == 'close') ? 'open' : 'close'
                         }
+                        checked: false
                     }
 
                     property list<ListModel> models
@@ -133,6 +134,7 @@ Item {
                             navigation_model.append({ 
                                 "name": element.name,
                                 "icon": element.icon,
+                                "checked": false
                             })
 
                             let handler = element.handler

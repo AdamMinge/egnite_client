@@ -22,11 +22,12 @@ set(qmls
     ${qmls_root}/MainWindow.qml
     ${qmls_root}/MainPage.qml
     ${qmls_root}/AuthPage.qml
+    ${qmls_root}/Pages/auth/LoginPage.qml
+    ${qmls_root}/Pages/auth/SignUpPage.qml
     ${qmls_root}/Pages/home/HomePage.qml
-    ${qmls_root}/Pages/messages/MessagesPage.qml
     ${qmls_root}/Pages/notifications/NotificationsPage.qml
     ${qmls_root}/Pages/profile/ProfilePage.qml
-    ${qmls_root}/Pages/setting/SettingPage.qml)
+    ${qmls_root}/Pages/settings/SettingsPage.qml)
 
 set(scripts)
 
