@@ -11,25 +11,25 @@
 /* ------------------------- initEnvironmentVariables ----------------------- */
 
 void initEnvironmentVariables() {
-  qputenv("QT_QUICK_CONTROLS_CONF", ":/viewer/qtquickcontrols2.conf");
+  qputenv("QT_QUICK_CONTROLS_CONF", ":/sniffer/qtquickcontrols2.conf");
 }
 
 /* ----------------------------- CommandLineParser -------------------------- */
 
-class ViewerCommandLineParser : public egnite::cmd::Parser {
+class SnifferCommandLineParser : public egnite::cmd::Parser {
  public:
-  explicit ViewerCommandLineParser();
-  ~ViewerCommandLineParser() override;
+  explicit SnifferCommandLineParser();
+  ~SnifferCommandLineParser() override;
 };
 
-ViewerCommandLineParser::ViewerCommandLineParser() = default;
+SnifferCommandLineParser::SnifferCommandLineParser() = default;
 
-ViewerCommandLineParser::~ViewerCommandLineParser() = default;
+SnifferCommandLineParser::~SnifferCommandLineParser() = default;
 
 /* ----------------------------- parseCommandLine --------------------------- */
 
 static void parseCommandLine(QGuiApplication &app) {
-  ViewerCommandLineParser parser;
+  SnifferCommandLineParser parser;
   parser.process(app);
 }
 
@@ -39,15 +39,15 @@ int main(int argc, char **argv) {
   initEnvironmentVariables();
 
   QGuiApplication app(argc, argv);
-  QGuiApplication::setApplicationName(QStringLiteral("Egnite-Viewer"));
+  QGuiApplication::setApplicationName(QStringLiteral("Egnite-Sniffer"));
   QGuiApplication::setApplicationVersion(QLatin1String(EGNITE_VERSION_STR));
-  QGuiApplication::setApplicationDisplayName(QStringLiteral("Egnite-Viewer"));
+  QGuiApplication::setApplicationDisplayName(QStringLiteral("Egnite-Sniffer"));
   QGuiApplication::setOrganizationName(QStringLiteral("Egnite"));
 
   parseCommandLine(app);
 
   QQmlApplicationEngine engine;
-  const auto url = QUrl("qrc:/viewer/MainWindow.qml");
+  const auto url = QUrl("qrc:/sniffer/MainWindow.qml");
   QObject::connect(
       &engine, &QQmlApplicationEngine::objectCreated, &app,
       [url](QObject *obj, const QUrl &objUrl) {
