@@ -40,4 +40,5 @@ endif()
 egnite_setup_dependency(${EGNITE_BUILD_DEPS_DIR} gtest)
 egnite_setup_dependency(${EGNITE_BUILD_DEPS_DIR} boost)
 egnite_setup_dependency(${EGNITE_BUILD_DEPS_DIR} qt)
+egnite_setup_dependency(${EGNITE_BUILD_DEPS_DIR} qanava)
 # ----------------------------------------------------------------------- #
