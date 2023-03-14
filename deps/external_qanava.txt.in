@@ -15,7 +15,8 @@ set(qt_install_dir @EGNITE_BUILD_DEPS_DIR@/qt/src/qt-install)
 
 set(generator_args 
 -DCMAKE_BUILD_TYPE=Release 
--DBUILD_STATIC_QRC=TRUE 
+-DBUILD_STATIC_QRC=ON 
+-DQUICK_QANAVA_BUILD_STATIC_QRC=ON
 -DCMAKE_INSTALL_PREFIX=${install_dir} 
 -DCMAKE_PREFIX_PATH=${qt_install_dir})
 
@@ -24,7 +25,7 @@ include(ExternalProject)
 ExternalProject_Add(
     qanava
     GIT_REPOSITORY      https://github.com/AdamMinge/QuickQanava.git
-    GIT_TAG             2.2.1
+    GIT_TAG             master
     PREFIX              ${prefix_dir}
     CONFIGURE_COMMAND   cd ${build_dir} && ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" ${generator_args} ${src_dir}
     BUILD_COMMAND       cd ${build_dir} && $(MAKE)

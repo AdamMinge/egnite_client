@@ -1,4 +1,0 @@
-#ifndef EGNITE_FLOW_QML_H
-#define EGNITE_FLOW_QML_H
-
-#endif  // EGNITE_FLOW_QML_H
