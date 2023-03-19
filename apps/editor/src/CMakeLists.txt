@@ -5,24 +5,33 @@ cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
 # -------------------------- Generate headers --------------------------- #
 # ----------------------------------------------------------------------- #
-set(source_root ${EGNITE_SOURCE_DIR}/modules/src/egnite/core)
-set(include_root ${EGNITE_SOURCE_DIR}/modules/include/egnite/core)
+set(editor_root ${EGNITE_SOURCE_DIR}/apps/editor)
+set(source_root ${editor_root}/src)
+set(include_root ${editor_root}/include)
+set(qmls_root ${editor_root}/qml)
+set(scripts_root ${editor_root}/scripts)
+set(resources_root ${editor_root}/resources)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(sources
-    ${source_root}/plugins/plugin_manager.cpp ${source_root}/plugins/plugin.cpp
-    ${source_root}/plugins/detail/plugin_manager_p.h
-    ${source_root}/plugins/detail/plugin_p.h)
+set(sources ${source_root}/main.cpp)
 
-set(includes
-    ${include_root}/export.h
-    ${include_root}/utils/binder.h
-    ${include_root}/utils/capture.h
-    ${include_root}/macros/map.h
-    ${include_root}/macros/binder.h
-    ${include_root}/plugins/plugin_manager.h
-    ${include_root}/plugins/plugin.h)
+set(includes)
+
+set(qmls
+    ${qmls_root}/MainWindow.qml
+    ${qmls_root}/MainPage.qml
+    ${qmls_root}/AuthPage.qml
+    ${qmls_root}/Pages/auth/LoginPage.qml
+    ${qmls_root}/Pages/auth/SignUpPage.qml
+    ${qmls_root}/Pages/home/HomePage.qml
+    ${qmls_root}/Pages/notifications/NotificationsPage.qml
+    ${qmls_root}/Pages/profile/ProfilePage.qml
+    ${qmls_root}/Pages/settings/SettingsPage.qml)
+
+set(scripts)
+
+set(resources ${resources_root}/qtquickcontrols2.conf)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #
@@ -30,22 +39,40 @@ set(CMAKE_AUTOMOC ON)
 # ----------------------------------------------------------------------- #
 # ----------------------- Find external libraries ----------------------- #
 # ----------------------------------------------------------------------- #
-find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Qml QuickControls2 Gui)
 # ----------------------------------------------------------------------- #
-# ----------------------- Create egnite shared lib ---------------------- #
+# -------------------------- Create editor app -------------------------- #
 # ----------------------------------------------------------------------- #
-egnite_add_module(
-  egnite-core
+egnite_add_qml_executable(
+  editor
+  URI
+  editor
+  VERSION
+  ${EGNITE_VERSION_MAJOR}.${EGNITE_VERSION_MINOR}
   SOURCES
   ${sources}
   ${includes}
+  QML_DIR
+  ${qmls_root}
+  SCRIPTS_DIR
+  ${scripts_root}
+  RESOURCES_DIR
+  ${resources_root}
+  QML_FILES
+  ${qmls}
+  SCRIPTS
+  ${scripts}
+  RESOURCES
+  ${resources}
   DEPENDENCIES
-  Qt6::Core
-  Qt6::CorePrivate)
+  Qt::Gui
+  Qt::Qml
+  Qt::QuickControls2
+  egnite::egnite-cmd
+  egnite-flow-qml)
 
 target_include_directories(
-  egnite-core
-  PUBLIC $<BUILD_INTERFACE:${EGNITE_SOURCE_DIR}/modules/include/>
-  INTERFACE $<INSTALL_INTERFACE:include>
-  PRIVATE ${EGNITE_SOURCE_DIR}/modules/src/)
+  editor
+  PUBLIC $<BUILD_INTERFACE:${include_root}>
+  PRIVATE ${source_root})
 # ----------------------------------------------------------------------- #

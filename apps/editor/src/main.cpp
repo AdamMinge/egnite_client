@@ -6,32 +6,30 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
-/* -------------------------------- QuickQanava ----------------------------- */
-#include <QuickQanava.h>
 /* -------------------------------------------------------------------------- */
 
 /* ------------------------- initEnvironmentVariables ----------------------- */
 
 void initEnvironmentVariables() {
-  qputenv("QT_QUICK_CONTROLS_CONF", ":/flow/qtquickcontrols2.conf");
+  qputenv("QT_QUICK_CONTROLS_CONF", ":/editor/qtquickcontrols2.conf");
 }
 
 /* ----------------------------- CommandLineParser -------------------------- */
 
-class FlowCommandLineParser : public egnite::cmd::Parser {
+class EditorCommandLineParser : public egnite::cmd::Parser {
  public:
-  explicit FlowCommandLineParser();
-  ~FlowCommandLineParser() override;
+  explicit EditorCommandLineParser();
+  ~EditorCommandLineParser() override;
 };
 
-FlowCommandLineParser::FlowCommandLineParser() = default;
+EditorCommandLineParser::EditorCommandLineParser() = default;
 
-FlowCommandLineParser::~FlowCommandLineParser() = default;
+EditorCommandLineParser::~EditorCommandLineParser() = default;
 
 /* ----------------------------- parseCommandLine --------------------------- */
 
 static void parseCommandLine(QGuiApplication &app) {
-  FlowCommandLineParser parser;
+  EditorCommandLineParser parser;
   parser.process(app);
 }
 
@@ -41,15 +39,15 @@ int main(int argc, char **argv) {
   initEnvironmentVariables();
 
   QGuiApplication app(argc, argv);
-  QGuiApplication::setApplicationName(QStringLiteral("Egnite-Flow"));
+  QGuiApplication::setApplicationName(QStringLiteral("Egnite-Editor"));
   QGuiApplication::setApplicationVersion(QLatin1String(EGNITE_VERSION_STR));
-  QGuiApplication::setApplicationDisplayName(QStringLiteral("Egnite-Flow"));
+  QGuiApplication::setApplicationDisplayName(QStringLiteral("Egnite-Editor"));
   QGuiApplication::setOrganizationName(QStringLiteral("Egnite"));
 
   parseCommandLine(app);
 
   QQmlApplicationEngine engine;
-  const auto url = QUrl("qrc:/flow/MainWindow.qml");
+  const auto url = QUrl("qrc:/editor/MainWindow.qml");
   QObject::connect(
       &engine, &QQmlApplicationEngine::objectCreated, &app,
       [url](QObject *obj, const QUrl &objUrl) {
@@ -58,7 +56,6 @@ int main(int argc, char **argv) {
       Qt::QueuedConnection);
 
   engine.addImportPath(app.applicationDirPath() + "/plugins");
-  QuickQanava::initialize(&engine);
   engine.load(url);
   if (engine.rootObjects().isEmpty()) {
     QCoreApplication::exit(-1);

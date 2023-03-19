@@ -5,24 +5,18 @@ cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
 # -------------------------- Generate headers --------------------------- #
 # ----------------------------------------------------------------------- #
-set(source_root ${EGNITE_SOURCE_DIR}/modules/src/egnite/core)
-set(include_root ${EGNITE_SOURCE_DIR}/modules/include/egnite/core)
+set(flow_root ${EGNITE_SOURCE_DIR}/apps/flow)
+set(source_root ${flow_root}/src)
+set(include_root ${flow_root}/include)
+set(resources_root ${flow_root}/resources)
 # ----------------------------------------------------------------------- #
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
-set(sources
-    ${source_root}/plugins/plugin_manager.cpp ${source_root}/plugins/plugin.cpp
-    ${source_root}/plugins/detail/plugin_manager_p.h
-    ${source_root}/plugins/detail/plugin_p.h)
+set(sources)
 
-set(includes
-    ${include_root}/export.h
-    ${include_root}/utils/binder.h
-    ${include_root}/utils/capture.h
-    ${include_root}/macros/map.h
-    ${include_root}/macros/binder.h
-    ${include_root}/plugins/plugin_manager.h
-    ${include_root}/plugins/plugin.h)
+set(includes)
+
+set(resources)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #
@@ -30,22 +24,25 @@ set(CMAKE_AUTOMOC ON)
 # ----------------------------------------------------------------------- #
 # ----------------------- Find external libraries ----------------------- #
 # ----------------------------------------------------------------------- #
-find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Qml QuickControls2)
+find_package(QuickQanava REQUIRED)
 # ----------------------------------------------------------------------- #
 # ----------------------- Create egnite shared lib ---------------------- #
 # ----------------------------------------------------------------------- #
-egnite_add_module(
-  egnite-core
+egnite_add_qml_module(
+  egnite-flow-qml
+  URI
+  egnite.api
+  VERSION
+  ${EGNITE_VERSION_MAJOR}.${EGNITE_VERSION_MINOR}
   SOURCES
   ${sources}
   ${includes}
+  RESOURCES
+  ${resources}
   DEPENDENCIES
-  Qt6::Core
-  Qt6::CorePrivate)
-
-target_include_directories(
-  egnite-core
-  PUBLIC $<BUILD_INTERFACE:${EGNITE_SOURCE_DIR}/modules/include/>
-  INTERFACE $<INSTALL_INTERFACE:include>
-  PRIVATE ${EGNITE_SOURCE_DIR}/modules/src/)
+  Qt::Qml
+  Qt::QuickControls2
+  egnite-rest-qml
+  QuickQanava)
 # ----------------------------------------------------------------------- #
