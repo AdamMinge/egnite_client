@@ -25,7 +25,7 @@ QJSValue parametersToJSValue(const QUrlQuery& parameters, QQmlEngine* engine) {
 }
 
 std::optional<egnite::rest::Headers> JSValueToHeaders(const QJSValue& object) {
-  if (object.isVariant()) {
+  if (object.isVariant() || object.isObject()) {
     auto variant = object.toVariant();
     if (variant.typeId() == QMetaType::QVariantMap) {
       auto headers_map = variant.toMap();
@@ -45,7 +45,7 @@ std::optional<egnite::rest::Headers> JSValueToHeaders(const QJSValue& object) {
 }
 
 std::optional<QUrlQuery> JSValueToParameters(const QJSValue& object) {
-  if (object.isVariant()) {
+  if (object.isVariant() || object.isObject()) {
     auto variant = object.toVariant();
     if (variant.typeId() == QMetaType::QVariantMap) {
       auto parameters_map = variant.toMap();

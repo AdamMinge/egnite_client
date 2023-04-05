@@ -24,6 +24,14 @@ ApplicationWindow  {
                 QmlJwtAuthenticatorReplyFactory { authenticator: egnite_authenticator }
             ]
         }
+
+        globalHeaders: Object.assign({}, globalHeaders, { 
+            "Api-Key": "ggt4PuaT.iezr3nwutwrT1acKNcohrGEewv76FpMF", 
+        });
+
+        globalParameters: Object.assign({}, globalHeaders, { 
+            
+        });
     }
 
     QmlJwtAuthenticator {
