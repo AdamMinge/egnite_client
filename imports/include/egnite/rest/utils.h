@@ -5,7 +5,7 @@
 #include <QJSValue>
 #include <QQmlEngine>
 #include <QUrlQuery>
-/* ---------------------------------- standard ------------------------------ */
+/* ---------------------------------- Standard ------------------------------ */
 #include <optional>
 /* ----------------------------------- Egnite ------------------------------- */
 #include <egnite/rest/global.h>

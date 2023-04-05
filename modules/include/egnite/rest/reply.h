@@ -14,6 +14,7 @@
 #include "egnite/rest/data_serializer.h"
 #include "egnite/rest/export.h"
 #include "egnite/rest/global.h"
+#include "egnite/rest/pagination.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {

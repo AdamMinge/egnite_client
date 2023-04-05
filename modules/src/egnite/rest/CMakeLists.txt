@@ -15,6 +15,7 @@ set(sources
     ${source_root}/api.cpp
     ${source_root}/client.cpp
     ${source_root}/reply.cpp
+    ${source_root}/pagination.cpp
     ${source_root}/reply_decorator.cpp
     ${source_root}/reply_factory.cpp
     ${source_root}/request_builder.cpp
@@ -22,6 +23,7 @@ set(sources
     ${source_root}/detail/api_p.h
     ${source_root}/detail/client_p.h
     ${source_root}/detail/reply_p.h
+    ${source_root}/detail/pagination_p.h
     ${source_root}/detail/reply_decorator_p.h
     ${source_root}/detail/reply_factory_p.h
     ${source_root}/detail/request_builder_p.h)
@@ -32,6 +34,7 @@ set(includes
     ${include_root}/api.h
     ${include_root}/client.h
     ${include_root}/reply.h
+    ${include_root}/pagination.h
     ${include_root}/reply_decorator.h
     ${include_root}/reply_factory.h
     ${include_root}/request_builder.h
