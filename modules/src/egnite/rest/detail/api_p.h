@@ -25,6 +25,7 @@ class ApiPrivate : public QObjectPrivate {
   [[nodiscard]] IClient* getClient() const;
   [[nodiscard]] IReplyDecorator* getReplyDecorator() const;
   [[nodiscard]] DataSerializer* getDataSerializer() const;
+  [[nodiscard]] IPagingDataFactory* getPagingDataFactory() const;
   [[nodiscard]] QString getPath() const;
 
   void setGlobalHeaders(const Headers& headers);

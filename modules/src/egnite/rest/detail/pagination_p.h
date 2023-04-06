@@ -11,6 +11,17 @@ namespace egnite::rest {
 /* ---------------------------------- Paging -------------------------------- */
 
 template <typename DataType>
+const QList<DataType>& Paging<DataType>::items() const {
+  if (!m_items.has_value()) {
+    m_items =
+        m_serializer->deserialize<QList<DataType>>(m_paging_data->items());
+  }
+
+  assert(m_items.has_value());
+  return m_items.value();
+}
+
+template <typename DataType>
 template <typename ErrorType>
 GenericReply<DataType, ErrorType>* Paging<DataType>::next() const {
   if (hasNext())
@@ -28,20 +39,15 @@ GenericReply<DataType, ErrorType>* Paging<DataType>::prev() const {
 
 namespace detail {
 
-/* ----------------------- StandardPagingStrategyPrivate -------------------- */
+/* ------------------------- StandardPagingDataPrivate ---------------------- */
 
-class StandardPagingStrategyPrivate {
+class StandardPagingDataPrivate {
  public:
-  static QUrl extractUrl(const Data& data);
-  static std::unique_ptr<StandardPagingStrategyPrivate> create(
-      const Data& data);
+  explicit StandardPagingDataPrivate(const Data& data);
 
- public:
-  explicit StandardPagingStrategyPrivate(qint64 count, const Data& items,
-                                         const Data& data, const QUrl& next,
-                                         const QUrl& prev);
+  [[nodiscard]] bool valid() const;
 
-  [[nodiscard]] qint64 count() const;
+  [[nodiscard]] qint64 total() const;
 
   [[nodiscard]] Data items() const;
   [[nodiscard]] Data data() const;
@@ -53,7 +59,11 @@ class StandardPagingStrategyPrivate {
   [[nodiscard]] QUrl prevUrl() const;
 
  private:
-  qint64 m_count;
+  static QUrl extractUrl(const Data& data);
+
+ private:
+  bool m_valid;
+  qint64 m_total;
   Data m_items;
   Data m_data;
   QUrl m_next;

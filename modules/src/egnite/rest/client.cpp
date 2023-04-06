@@ -4,6 +4,7 @@
 #include "egnite/rest/api.h"
 #include "egnite/rest/data_serializer.h"
 #include "egnite/rest/detail/client_p.h"
+#include "egnite/rest/pagination.h"
 #include "egnite/rest/reply_decorator.h"
 /* -------------------------------------------------------------------------- */
 
@@ -101,10 +102,14 @@ IReplyDecorator* Client::getReplyDecorator() const {
   return d->getReplyDecorator();
 }
 
+IPagingDataFactory* Client::getPagingDataFactory() const {
+  Q_D(const detail::Client);
+  return d->getPagingDataFactory();
+}
+
 /* ------------------------------ ClientPrivate ----------------------------- */
 
 namespace detail {
-
 ClientPrivate::ClientPrivate(const QUrl& url, const QVersionNumber& version,
                              const Headers& headers,
                              const QUrlQuery& parameters)
@@ -114,7 +119,8 @@ ClientPrivate::ClientPrivate(const QUrl& url, const QVersionNumber& version,
       m_parameters(parameters),
       m_manager(new QNetworkAccessManager),
       m_data_serializer(new DataSerializer),
-      m_reply_decorator(new ReplyDecorator) {}
+      m_reply_decorator(new ReplyDecorator),
+      m_paging_data_factory(new StandardPagingDataFactory) {}
 
 void ClientPrivate::setBaseUrl(const QUrl& url) { m_base_url = url; }
 
@@ -164,6 +170,10 @@ DataSerializer* ClientPrivate::getDataSerializer() const {
 
 IReplyDecorator* ClientPrivate::getReplyDecorator() const {
   return m_reply_decorator.get();
+}
+
+IPagingDataFactory* ClientPrivate::getPagingDataFactory() const {
+  return m_paging_data_factory.get();
 }
 
 }  // namespace detail

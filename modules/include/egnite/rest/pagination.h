@@ -13,24 +13,24 @@
 namespace egnite::rest {
 
 namespace detail {
-class StandardPagingStrategyPrivate;
+class StandardPagingDataPrivate;
 }  // namespace detail
 
 template <typename DataType, typename ErrorType>
 class GenericReply;
-
+class DataSerializer;
 class IApi;
 
-/* ------------------------------ IPagingStrategy --------------------------- */
+/* -------------------------------- IPagingData ----------------------------- */
 
-class IPagingStrategy {
+class IPagingData {
  public:
-  explicit IPagingStrategy();
-  virtual ~IPagingStrategy();
+  explicit IPagingData();
+  virtual ~IPagingData();
 
   [[nodiscard]] virtual bool valid() const = 0;
 
-  [[nodiscard]] virtual qint64 count() const = 0;
+  [[nodiscard]] virtual qint64 total() const = 0;
 
   [[nodiscard]] virtual Data items() const = 0;
   [[nodiscard]] virtual Data data() const = 0;
@@ -42,16 +42,16 @@ class IPagingStrategy {
   [[nodiscard]] virtual QUrl prevUrl() const = 0;
 };
 
-/* --------------------------- StandardPagingStrategy ----------------------- */
+/* ----------------------------- StandardPagingData ------------------------- */
 
-class StandardPagingStrategy : public IPagingStrategy {
+class StandardPagingData : public IPagingData {
  public:
-  explicit StandardPagingStrategy(const Data& data);
-  ~StandardPagingStrategy() override;
+  explicit StandardPagingData(const Data& data);
+  ~StandardPagingData() override;
 
   [[nodiscard]] bool valid() const override;
 
-  [[nodiscard]] qint64 count() const override;
+  [[nodiscard]] qint64 total() const override;
 
   [[nodiscard]] Data items() const override;
   [[nodiscard]] Data data() const override;
@@ -63,29 +63,28 @@ class StandardPagingStrategy : public IPagingStrategy {
   [[nodiscard]] QUrl prevUrl() const override;
 
  private:
-  std::unique_ptr<detail::StandardPagingStrategyPrivate> m_impl;
+  std::unique_ptr<detail::StandardPagingDataPrivate> m_impl;
 };
 
-/* --------------------------- IPagingStrategyFactory ----------------------- */
+/* ---------------------------- IPagingDataFactory -------------------------- */
 
-class IPagingStrategyFactory {
+class IPagingDataFactory {
  public:
-  explicit IPagingStrategyFactory();
-  virtual ~IPagingStrategyFactory();
+  explicit IPagingDataFactory();
+  virtual ~IPagingDataFactory();
 
-  [[nodiscard]] virtual std::unique_ptr<IPagingStrategy> createPagingStrategy(
+  [[nodiscard]] virtual std::unique_ptr<IPagingData> create(
       const Data& data) = 0;
 };
 
-/* ----------------------- StandardPagingStrategyFactory -------------------- */
+/* ------------------------ StandardPagingDataFactory ----------------------- */
 
-class StandardPagingStrategyFactory : public IPagingStrategyFactory {
+class StandardPagingDataFactory : public IPagingDataFactory {
  public:
-  explicit StandardPagingStrategyFactory();
-  ~StandardPagingStrategyFactory() override;
+  explicit StandardPagingDataFactory();
+  ~StandardPagingDataFactory() override;
 
-  [[nodiscard]] std::unique_ptr<IPagingStrategy> createPagingStrategy(
-      const Data& data) override;
+  [[nodiscard]] std::unique_ptr<IPagingData> create(const Data& data) override;
 };
 
 /* ---------------------------------- Paging -------------------------------- */
@@ -93,15 +92,18 @@ class StandardPagingStrategyFactory : public IPagingStrategyFactory {
 template <typename DataType>
 class Paging {
  public:
-  explicit Paging(IApi* api, std::unique_ptr<IPagingStrategy> strategy);
+  explicit Paging(IApi* api, DataSerializer* serializer,
+                  std::unique_ptr<IPagingData> paging_data);
 
-  [[nodiscard]] qint64 count() const;
+  [[nodiscard]] qint64 total() const;
 
   [[nodiscard]] bool hasNext() const;
   [[nodiscard]] bool hasPrev() const;
 
   [[nodiscard]] QUrl nextUrl() const;
   [[nodiscard]] QUrl prevUrl() const;
+
+  [[nodiscard]] const QList<DataType>& items() const;
 
   template <typename ErrorType>
   GenericReply<DataType, ErrorType>* next() const;
@@ -111,36 +113,41 @@ class Paging {
 
  private:
   IApi* m_api;
-  std::unique_ptr<IPagingStrategy> m_strategy;
+  DataSerializer* m_serializer;
+  std::unique_ptr<IPagingData> m_paging_data;
+  std::optional<QList<DataType>> m_items;
 };
 
 template <typename DataType>
-Paging<DataType>::Paging(IApi* api, std::unique_ptr<IPagingStrategy> strategy)
-    : m_api(api), m_strategy(std::move(strategy)) {}
+Paging<DataType>::Paging(IApi* api, DataSerializer* serializer,
+                         std::unique_ptr<IPagingData> paging_data)
+    : m_api(api),
+      m_serializer(serializer),
+      m_paging_data(std::move(paging_data)) {}
 
 template <typename DataType>
-qint64 Paging<DataType>::count() const {
-  return m_strategy->count();
+qint64 Paging<DataType>::total() const {
+  return m_paging_data->total();
 }
 
 template <typename DataType>
 bool Paging<DataType>::hasNext() const {
-  return m_strategy->hasNext();
+  return m_paging_data->hasNext();
 }
 
 template <typename DataType>
 bool Paging<DataType>::hasPrev() const {
-  return m_strategy->hasPrev();
+  return m_paging_data->hasPrev();
 }
 
 template <typename DataType>
 QUrl Paging<DataType>::nextUrl() const {
-  return m_strategy->nextUrl();
+  return m_paging_data->nextUrl();
 }
 
 template <typename DataType>
 QUrl Paging<DataType>::prevUrl() const {
-  return m_strategy->prevUrl();
+  return m_paging_data->prevUrl();
 }
 
 }  // namespace egnite::rest

@@ -54,6 +54,11 @@ DataSerializer* Api::getDataSerializer() const {
   return d->getDataSerializer();
 }
 
+IPagingDataFactory* Api::getPagingDataFactory() const {
+  Q_D(const detail::Api);
+  return d->getPagingDataFactory();
+}
+
 void Api::setGlobalHeaders(const Headers& headers) {
   Q_D(detail::Api);
   d->setGlobalHeaders(headers);
@@ -132,6 +137,10 @@ IReplyDecorator* ApiPrivate::getReplyDecorator() const {
 
 DataSerializer* ApiPrivate::getDataSerializer() const {
   return m_client->getDataSerializer();
+}
+
+IPagingDataFactory* ApiPrivate::getPagingDataFactory() const {
+  return m_client->getPagingDataFactory();
 }
 
 void ApiPrivate::setGlobalHeaders(const Headers& headers) {

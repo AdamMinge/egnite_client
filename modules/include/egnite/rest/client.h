@@ -21,6 +21,7 @@ class ClientPrivate;
 
 class IApi;
 class IReplyDecorator;
+class IPagingDataFactory;
 
 class DataSerializer;
 
@@ -62,6 +63,7 @@ class EGNITE_REST_API IClient : public QObject {
   [[nodiscard]] virtual RequestBuilder getRequestBuilder() const = 0;
   [[nodiscard]] virtual DataSerializer* getDataSerializer() const = 0;
   [[nodiscard]] virtual IReplyDecorator* getReplyDecorator() const = 0;
+  [[nodiscard]] virtual IPagingDataFactory* getPagingDataFactory() const = 0;
 
  Q_SIGNALS:
   void baseUrlChanged(const QUrl& url);
@@ -102,6 +104,7 @@ class EGNITE_REST_API Client : public IClient {
   [[nodiscard]] RequestBuilder getRequestBuilder() const override;
   [[nodiscard]] DataSerializer* getDataSerializer() const override;
   [[nodiscard]] IReplyDecorator* getReplyDecorator() const override;
+  [[nodiscard]] IPagingDataFactory* getPagingDataFactory() const override;
 
  protected:
   explicit Client(detail::ClientPrivate& impl, QObject* parent = nullptr);

@@ -181,6 +181,12 @@ class GenericReplyBase : public WrappedReply {
   template <typename Handler>
   ChildReply* onCompleted(Handler&& handler, QObject* scope = nullptr);
 
+  template <typename Handler>
+  ChildReply* onSucceeded(Handler&& handler, QObject* scope = nullptr);
+
+  template <typename Handler>
+  ChildReply* onFailed(Handler&& handler, QObject* scope = nullptr);
+
   EGNITE_DEFINE_BINDER_EXTENDED(IReply, ChildReply, onError, error);
   EGNITE_DEFINE_BINDER_EXTENDED(IReply, ChildReply, OnUnsucceeded, unsucceeded);
 
@@ -217,6 +223,54 @@ GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onCompleted(
   return static_cast<ChildGenericReply<DataType, ErrorType>*>(this);
 }
 
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+template <typename Handler>
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::ChildReply*
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onSucceeded(
+    Handler&& handler, QObject* scope) {
+  if constexpr (std::is_same_v<DataType, void>) {
+    WrappedReply::onSucceeded(
+        core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
+        scope);
+  } else {
+    WrappedReply::onSucceeded(
+        [this, xFn = core::utils::bindCallback<void(int, const DataType&)>(
+                   std::forward<Handler>(handler))](int http_code,
+                                                    const Data& data) {
+          DataSerializer* serializer = this->getDataSerializer();
+          xFn(http_code, serializer->deserialize<DataType>(data));
+        },
+        scope);
+  }
+
+  return static_cast<ChildGenericReply<DataType, ErrorType>*>(this);
+}
+
+template <typename DataType, typename ErrorType,
+          template <typename, typename> typename ChildGenericReply>
+template <typename Handler>
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::ChildReply*
+GenericReplyBase<DataType, ErrorType, ChildGenericReply>::onFailed(
+    Handler&& handler, QObject* scope) {
+  if constexpr (std::is_same_v<ErrorType, void>) {
+    WrappedReply::onFailed(
+        core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
+        scope);
+  } else {
+    WrappedReply::onFailed(
+        [this, xFn = core::utils::bindCallback<void(int, const ErrorType&)>(
+                   std::forward<Handler>(handler))](int http_code,
+                                                    const Data& data) {
+          DataSerializer* serializer = this->getDataSerializer();
+          xFn(http_code, serializer->deserialize<ErrorType>(data));
+        },
+        scope);
+  }
+
+  return static_cast<ChildGenericReply<DataType, ErrorType>*>(this);
+}
+
 /* --------------------- GenericReply<DataType, ErrorType> ------------------ */
 
 template <typename DataType, typename ErrorType>
@@ -224,143 +278,47 @@ class GenericReply
     : public GenericReplyBase<DataType, ErrorType, GenericReply> {
  public:
   explicit GenericReply(IReply* reply, QObject* parent = nullptr);
-
-  template <typename Handler>
-  GenericReply<DataType, ErrorType>* onSucceeded(Handler&& handler,
-                                                 QObject* scope = nullptr);
-
-  template <typename Handler>
-  GenericReply<DataType, ErrorType>* onFailed(Handler&& handler,
-                                              QObject* scope = nullptr);
 };
 
 template <typename DataType, typename ErrorType>
 GenericReply<DataType, ErrorType>::GenericReply(IReply* reply, QObject* parent)
     : GenericReplyBase<DataType, ErrorType, GenericReply>(reply, parent) {}
 
-template <typename DataType, typename ErrorType>
-template <typename Handler>
-GenericReply<DataType, ErrorType>*
-GenericReply<DataType, ErrorType>::onSucceeded(Handler&& handler,
-                                               QObject* scope) {
-  WrappedReply::onSucceeded(
-      [this, xFn = core::utils::bindCallback<void(int, const DataType&)>(
-                 std::forward<Handler>(handler))](int http_code,
-                                                  const Data& data) {
-        DataSerializer* serializer = this->getDataSerializer();
-        xFn(http_code, serializer->deserialize<DataType>(data));
-      },
-      scope);
-
-  return this;
-}
+/* ----------------- GenericReply<Paging<DataType>, ErrorType> -------------- */
 
 template <typename DataType, typename ErrorType>
-template <typename Handler>
-GenericReply<DataType, ErrorType>* GenericReply<DataType, ErrorType>::onFailed(
-    Handler&& handler, QObject* scope) {
-  WrappedReply::onFailed(
-      [this, xFn = core::utils::bindCallback<void(int, const ErrorType&)>(
-                 std::forward<Handler>(handler))](int http_code,
-                                                  const Data& data) {
-        DataSerializer* serializer = this->getDataSerializer();
-        xFn(http_code, serializer->deserialize<ErrorType>(data));
-      },
-      scope);
-
-  return this;
-}
-
-/* ------------------------ GenericReply<DataType, void> -------------------- */
-
-template <typename DataType>
-class GenericReply<DataType, void>
-    : public GenericReplyBase<DataType, void, GenericReply> {
+class GenericReply<Paging<DataType>, ErrorType>
+    : public GenericReplyBase<Paging<DataType>, ErrorType, GenericReply> {
  public:
   explicit GenericReply(IReply* reply, QObject* parent = nullptr);
 
   template <typename Handler>
-  GenericReply<DataType, void>* onSucceeded(Handler&& handler,
-                                            QObject* scope = nullptr);
-
-  template <typename Handler>
-  GenericReply<DataType, void>* onFailed(Handler&& handler,
-                                         QObject* scope = nullptr);
+  GenericReply<Paging<DataType>, ErrorType>* onSucceeded(
+      Handler&& handler, QObject* scope = nullptr);
 };
 
-template <typename DataType>
-GenericReply<DataType, void>::GenericReply(IReply* reply, QObject* parent)
-    : GenericReplyBase<DataType, void, GenericReply>(reply, parent) {}
+template <typename DataType, typename ErrorType>
+GenericReply<Paging<DataType>, ErrorType>::GenericReply(IReply* reply,
+                                                        QObject* parent)
+    : GenericReplyBase<Paging<DataType>, ErrorType, GenericReply>(reply,
+                                                                  parent) {}
 
-template <typename DataType>
+template <typename DataType, typename ErrorType>
 template <typename Handler>
-GenericReply<DataType, void>* GenericReply<DataType, void>::onSucceeded(
-    Handler&& handler, QObject* scope) {
+GenericReply<Paging<DataType>, ErrorType>*
+GenericReply<Paging<DataType>, ErrorType>::onSucceeded(Handler&& handler,
+                                                       QObject* scope) {
   WrappedReply::onSucceeded(
-      [this, xFn = core::utils::bindCallback<void(int, const DataType&)>(
-                 std::forward<Handler>(handler))](int http_code,
-                                                  const Data& data) {
-        DataSerializer* serializer = this->getDataSerializer();
-        xFn(http_code, serializer->deserialize<DataType>(data));
-      },
-      scope);
+      [this,
+       xFn = core::utils::bindCallback<void(int, const Paging<DataType>&)>(
+           std::forward<Handler>(handler))](int http_code, const Data& data) {
+        auto api = this->getApi();
+        auto serializer = this->getDataSerializer();
+        auto paging_data = api->getPagingDataFactory().create(data);
 
-  return this;
-}
+        auto paging = Paging<DataType>(api, serializer, std::move(paging_data));
 
-template <typename DataType>
-template <typename Handler>
-GenericReply<DataType, void>* GenericReply<DataType, void>::onFailed(
-    Handler&& handler, QObject* scope) {
-  WrappedReply::onFailed(
-      core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
-      scope);
-
-  return this;
-}
-
-/* ----------------------- GenericReply<void, ErrorType> -------------------- */
-
-template <typename ErrorType>
-class GenericReply<void, ErrorType>
-    : public GenericReplyBase<void, ErrorType, GenericReply> {
- public:
-  explicit GenericReply(IReply* reply, QObject* parent = nullptr);
-
-  template <typename Handler>
-  GenericReply<void, ErrorType>* onSucceeded(Handler&& handler,
-                                             QObject* scope = nullptr);
-
-  template <typename Handler>
-  GenericReply<void, ErrorType>* onFailed(Handler&& handler,
-                                          QObject* scope = nullptr);
-};
-
-template <typename ErrorType>
-GenericReply<void, ErrorType>::GenericReply(IReply* reply, QObject* parent)
-    : GenericReplyBase<void, ErrorType, GenericReply>(reply, parent) {}
-
-template <typename ErrorType>
-template <typename Handler>
-GenericReply<void, ErrorType>* GenericReply<void, ErrorType>::onSucceeded(
-    Handler&& handler, QObject* scope) {
-  WrappedReply::onSucceeded(
-      core::utils::bindCallback<void(int)>(std::forward<Handler>(handler)),
-      scope);
-
-  return this;
-}
-
-template <typename ErrorType>
-template <typename Handler>
-GenericReply<void, ErrorType>* GenericReply<void, ErrorType>::onFailed(
-    Handler&& handler, QObject* scope) {
-  WrappedReply::onFailed(
-      [this, xFn = core::utils::bindCallback<void(int, const ErrorType&)>(
-                 std::forward<Handler>(handler))](int http_code,
-                                                  const Data& data) {
-        DataSerializer* serializer = this->getDataSerializer();
-        xFn(http_code, serializer->deserialize<ErrorType>(data));
+        xFn(http_code, paging);
       },
       scope);
 

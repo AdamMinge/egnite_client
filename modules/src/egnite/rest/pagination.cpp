@@ -13,78 +13,115 @@
 
 namespace egnite::rest {
 
-/* ------------------------------ IPagingStrategy --------------------------- */
+/* -------------------------------- IPagingData ----------------------------- */
 
-IPagingStrategy::IPagingStrategy() = default;
+IPagingData::IPagingData() = default;
 
-IPagingStrategy::~IPagingStrategy() = default;
+IPagingData::~IPagingData() = default;
 
-/* --------------------------- StandardPagingStrategy ----------------------- */
+/* ----------------------------- StandardPagingData ------------------------- */
 
-StandardPagingStrategy::StandardPagingStrategy(const Data& data)
-    : m_impl(detail::StandardPagingStrategyPrivate::create(data)) {}
+StandardPagingData::StandardPagingData(const Data& data)
+    : m_impl(std::make_unique<detail::StandardPagingDataPrivate>(data)) {}
 
-StandardPagingStrategy::~StandardPagingStrategy() = default;
+StandardPagingData::~StandardPagingData() = default;
 
-bool StandardPagingStrategy::valid() const { return static_cast<bool>(m_impl); }
+bool StandardPagingData::valid() const { return m_impl->valid(); }
 
-qint64 StandardPagingStrategy::count() const {
-  assert(m_impl);
-  return m_impl->count();
+qint64 StandardPagingData::total() const { return m_impl->total(); }
+
+Data StandardPagingData::items() const { return m_impl->items(); }
+
+Data StandardPagingData::data() const { return m_impl->data(); }
+
+bool StandardPagingData::hasNext() const { return m_impl->hasNext(); }
+
+bool StandardPagingData::hasPrev() const { return m_impl->hasPrev(); }
+
+QUrl StandardPagingData::nextUrl() const { return m_impl->nextUrl(); }
+
+QUrl StandardPagingData::prevUrl() const { return m_impl->prevUrl(); }
+
+/* ---------------------------- IPagingDataFactory -------------------------- */
+
+IPagingDataFactory::IPagingDataFactory() = default;
+
+IPagingDataFactory::~IPagingDataFactory() = default;
+
+/* ------------------------ StandardPagingDataFactory ----------------------- */
+
+StandardPagingDataFactory::StandardPagingDataFactory() = default;
+
+StandardPagingDataFactory::~StandardPagingDataFactory() = default;
+
+std::unique_ptr<IPagingData> StandardPagingDataFactory::create(
+    const Data& data) {
+  return std::make_unique<StandardPagingData>(data);
 }
 
-Data StandardPagingStrategy::items() const {
-  assert(m_impl);
-  return m_impl->items();
-}
-
-Data StandardPagingStrategy::data() const {
-  assert(m_impl);
-  return m_impl->data();
-}
-
-bool StandardPagingStrategy::hasNext() const {
-  assert(m_impl);
-  return m_impl->hasNext();
-}
-
-bool StandardPagingStrategy::hasPrev() const {
-  assert(m_impl);
-  return m_impl->hasPrev();
-}
-
-QUrl StandardPagingStrategy::nextUrl() const {
-  assert(m_impl);
-  return m_impl->nextUrl();
-}
-
-QUrl StandardPagingStrategy::prevUrl() const {
-  assert(m_impl);
-  return m_impl->prevUrl();
-}
-
-/* --------------------------- IPagingStrategyFactory ----------------------- */
-
-IPagingStrategyFactory::IPagingStrategyFactory() = default;
-
-IPagingStrategyFactory::~IPagingStrategyFactory() = default;
-
-/* ----------------------- StandardPagingStrategyFactory -------------------- */
-
-StandardPagingStrategyFactory::StandardPagingStrategyFactory() {}
-
-StandardPagingStrategyFactory::~StandardPagingStrategyFactory() {}
-
-std::unique_ptr<IPagingStrategy>
-StandardPagingStrategyFactory::createPagingStrategy(const Data& data) {
-  return std::make_unique<StandardPagingStrategy>(data);
-}
+/* ------------------------- StandardPagingDataPrivate ---------------------- */
 
 namespace detail {
 
-/* ----------------------- StandardPagingStrategyPrivate -------------------- */
+StandardPagingDataPrivate::StandardPagingDataPrivate(const Data& data)
+    : m_valid(false),
+      m_total(0),
+      m_items(std::nullopt),
+      m_data(data),
+      m_next(QUrl{}),
+      m_prev(QUrl{}) {
+  auto contains_required_fields = [](const auto& map) {
+    return map.contains(QStringLiteral("count")) &&
+           map.contains(QStringLiteral("next")) &&
+           map.contains(QStringLiteral("previous")) &&
+           map.contains(QStringLiteral("results"));
+  };
 
-QUrl StandardPagingStrategyPrivate::extractUrl(const Data& data) {
+  m_valid =
+      std::visit(core::utils::overloaded{
+                     [&](std::nullopt_t) -> bool { return false; },
+                     [&](const QJsonValue& data) -> bool {
+                       const auto obj = data.toObject();
+
+                       if (!contains_required_fields(obj)) return false;
+
+                       m_total = obj[QStringLiteral("count")].toInteger();
+                       m_next = extractUrl(obj[QStringLiteral("next")]);
+                       m_prev = extractUrl(obj[QStringLiteral("previous")]);
+                       m_items = obj[QStringLiteral("results")].toArray();
+                       return true;
+                     },
+                     [&](const QCborValue& data) -> bool {
+                       const auto map = data.toMap();
+
+                       if (!contains_required_fields(map)) return false;
+
+                       m_total = map[QStringLiteral("count")].toInteger();
+                       m_next = extractUrl(map[QStringLiteral("next")]);
+                       m_prev = extractUrl(map[QStringLiteral("previous")]);
+                       m_items = map[QStringLiteral("results")].toArray();
+                       return true;
+                     }},
+                 data);
+}
+
+bool StandardPagingDataPrivate::valid() const { return m_valid; }
+
+qint64 StandardPagingDataPrivate::total() const { return m_total; }
+
+Data StandardPagingDataPrivate::items() const { return m_items; }
+
+Data StandardPagingDataPrivate::data() const { return m_data; }
+
+bool StandardPagingDataPrivate::hasNext() const { return !m_next.isEmpty(); }
+
+bool StandardPagingDataPrivate::hasPrev() const { return !m_prev.isEmpty(); }
+
+QUrl StandardPagingDataPrivate::nextUrl() const { return m_next; }
+
+QUrl StandardPagingDataPrivate::prevUrl() const { return m_prev; }
+
+QUrl StandardPagingDataPrivate::extractUrl(const Data& data) {
   return std::visit(
       core::utils::overloaded{[&](std::nullopt_t) -> QUrl { return QUrl{}; },
                               [&](const QJsonValue& data) -> QUrl {
@@ -100,67 +137,6 @@ QUrl StandardPagingStrategyPrivate::extractUrl(const Data& data) {
                               }},
       data);
 }
-
-std::unique_ptr<StandardPagingStrategyPrivate>
-StandardPagingStrategyPrivate::create(const Data& data) {
-  return std::visit(
-      core::utils::overloaded{
-          [&](std::nullopt_t)
-              -> std::unique_ptr<StandardPagingStrategyPrivate> {
-            return nullptr;
-          },
-          [&](const QJsonValue& data)
-              -> std::unique_ptr<StandardPagingStrategyPrivate> {
-            const auto obj = data.toObject();
-            const auto count = obj[QStringLiteral("count")].toInteger();
-            const auto next = extractUrl(obj[QStringLiteral("next")]);
-            const auto prev = extractUrl(obj[QStringLiteral("previous")]);
-            const auto items = obj[QStringLiteral("results")].toArray();
-
-            return std::make_unique<StandardPagingStrategyPrivate>(
-                count, items, data, next, prev);
-          },
-          [&](const QCborValue& data)
-              -> std::unique_ptr<StandardPagingStrategyPrivate> {
-            const auto map = data.toMap();
-            const auto count = map[QStringLiteral("count")].toInteger();
-            const auto next = extractUrl(map[QStringLiteral("next")]);
-            const auto prev = extractUrl(map[QStringLiteral("previous")]);
-            const auto items = map[QStringLiteral("results")].toArray();
-
-            return std::make_unique<StandardPagingStrategyPrivate>(
-                count, items, data, next, prev);
-          }},
-      data);
-}
-
-StandardPagingStrategyPrivate::StandardPagingStrategyPrivate(qint64 count,
-                                                             const Data& items,
-                                                             const Data& data,
-                                                             const QUrl& next,
-                                                             const QUrl& prev)
-    : m_count(count),
-      m_items(items),
-      m_data(data),
-      m_next(next),
-      m_prev(prev) {}
-
-qint64 StandardPagingStrategyPrivate::count() const { return m_count; }
-
-Data StandardPagingStrategyPrivate::items() const { return m_items; }
-
-Data StandardPagingStrategyPrivate::data() const { return m_data; }
-
-bool StandardPagingStrategyPrivate::hasNext() const {
-  return !m_next.isEmpty();
-}
-bool StandardPagingStrategyPrivate::hasPrev() const {
-  return !m_prev.isEmpty();
-}
-
-QUrl StandardPagingStrategyPrivate::nextUrl() const { return m_next; }
-
-QUrl StandardPagingStrategyPrivate::prevUrl() const { return m_prev; }
 
 }  // namespace detail
 
