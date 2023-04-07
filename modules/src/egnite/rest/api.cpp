@@ -122,6 +122,39 @@ IReply* Api::callRaw(const QByteArray& verb, const QString& path,
   return getReplyDecorator()->decorate(reply);
 }
 
+IReply* Api::callRaw(const QByteArray& verb, const QUrl& relative_url,
+                     const QUrlQuery& parameters, const Headers& headers,
+                     QObject* parent) const {
+  Q_D(const detail::Api);
+  auto reply =
+      new Reply(const_cast<Api*>(this),
+                d->create(verb, relative_url, parameters, headers), parent);
+
+  return getReplyDecorator()->decorate(reply);
+}
+
+IReply* Api::callRaw(const QByteArray& verb, const QUrl& relative_url,
+                     const QJsonValue& data, const QUrlQuery& parameters,
+                     const Headers& headers, QObject* parent) const {
+  Q_D(const detail::Api);
+  auto reply = new Reply(
+      const_cast<Api*>(this),
+      d->create(verb, relative_url, data, parameters, headers), parent);
+
+  return getReplyDecorator()->decorate(reply);
+}
+
+IReply* Api::callRaw(const QByteArray& verb, const QUrl& relative_url,
+                     const QCborValue& data, const QUrlQuery& parameters,
+                     const Headers& headers, QObject* parent) const {
+  Q_D(const detail::Api);
+  auto reply = new Reply(
+      const_cast<Api*>(this),
+      d->create(verb, relative_url, data, parameters, headers), parent);
+
+  return getReplyDecorator()->decorate(reply);
+}
+
 /* ------------------------------- ApiPrivate ------------------------------- */
 
 namespace detail {
@@ -221,6 +254,55 @@ QNetworkReply* ApiPrivate::create(const QByteArray& verb, const QString& path,
   auto request =
       getRequestBuilder()
           .addPath(path)
+          .addParameters(parameters)
+          .addHeaders(headers)
+          .addHeader(ReplyPrivate::ContentType, ReplyPrivate::ContentTypeCbor)
+          .addHeader(ReplyPrivate::Accept, ReplyPrivate::ContentTypeCbor)
+          .build();
+
+  return ReplyPrivate::send(m_manager, request, verb,
+                            convertDataToByteArray(data));
+}
+
+QNetworkReply* ApiPrivate::create(const QByteArray& verb,
+                                  const QUrl& relative_url,
+                                  const QUrlQuery& parameters,
+                                  const Headers& headers) const {
+  auto request = getRequestBuilder()
+                     .updateFromRelativeUrl(relative_url, true)
+                     .addParameters(parameters)
+                     .addHeaders(headers)
+                     .build();
+
+  return ReplyPrivate::send(m_manager, request, verb, {});
+}
+
+QNetworkReply* ApiPrivate::create(const QByteArray& verb,
+                                  const QUrl& relative_url,
+                                  const QJsonValue& data,
+                                  const QUrlQuery& parameters,
+                                  const Headers& headers) const {
+  auto request =
+      getRequestBuilder()
+          .updateFromRelativeUrl(relative_url, true)
+          .addParameters(parameters)
+          .addHeaders(headers)
+          .addHeader(ReplyPrivate::ContentType, ReplyPrivate::ContentTypeJson)
+          .addHeader(ReplyPrivate::Accept, ReplyPrivate::ContentTypeJson)
+          .build();
+
+  return ReplyPrivate::send(m_manager, request, verb,
+                            convertDataToByteArray(data));
+}
+
+QNetworkReply* ApiPrivate::create(const QByteArray& verb,
+                                  const QUrl& relative_url,
+                                  const QCborValue& data,
+                                  const QUrlQuery& parameters,
+                                  const Headers& headers) const {
+  auto request =
+      getRequestBuilder()
+          .updateFromRelativeUrl(relative_url, true)
           .addParameters(parameters)
           .addHeaders(headers)
           .addHeader(ReplyPrivate::ContentType, ReplyPrivate::ContentTypeCbor)

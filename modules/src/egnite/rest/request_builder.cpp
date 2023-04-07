@@ -47,6 +47,12 @@ RequestBuilder& RequestBuilder::addPath(const QString& path) {
   return *this;
 }
 
+RequestBuilder& RequestBuilder::updateFromRelativeUrl(const QUrl& url,
+                                                      bool merge_query) {
+  m_impl->updateFromRelativeUrl(url, merge_query);
+  return *this;
+}
+
 RequestBuilder& RequestBuilder::addParameters(const QUrlQuery& parameters) {
   m_impl->addParameters(parameters);
   return *this;
@@ -91,6 +97,24 @@ void RequestBuilderPrivate::setVersion(const QVersionNumber& version) {
 
 void RequestBuilderPrivate::addPath(const QString& path) {
   if (!path.isEmpty()) m_paths.append(path);
+}
+
+void RequestBuilderPrivate::updateFromRelativeUrl(const QUrl& url,
+                                                  bool merge_query) {
+  auto builded_url = buildUrl();
+  m_base_url = builded_url.resolved(url);
+
+  m_version = QVersionNumber{};
+  m_paths.clear();
+
+  if (merge_query) {
+    auto query = QUrlQuery(url.query());
+    for (const auto& item : query.queryItems(QUrl::FullyDecoded))
+      m_parameters.addQueryItem(item.first, item.second);
+
+  } else {
+    m_parameters = QUrlQuery(url.query());
+  }
 }
 
 void RequestBuilderPrivate::addParameters(const QUrlQuery& parameters) {

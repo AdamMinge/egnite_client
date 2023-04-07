@@ -47,6 +47,16 @@ class ApiPrivate : public QObjectPrivate {
                         const QCborValue& data, const QUrlQuery& parameters,
                         const Headers& headers) const;
 
+  QNetworkReply* create(const QByteArray& verb, const QUrl& relative_url,
+                        const QUrlQuery& parameters,
+                        const Headers& headers) const;
+  QNetworkReply* create(const QByteArray& verb, const QUrl& relative_url,
+                        const QJsonValue& data, const QUrlQuery& parameters,
+                        const Headers& headers) const;
+  QNetworkReply* create(const QByteArray& verb, const QUrl& relative_url,
+                        const QCborValue& data, const QUrlQuery& parameters,
+                        const Headers& headers) const;
+
   [[nodiscard]] RequestBuilder getRequestBuilder() const;
 
  private:

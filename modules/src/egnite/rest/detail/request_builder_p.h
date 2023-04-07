@@ -17,6 +17,8 @@ class RequestBuilderPrivate {
   void setVersion(const QVersionNumber& version);
 
   void addPath(const QString& path);
+  void updateFromRelativeUrl(const QUrl& url, bool merge_query);
+
   void addParameters(const QUrlQuery& parameters);
   void addHeaders(const Headers& headers);
 

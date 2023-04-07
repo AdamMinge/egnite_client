@@ -14,7 +14,6 @@
 #include "egnite/rest/data_serializer.h"
 #include "egnite/rest/export.h"
 #include "egnite/rest/global.h"
-#include "egnite/rest/pagination.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
@@ -27,6 +26,9 @@ class WrappedReplyPrivate;
 class IApi;
 class IClient;
 class DataSerializer;
+
+template <typename DataType>
+class GenericPaging;
 
 /* ----------------------------------- IReply ------------------------------- */
 
@@ -284,39 +286,44 @@ template <typename DataType, typename ErrorType>
 GenericReply<DataType, ErrorType>::GenericReply(IReply* reply, QObject* parent)
     : GenericReplyBase<DataType, ErrorType, GenericReply>(reply, parent) {}
 
-/* ----------------- GenericReply<Paging<DataType>, ErrorType> -------------- */
+/* ----------------- GenericReply<GenericPaging<DataType>, ErrorType>
+ * -------------- */
 
 template <typename DataType, typename ErrorType>
-class GenericReply<Paging<DataType>, ErrorType>
-    : public GenericReplyBase<Paging<DataType>, ErrorType, GenericReply> {
+class GenericReply<GenericPaging<DataType>, ErrorType>
+    : public GenericReplyBase<GenericPaging<DataType>, ErrorType,
+                              GenericReply> {
  public:
   explicit GenericReply(IReply* reply, QObject* parent = nullptr);
 
   template <typename Handler>
-  GenericReply<Paging<DataType>, ErrorType>* onSucceeded(
+  GenericReply<GenericPaging<DataType>, ErrorType>* onSucceeded(
       Handler&& handler, QObject* scope = nullptr);
 };
 
 template <typename DataType, typename ErrorType>
-GenericReply<Paging<DataType>, ErrorType>::GenericReply(IReply* reply,
-                                                        QObject* parent)
-    : GenericReplyBase<Paging<DataType>, ErrorType, GenericReply>(reply,
-                                                                  parent) {}
+GenericReply<GenericPaging<DataType>, ErrorType>::GenericReply(IReply* reply,
+                                                               QObject* parent)
+    : GenericReplyBase<GenericPaging<DataType>, ErrorType, GenericReply>(
+          reply, parent) {}
 
 template <typename DataType, typename ErrorType>
 template <typename Handler>
-GenericReply<Paging<DataType>, ErrorType>*
-GenericReply<Paging<DataType>, ErrorType>::onSucceeded(Handler&& handler,
-                                                       QObject* scope) {
+GenericReply<GenericPaging<DataType>, ErrorType>*
+GenericReply<GenericPaging<DataType>, ErrorType>::onSucceeded(Handler&& handler,
+                                                              QObject* scope) {
   WrappedReply::onSucceeded(
       [this,
-       xFn = core::utils::bindCallback<void(int, const Paging<DataType>&)>(
-           std::forward<Handler>(handler))](int http_code, const Data& data) {
+       xFn =
+           core::utils::bindCallback<void(int, const GenericPaging<DataType>&)>(
+               std::forward<Handler>(handler))](int http_code,
+                                                const Data& data) {
         auto api = this->getApi();
         auto serializer = this->getDataSerializer();
         auto paging_data = api->getPagingDataFactory().create(data);
 
-        auto paging = Paging<DataType>(api, serializer, std::move(paging_data));
+        auto paging =
+            GenericPaging<DataType>(api, serializer, std::move(paging_data));
 
         xFn(http_code, paging);
       },

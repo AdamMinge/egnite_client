@@ -1,41 +1,14 @@
 #ifndef EGNITE_REST_PAGINATION_P_H
 #define EGNITE_REST_PAGINATION_P_H
 
+/* ------------------------------------ Qt ---------------------------------- */
+#include <QtCore/private/qabstractitemmodel_p.h>
 /* ------------------------------------ Local ------------------------------- */
 #include "egnite/rest/api.h"
 #include "egnite/rest/pagination.h"
 /* -------------------------------------------------------------------------- */
 
 namespace egnite::rest {
-
-/* ---------------------------------- Paging -------------------------------- */
-
-template <typename DataType>
-const QList<DataType>& Paging<DataType>::items() const {
-  if (!m_items.has_value()) {
-    m_items =
-        m_serializer->deserialize<QList<DataType>>(m_paging_data->items());
-  }
-
-  assert(m_items.has_value());
-  return m_items.value();
-}
-
-template <typename DataType>
-template <typename ErrorType>
-GenericReply<DataType, ErrorType>* Paging<DataType>::next() const {
-  if (hasNext())
-    return m_api->template get<Paging<DataType>, ErrorType>(nextUrl());
-  return nullptr;
-}
-
-template <typename DataType>
-template <typename ErrorType>
-GenericReply<DataType, ErrorType>* Paging<DataType>::prev() const {
-  if (hasPrev())
-    return m_api->template get<Paging<DataType>, ErrorType>(prevUrl());
-  return nullptr;
-}
 
 namespace detail {
 
@@ -49,8 +22,8 @@ class StandardPagingDataPrivate {
 
   [[nodiscard]] qint64 total() const;
 
-  [[nodiscard]] Data items() const;
-  [[nodiscard]] Data data() const;
+  [[nodiscard]] const Data& items() const;
+  [[nodiscard]] const Data& data() const;
 
   [[nodiscard]] bool hasNext() const;
   [[nodiscard]] bool hasPrev() const;
@@ -68,6 +41,32 @@ class StandardPagingDataPrivate {
   Data m_data;
   QUrl m_next;
   QUrl m_prev;
+};
+
+/* ------------------------------- PagingPrivate ---------------------------- */
+
+class PagingPrivate {
+ public:
+  explicit PagingPrivate(IApi*, std::unique_ptr<IPagingData> paging_data);
+  ~PagingPrivate();
+
+  IApi* getApi() const;
+  IPagingData* getPagingData() const;
+
+ private:
+  IApi* m_api;
+  std::unique_ptr<IPagingData> m_paging_data;
+};
+
+/* ----------------------------- PagingModelPrivate ------------------------- */
+
+class PagingModelPrivate : public QAbstractItemModelPrivate {
+ public:
+  Q_DECLARE_PUBLIC(PagingModel)
+
+ public:
+  explicit PagingModelPrivate();
+  ~PagingModelPrivate();
 };
 
 }  // namespace detail

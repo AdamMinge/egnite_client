@@ -82,6 +82,26 @@ class EGNITE_REST_API IApi : public QObject {
                                         const Headers& headers = {},
                                         QObject* parent = nullptr) const = 0;
 
+  [[nodiscard]] virtual IReply* callRaw(const QByteArray& verb,
+                                        const QUrl& relative_url,
+                                        const QUrlQuery& parameters = {},
+                                        const Headers& headers = {},
+                                        QObject* parent = nullptr) const = 0;
+
+  [[nodiscard]] virtual IReply* callRaw(const QByteArray& verb,
+                                        const QUrl& relative_url,
+                                        const QJsonValue& data,
+                                        const QUrlQuery& parameters = {},
+                                        const Headers& headers = {},
+                                        QObject* parent = nullptr) const = 0;
+
+  [[nodiscard]] virtual IReply* callRaw(const QByteArray& verb,
+                                        const QUrl& relative_url,
+                                        const QCborValue& data,
+                                        const QUrlQuery& parameters = {},
+                                        const Headers& headers = {},
+                                        QObject* parent = nullptr) const = 0;
+
   template <typename DataType, typename ErrorType>
   [[nodiscard]] GenericReply<DataType, ErrorType>* get(
       const QString& path, const QUrlQuery& parameters = {},
@@ -127,6 +147,54 @@ class EGNITE_REST_API IApi : public QObject {
   template <typename DataType, typename ErrorType, typename RequestDataType>
   [[nodiscard]] GenericReply<DataType, ErrorType>* patch(
       const QString& path, const RequestDataType& data,
+      const QUrlQuery& parameters = {}, const Headers& headers = {},
+      QObject* parent = nullptr);
+
+  template <typename DataType, typename ErrorType>
+  [[nodiscard]] GenericReply<DataType, ErrorType>* get(
+      const QUrl& relative_url, const QUrlQuery& parameters = {},
+      const Headers& headers = {}, QObject* parent = nullptr);
+
+  template <typename DataType, typename ErrorType>
+  [[nodiscard]] GenericReply<DataType, ErrorType>* head(
+      const QUrl& relative_url, const QUrlQuery& parameters = {},
+      const Headers& headers = {}, QObject* parent = nullptr);
+
+  template <typename DataType, typename ErrorType>
+  [[nodiscard]] GenericReply<DataType, ErrorType>* deleteResource(
+      const QUrl& relative_url, const QUrlQuery& parameters = {},
+      const Headers& headers = {}, QObject* parent = nullptr);
+
+  template <typename DataType, typename ErrorType>
+  [[nodiscard]] GenericReply<DataType, ErrorType>* post(
+      const QUrl& relative_url, const QUrlQuery& parameters = {},
+      const Headers& headers = {}, QObject* parent = nullptr);
+
+  template <typename DataType, typename ErrorType, typename RequestDataType>
+  [[nodiscard]] GenericReply<DataType, ErrorType>* post(
+      const QUrl& relative_url, const RequestDataType& data,
+      const QUrlQuery& parameters = {}, const Headers& headers = {},
+      QObject* parent = nullptr);
+
+  template <typename DataType, typename ErrorType>
+  [[nodiscard]] GenericReply<DataType, ErrorType>* put(
+      const QUrl& relative_url, const QUrlQuery& parameters = {},
+      const Headers& headers = {}, QObject* parent = nullptr);
+
+  template <typename DataType, typename ErrorType, typename RequestDataType>
+  [[nodiscard]] GenericReply<DataType, ErrorType>* put(
+      const QUrl& relative_url, const RequestDataType& data,
+      const QUrlQuery& parameters = {}, const Headers& headers = {},
+      QObject* parent = nullptr);
+
+  template <typename DataType, typename ErrorType>
+  [[nodiscard]] GenericReply<DataType, ErrorType>* patch(
+      const QUrl& relative_url, const QUrlQuery& parameters = {},
+      const Headers& headers = {}, QObject* parent = nullptr);
+
+  template <typename DataType, typename ErrorType, typename RequestDataType>
+  [[nodiscard]] GenericReply<DataType, ErrorType>* patch(
+      const QUrl& relative_url, const RequestDataType& data,
       const QUrlQuery& parameters = {}, const Headers& headers = {},
       QObject* parent = nullptr);
 
@@ -187,10 +255,7 @@ GenericReply<DataType, ErrorType>* IApi::post(const QString& path,
           [&](std::nullopt_t) -> IReply* {
             return callRaw(IApi::PostVerb, path, parameters, headers);
           },
-          [&](QJsonValue& data) -> IReply* {
-            return callRaw(IApi::PostVerb, path, data, parameters, headers);
-          },
-          [&](QCborValue& data) -> IReply* {
+          [&](auto& data) -> IReply* {
             return callRaw(IApi::PostVerb, path, data, parameters, headers);
           }},
       serialized_data);
@@ -219,10 +284,7 @@ GenericReply<DataType, ErrorType>* IApi::put(const QString& path,
           [&](std::nullopt_t) -> IReply* {
             return callRaw(IApi::PutVerb, path, parameters, headers);
           },
-          [&](QJsonValue& data) -> IReply* {
-            return callRaw(IApi::PutVerb, path, data, parameters, headers);
-          },
-          [&](QCborValue& data) -> IReply* {
+          [&](auto& data) -> IReply* {
             return callRaw(IApi::PutVerb, path, data, parameters, headers);
           }},
       serialized_data);
@@ -252,12 +314,127 @@ GenericReply<DataType, ErrorType>* IApi::patch(const QString& path,
           [&](std::nullopt_t) -> IReply* {
             return callRaw(IApi::PatchVerb, path, parameters, headers);
           },
-          [&](QJsonValue& data) -> IReply* {
-            return callRaw(IApi::PatchVerb, path, data, parameters, headers);
-          },
-          [&](QCborValue& data) -> IReply* {
+          [&](auto& data) -> IReply* {
             return callRaw(IApi::PatchVerb, path, data, parameters, headers);
           }},
+      serialized_data);
+
+  return new GenericReply<DataType, ErrorType>(reply, parent);
+}
+
+template <typename DataType, typename ErrorType>
+GenericReply<DataType, ErrorType>* IApi::get(const QUrl& relative_url,
+                                             const QUrlQuery& parameters,
+                                             const Headers& headers,
+                                             QObject* parent) {
+  return new GenericReply<DataType, ErrorType>(
+      callRaw(IApi::GetVerb, relative_url, parameters, headers), parent);
+}
+
+template <typename DataType, typename ErrorType>
+GenericReply<DataType, ErrorType>* IApi::head(const QUrl& relative_url,
+                                              const QUrlQuery& parameters,
+                                              const Headers& headers,
+                                              QObject* parent) {
+  return new GenericReply<DataType, ErrorType>(
+      callRaw(IApi::HeadVerb, relative_url, parameters, headers), parent);
+}
+
+template <typename DataType, typename ErrorType>
+GenericReply<DataType, ErrorType>* IApi::deleteResource(
+    const QUrl& relative_url, const QUrlQuery& parameters,
+    const Headers& headers, QObject* parent) {
+  return new GenericReply<DataType, ErrorType>(
+      callRaw(IApi::DeleteVerb, relative_url, parameters, headers), parent);
+}
+
+template <typename DataType, typename ErrorType>
+GenericReply<DataType, ErrorType>* IApi::post(const QUrl& relative_url,
+                                              const QUrlQuery& parameters,
+                                              const Headers& headers,
+                                              QObject* parent) {
+  return new GenericReply<DataType, ErrorType>(
+      callRaw(IApi::PostVerb, relative_url, parameters, headers), parent);
+}
+
+template <typename DataType, typename ErrorType, typename RequestDataType>
+GenericReply<DataType, ErrorType>* IApi::post(const QUrl& relative_url,
+                                              const RequestDataType& data,
+                                              const QUrlQuery& parameters,
+                                              const Headers& headers,
+                                              QObject* parent) {
+  auto serialized_data =
+      getDataSerializer()->serialize(data, getRequestDataFormat(headers));
+  auto reply = std::visit(
+      core::utils::overloaded{[&](std::nullopt_t) -> IReply* {
+                                return callRaw(IApi::PostVerb, relative_url,
+                                               parameters, headers);
+                              },
+                              [&](auto& data) -> IReply* {
+                                return callRaw(IApi::PostVerb, relative_url,
+                                               data, parameters, headers);
+                              }},
+      serialized_data);
+  return new GenericReply<DataType, ErrorType>(reply, parent);
+}
+
+template <typename DataType, typename ErrorType>
+GenericReply<DataType, ErrorType>* IApi::put(const QUrl& relative_url,
+                                             const QUrlQuery& parameters,
+                                             const Headers& headers,
+                                             QObject* parent) {
+  return new GenericReply<DataType, ErrorType>(
+      callRaw(IApi::PutVerb, relative_url, parameters, headers), parent);
+}
+
+template <typename DataType, typename ErrorType, typename RequestDataType>
+GenericReply<DataType, ErrorType>* IApi::put(const QUrl& relative_url,
+                                             const RequestDataType& data,
+                                             const QUrlQuery& parameters,
+                                             const Headers& headers,
+                                             QObject* parent) {
+  auto serialized_data =
+      getDataSerializer()->serialize(data, getRequestDataFormat(headers));
+  auto reply = std::visit(
+      core::utils::overloaded{[&](std::nullopt_t) -> IReply* {
+                                return callRaw(IApi::PutVerb, relative_url,
+                                               parameters, headers);
+                              },
+                              [&](auto& data) -> IReply* {
+                                return callRaw(IApi::PutVerb, relative_url,
+                                               data, parameters, headers);
+                              }},
+      serialized_data);
+
+  return new GenericReply<DataType, ErrorType>(reply, parent);
+}
+
+template <typename DataType, typename ErrorType>
+GenericReply<DataType, ErrorType>* IApi::patch(const QUrl& relative_url,
+                                               const QUrlQuery& parameters,
+                                               const Headers& headers,
+                                               QObject* parent) {
+  return new GenericReply<DataType, ErrorType>(
+      callRaw(IApi::PatchVerb, relative_url, parameters, headers), parent);
+}
+
+template <typename DataType, typename ErrorType, typename RequestDataType>
+GenericReply<DataType, ErrorType>* IApi::patch(const QUrl& relative_url,
+                                               const RequestDataType& data,
+                                               const QUrlQuery& parameters,
+                                               const Headers& headers,
+                                               QObject* parent) {
+  auto serialized_data =
+      getDataSerializer()->serialize(data, getRequestDataFormat(headers));
+  auto reply = std::visit(
+      core::utils::overloaded{[&](std::nullopt_t) -> IReply* {
+                                return callRaw(IApi::PatchVerb, relative_url,
+                                               parameters, headers);
+                              },
+                              [&](auto& data) -> IReply* {
+                                return callRaw(IApi::PatchVerb, relative_url,
+                                               data, parameters, headers);
+                              }},
       serialized_data);
 
   return new GenericReply<DataType, ErrorType>(reply, parent);
@@ -299,6 +476,26 @@ class EGNITE_REST_API Api : public IApi {
                                 QObject* parent = nullptr) const override;
 
   [[nodiscard]] IReply* callRaw(const QByteArray& verb, const QString& path,
+                                const QCborValue& data,
+                                const QUrlQuery& parameters = {},
+                                const Headers& headers = {},
+                                QObject* parent = nullptr) const override;
+
+  [[nodiscard]] IReply* callRaw(const QByteArray& verb,
+                                const QUrl& relative_url,
+                                const QUrlQuery& parameters = {},
+                                const Headers& headers = {},
+                                QObject* parent = nullptr) const override;
+
+  [[nodiscard]] IReply* callRaw(const QByteArray& verb,
+                                const QUrl& relative_url,
+                                const QJsonValue& data,
+                                const QUrlQuery& parameters = {},
+                                const Headers& headers = {},
+                                QObject* parent = nullptr) const override;
+
+  [[nodiscard]] IReply* callRaw(const QByteArray& verb,
+                                const QUrl& relative_url,
                                 const QCborValue& data,
                                 const QUrlQuery& parameters = {},
                                 const Headers& headers = {},

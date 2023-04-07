@@ -38,6 +38,7 @@ class EGNITE_REST_API RequestBuilder {
   RequestBuilder& setVersion(const QVersionNumber& version);
 
   RequestBuilder& addPath(const QString& path);
+  RequestBuilder& updateFromRelativeUrl(const QUrl& url, bool merge_query);
 
   RequestBuilder& addParameters(const QUrlQuery& parameters);
   RequestBuilder& addParameter(const QString& parameter_name,
