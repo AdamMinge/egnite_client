@@ -74,28 +74,6 @@ class StandardPaging : public IPaging {
   std::unique_ptr<detail::StandardPagingPrivate> m_impl;
 };
 
-/* ------------------------------ IPagingFactory ---------------------------- */
-
-class EGNITE_REST_API IPagingFactory {
- public:
-  explicit IPagingFactory();
-  virtual ~IPagingFactory();
-
-  [[nodiscard]] virtual std::unique_ptr<IPaging> create(const Data& data,
-                                                        IApi* api) = 0;
-};
-
-/* -------------------------- StandardPagingFactory ------------------------- */
-
-class EGNITE_REST_API StandardPagingFactory : public IPagingFactory {
- public:
-  explicit StandardPagingFactory();
-  ~StandardPagingFactory() override;
-
-  [[nodiscard]] std::unique_ptr<IPaging> create(const Data& data,
-                                                IApi* api) override;
-};
-
 /* ------------------------------ GenericPaging ----------------------------- */
 
 template <typename DataType>
@@ -210,6 +188,28 @@ GenericReply<DataType, ErrorType>* GenericPaging<DataType>::prev() const {
   if (hasPrev()) new GenericReply<DataType, ErrorType>(m_paging->rawPrev());
   return nullptr;
 }
+
+/* ------------------------------ IPagingFactory ---------------------------- */
+
+class EGNITE_REST_API IPagingFactory {
+ public:
+  explicit IPagingFactory();
+  virtual ~IPagingFactory();
+
+  [[nodiscard]] virtual std::unique_ptr<IPaging> create(const Data& data,
+                                                        IApi* api) = 0;
+};
+
+/* -------------------------- StandardPagingFactory ------------------------- */
+
+class EGNITE_REST_API StandardPagingFactory : public IPagingFactory {
+ public:
+  explicit StandardPagingFactory();
+  ~StandardPagingFactory() override;
+
+  [[nodiscard]] std::unique_ptr<IPaging> create(const Data& data,
+                                                IApi* api) override;
+};
 
 /* ------------------------------- PagingModel ------------------------------ */
 
