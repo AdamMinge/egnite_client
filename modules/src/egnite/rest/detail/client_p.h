@@ -38,7 +38,7 @@ class ClientPrivate : public QObjectPrivate {
   [[nodiscard]] RequestBuilder getRequestBuilder() const;
   [[nodiscard]] DataSerializer* getDataSerializer() const;
   [[nodiscard]] IReplyDecorator* getReplyDecorator() const;
-  [[nodiscard]] IPagingDataFactory* getPagingDataFactory() const;
+  [[nodiscard]] IPagingFactory* getPagingFactory() const;
 
  private:
   QUrl m_base_url;
@@ -48,7 +48,7 @@ class ClientPrivate : public QObjectPrivate {
   QScopedPointer<QNetworkAccessManager> m_manager;
   QScopedPointer<DataSerializer> m_data_serializer;
   QScopedPointer<IReplyDecorator> m_reply_decorator;
-  QScopedPointer<IPagingDataFactory> m_paging_data_factory;
+  QScopedPointer<IPagingFactory> m_paging_factory;
 };
 
 }  // namespace egnite::rest::detail

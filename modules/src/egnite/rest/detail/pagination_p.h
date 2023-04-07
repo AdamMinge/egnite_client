@@ -8,22 +8,17 @@
 #include "egnite/rest/pagination.h"
 /* -------------------------------------------------------------------------- */
 
-namespace egnite::rest {
+namespace egnite::rest::detail {
 
-namespace detail {
+/* --------------------------- StandardPagingPrivate ------------------------ */
 
-/* ------------------------- StandardPagingDataPrivate ---------------------- */
-
-class StandardPagingDataPrivate {
+class StandardPagingPrivate {
  public:
-  explicit StandardPagingDataPrivate(const Data& data);
+  explicit StandardPagingPrivate(const Data& data, IApi* api);
 
   [[nodiscard]] bool valid() const;
 
   [[nodiscard]] qint64 total() const;
-
-  [[nodiscard]] const Data& items() const;
-  [[nodiscard]] const Data& data() const;
 
   [[nodiscard]] bool hasNext() const;
   [[nodiscard]] bool hasPrev() const;
@@ -31,31 +26,19 @@ class StandardPagingDataPrivate {
   [[nodiscard]] QUrl nextUrl() const;
   [[nodiscard]] QUrl prevUrl() const;
 
- private:
-  static QUrl extractUrl(const Data& data);
+  [[nodiscard]] IReply* rawNext() const;
+  [[nodiscard]] IReply* rawPrev() const;
+
+  [[nodiscard]] const Data& rawItems() const;
 
  private:
+  IApi* m_api;
   bool m_valid;
   qint64 m_total;
   Data m_items;
   Data m_data;
   QUrl m_next;
   QUrl m_prev;
-};
-
-/* ------------------------------- PagingPrivate ---------------------------- */
-
-class PagingPrivate {
- public:
-  explicit PagingPrivate(IApi*, std::unique_ptr<IPagingData> paging_data);
-  ~PagingPrivate();
-
-  IApi* getApi() const;
-  IPagingData* getPagingData() const;
-
- private:
-  IApi* m_api;
-  std::unique_ptr<IPagingData> m_paging_data;
 };
 
 /* ----------------------------- PagingModelPrivate ------------------------- */
@@ -69,8 +52,6 @@ class PagingModelPrivate : public QAbstractItemModelPrivate {
   ~PagingModelPrivate();
 };
 
-}  // namespace detail
-
-}  // namespace egnite::rest
+}  // namespace egnite::rest::detail
 
 #endif  // EGNITE_REST_PAGINATION_P_H

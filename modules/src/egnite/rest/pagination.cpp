@@ -13,81 +13,74 @@
 
 namespace egnite::rest {
 
-/* -------------------------------- IPagingData ----------------------------- */
+namespace {
 
-IPagingData::IPagingData() = default;
+QUrl extractUrl(const Data& data) {
+  return std::visit(
+      core::utils::overloaded{[&](std::nullopt_t) -> QUrl { return QUrl{}; },
+                              [&](const QJsonValue& data) -> QUrl {
+                                if (data.isString()) {
+                                  auto url = QUrl(data.toString());
+                                  if (url.isValid()) return url;
+                                }
 
-IPagingData::~IPagingData() = default;
-
-/* ----------------------------- StandardPagingData ------------------------- */
-
-StandardPagingData::StandardPagingData(const Data& data)
-    : m_impl(std::make_unique<detail::StandardPagingDataPrivate>(data)) {}
-
-StandardPagingData::~StandardPagingData() = default;
-
-bool StandardPagingData::valid() const { return m_impl->valid(); }
-
-qint64 StandardPagingData::total() const { return m_impl->total(); }
-
-const Data& StandardPagingData::items() const { return m_impl->items(); }
-
-const Data& StandardPagingData::data() const { return m_impl->data(); }
-
-bool StandardPagingData::hasNext() const { return m_impl->hasNext(); }
-
-bool StandardPagingData::hasPrev() const { return m_impl->hasPrev(); }
-
-QUrl StandardPagingData::nextUrl() const { return m_impl->nextUrl(); }
-
-QUrl StandardPagingData::prevUrl() const { return m_impl->prevUrl(); }
-
-/* ---------------------------- IPagingDataFactory -------------------------- */
-
-IPagingDataFactory::IPagingDataFactory() = default;
-
-IPagingDataFactory::~IPagingDataFactory() = default;
-
-/* ------------------------ StandardPagingDataFactory ----------------------- */
-
-StandardPagingDataFactory::StandardPagingDataFactory() = default;
-
-StandardPagingDataFactory::~StandardPagingDataFactory() = default;
-
-std::unique_ptr<IPagingData> StandardPagingDataFactory::create(
-    const Data& data) {
-  return std::make_unique<StandardPagingData>(data);
+                                return QUrl{};
+                              },
+                              [&](const QCborValue& data) -> QUrl {
+                                return data.isUrl() ? data.toUrl() : QUrl{};
+                              }},
+      data);
 }
 
-/* ---------------------------------- Paging -------------------------------- */
+}  // namespace
 
-Paging::Paging(IApi* api, std::unique_ptr<IPagingData> paging_data)
-    : m_impl(std::make_unique<detail::PagingPrivate>(api,
-                                                     std::move(paging_data))) {}
+/* --------------------------------- IPaging -------------------------------- */
 
-Paging::~Paging() = default;
+IPaging::IPaging() = default;
 
-qint64 Paging::total() const { return m_impl->getPagingData()->total(); }
+IPaging::~IPaging() = default;
 
-bool Paging::hasNext() const { return m_impl->getPagingData()->hasNext(); }
+/* ------------------------------ StandardPaging ---------------------------- */
 
-bool Paging::hasPrev() const { return m_impl->getPagingData()->hasPrev(); }
+StandardPaging::StandardPaging(const Data& data, IApi* api)
+    : m_impl(std::make_unique<detail::StandardPagingPrivate>(data, api)) {}
 
-QUrl Paging::nextUrl() const { return m_impl->getPagingData()->nextUrl(); }
+StandardPaging::~StandardPaging() = default;
 
-QUrl Paging::prevUrl() const { return m_impl->getPagingData()->prevUrl(); }
+bool StandardPaging::valid() const { return m_impl->valid(); }
 
-IReply* Paging::next() const {
-  if (hasNext()) return m_impl->getApi()->callRaw(IApi::GetVerb, nextUrl());
-  return nullptr;
+qint64 StandardPaging::total() const { return m_impl->total(); }
+
+bool StandardPaging::hasNext() const { return m_impl->hasNext(); }
+
+bool StandardPaging::hasPrev() const { return m_impl->hasPrev(); }
+
+QUrl StandardPaging::nextUrl() const { return m_impl->nextUrl(); }
+
+QUrl StandardPaging::prevUrl() const { return m_impl->prevUrl(); }
+
+IReply* StandardPaging::rawNext() const { return m_impl->rawNext(); }
+
+IReply* StandardPaging::rawPrev() const { return m_impl->rawPrev(); }
+
+const Data& StandardPaging::rawItems() const { return m_impl->rawItems(); }
+
+/* ------------------------------ IPagingFactory ---------------------------- */
+
+IPagingFactory::IPagingFactory() = default;
+
+IPagingFactory::~IPagingFactory() = default;
+
+/* -------------------------- StandardPagingFactory ------------------------- */
+
+StandardPagingFactory::StandardPagingFactory() = default;
+
+StandardPagingFactory::~StandardPagingFactory() = default;
+
+std::unique_ptr<IPaging> StandardPagingFactory::create(const Data& data,
+                                                       IApi* api) {
+  return std::make_unique<StandardPaging>(data, api);
 }
-
-IReply* Paging::prev() const {
-  if (hasPrev()) return m_impl->getApi()->callRaw(IApi::GetVerb, prevUrl());
-  return nullptr;
-}
-
-const Data& Paging::items() const { return m_impl->getPagingData()->items(); }
 
 /* ------------------------------- PagingModel ------------------------------ */
 
@@ -116,11 +109,13 @@ Qt::ItemFlags PagingModel::flags(const QModelIndex& index) const {}
 
 QHash<int, QByteArray> PagingModel::roleNames() const {}
 
-/* ------------------------- StandardPagingDataPrivate ---------------------- */
-
 namespace detail {
-StandardPagingDataPrivate::StandardPagingDataPrivate(const Data& data)
-    : m_valid(false),
+
+/* --------------------------- StandardPagingPrivate ------------------------ */
+
+StandardPagingPrivate::StandardPagingPrivate(const Data& data, IApi* api)
+    : m_api(api),
+      m_valid(false),
       m_total(0),
       m_items(std::nullopt),
       m_data(data),
@@ -161,52 +156,29 @@ StandardPagingDataPrivate::StandardPagingDataPrivate(const Data& data)
                  data);
 }
 
-bool StandardPagingDataPrivate::valid() const { return m_valid; }
+bool StandardPagingPrivate::valid() const { return m_valid; }
 
-qint64 StandardPagingDataPrivate::total() const { return m_total; }
+qint64 StandardPagingPrivate::total() const { return m_total; }
 
-const Data& StandardPagingDataPrivate::items() const { return m_items; }
+bool StandardPagingPrivate::hasNext() const { return !m_next.isEmpty(); }
 
-const Data& StandardPagingDataPrivate::data() const { return m_data; }
+bool StandardPagingPrivate::hasPrev() const { return !m_prev.isEmpty(); }
 
-bool StandardPagingDataPrivate::hasNext() const { return !m_next.isEmpty(); }
+QUrl StandardPagingPrivate::nextUrl() const { return m_next; }
 
-bool StandardPagingDataPrivate::hasPrev() const { return !m_prev.isEmpty(); }
+QUrl StandardPagingPrivate::prevUrl() const { return m_prev; }
 
-QUrl StandardPagingDataPrivate::nextUrl() const { return m_next; }
-
-QUrl StandardPagingDataPrivate::prevUrl() const { return m_prev; }
-
-QUrl StandardPagingDataPrivate::extractUrl(const Data& data) {
-  return std::visit(
-      core::utils::overloaded{[&](std::nullopt_t) -> QUrl { return QUrl{}; },
-                              [&](const QJsonValue& data) -> QUrl {
-                                if (data.isString()) {
-                                  auto url = QUrl(data.toString());
-                                  if (url.isValid()) return url;
-                                }
-
-                                return QUrl{};
-                              },
-                              [&](const QCborValue& data) -> QUrl {
-                                return data.isUrl() ? data.toUrl() : QUrl{};
-                              }},
-      data);
+IReply* StandardPagingPrivate::rawNext() const {
+  if (hasNext()) return m_api->callRaw(IApi::GetVerb, nextUrl());
+  return nullptr;
 }
 
-/* ------------------------------- PagingPrivate ---------------------------- */
-
-PagingPrivate::PagingPrivate(IApi* api,
-                             std::unique_ptr<IPagingData> paging_data)
-    : m_api(api), m_paging_data(std::move(paging_data)) {}
-
-PagingPrivate::~PagingPrivate() = default;
-
-IApi* PagingPrivate::getApi() const { return m_api; }
-
-IPagingData* PagingPrivate::getPagingData() const {
-  return m_paging_data.get();
+IReply* StandardPagingPrivate::rawPrev() const {
+  if (hasNext()) return m_api->callRaw(IApi::GetVerb, nextUrl());
+  return nullptr;
 }
+
+const Data& StandardPagingPrivate::rawItems() const { return m_items; }
 
 /* ----------------------------- PagingModelPrivate ------------------------- */
 

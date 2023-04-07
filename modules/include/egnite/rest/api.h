@@ -21,7 +21,7 @@ class ApiPrivate;
 
 class IClient;
 class IReplyDecorator;
-class IPagingDataFactory;
+class IPagingFactory;
 
 /* ----------------------------------- IApi --------------------------------- */
 
@@ -48,7 +48,7 @@ class EGNITE_REST_API IApi : public QObject {
   [[nodiscard]] virtual IClient* getClient() const = 0;
   [[nodiscard]] virtual IReplyDecorator* getReplyDecorator() const = 0;
   [[nodiscard]] virtual DataSerializer* getDataSerializer() const = 0;
-  [[nodiscard]] virtual IPagingDataFactory* getPagingDataFactory() const = 0;
+  [[nodiscard]] virtual IPagingFactory* getPagingFactory() const = 0;
 
   virtual void setGlobalHeaders(const Headers& headers) = 0;
   [[nodiscard]] virtual Headers getGlobalHeaders() const = 0;
@@ -453,7 +453,7 @@ class EGNITE_REST_API Api : public IApi {
   [[nodiscard]] IClient* getClient() const override;
   [[nodiscard]] IReplyDecorator* getReplyDecorator() const override;
   [[nodiscard]] DataSerializer* getDataSerializer() const override;
-  [[nodiscard]] IPagingDataFactory* getPagingDataFactory() const override;
+  [[nodiscard]] IPagingFactory* getPagingFactory() const override;
 
   void setGlobalHeaders(const Headers& headers) override;
   [[nodiscard]] Headers getGlobalHeaders() const override;

@@ -15,8 +15,7 @@
 namespace egnite::rest {
 
 namespace detail {
-class StandardPagingDataPrivate;
-class PagingPrivate;
+class StandardPagingPrivate;
 class PagingModelPrivate;
 }  // namespace detail
 
@@ -26,40 +25,39 @@ class IReply;
 template <typename DataType, typename ErrorType>
 class GenericReply;
 
-/* -------------------------------- IPagingData ----------------------------- */
+/* ---------------------------------- IPaging ------------------------------- */
 
-class EGNITE_REST_API IPagingData {
+class IPaging {
  public:
-  explicit IPagingData();
-  virtual ~IPagingData();
+  explicit IPaging();
+  virtual ~IPaging();
 
   [[nodiscard]] virtual bool valid() const = 0;
 
   [[nodiscard]] virtual qint64 total() const = 0;
-
-  [[nodiscard]] virtual const Data& items() const = 0;
-  [[nodiscard]] virtual const Data& data() const = 0;
 
   [[nodiscard]] virtual bool hasNext() const = 0;
   [[nodiscard]] virtual bool hasPrev() const = 0;
 
   [[nodiscard]] virtual QUrl nextUrl() const = 0;
   [[nodiscard]] virtual QUrl prevUrl() const = 0;
+
+  [[nodiscard]] virtual IReply* rawNext() const = 0;
+  [[nodiscard]] virtual IReply* rawPrev() const = 0;
+
+  [[nodiscard]] virtual const Data& rawItems() const = 0;
 };
 
-/* ----------------------------- StandardPagingData ------------------------- */
+/* ------------------------------ StandardPaging ---------------------------- */
 
-class EGNITE_REST_API StandardPagingData : public IPagingData {
+class StandardPaging : public IPaging {
  public:
-  explicit StandardPagingData(const Data& data);
-  ~StandardPagingData() override;
+  explicit StandardPaging(const Data& data, IApi* api);
+  ~StandardPaging() override;
 
   [[nodiscard]] bool valid() const override;
 
   [[nodiscard]] qint64 total() const override;
-
-  [[nodiscard]] const Data& items() const override;
-  [[nodiscard]] const Data& data() const override;
 
   [[nodiscard]] bool hasNext() const override;
   [[nodiscard]] bool hasPrev() const override;
@@ -67,63 +65,60 @@ class EGNITE_REST_API StandardPagingData : public IPagingData {
   [[nodiscard]] QUrl nextUrl() const override;
   [[nodiscard]] QUrl prevUrl() const override;
 
- private:
-  std::unique_ptr<detail::StandardPagingDataPrivate> m_impl;
-};
+  [[nodiscard]] IReply* rawNext() const override;
+  [[nodiscard]] IReply* rawPrev() const override;
 
-/* ---------------------------- IPagingDataFactory -------------------------- */
-
-class EGNITE_REST_API IPagingDataFactory {
- public:
-  explicit IPagingDataFactory();
-  virtual ~IPagingDataFactory();
-
-  [[nodiscard]] virtual std::unique_ptr<IPagingData> create(
-      const Data& data) = 0;
-};
-
-/* ------------------------ StandardPagingDataFactory ----------------------- */
-
-class EGNITE_REST_API StandardPagingDataFactory : public IPagingDataFactory {
- public:
-  explicit StandardPagingDataFactory();
-  ~StandardPagingDataFactory() override;
-
-  [[nodiscard]] std::unique_ptr<IPagingData> create(const Data& data) override;
-};
-
-/* ---------------------------------- Paging -------------------------------- */
-
-class Paging {
- public:
-  explicit Paging(IApi* api, std::unique_ptr<IPagingData> paging_data);
-  virtual ~Paging();
-
-  [[nodiscard]] qint64 total() const;
-
-  [[nodiscard]] bool hasNext() const;
-  [[nodiscard]] bool hasPrev() const;
-
-  [[nodiscard]] QUrl nextUrl() const;
-  [[nodiscard]] QUrl prevUrl() const;
-
-  [[nodiscard]] IReply* next() const;
-  [[nodiscard]] IReply* prev() const;
-
-  [[nodiscard]] const Data& items() const;
+  [[nodiscard]] const Data& rawItems() const override;
 
  private:
-  std::unique_ptr<detail::PagingPrivate> m_impl;
+  std::unique_ptr<detail::StandardPagingPrivate> m_impl;
 };
 
-/* ---------------------------------- Paging -------------------------------- */
+/* ------------------------------ IPagingFactory ---------------------------- */
+
+class EGNITE_REST_API IPagingFactory {
+ public:
+  explicit IPagingFactory();
+  virtual ~IPagingFactory();
+
+  [[nodiscard]] virtual std::unique_ptr<IPaging> create(const Data& data,
+                                                        IApi* api) = 0;
+};
+
+/* -------------------------- StandardPagingFactory ------------------------- */
+
+class EGNITE_REST_API StandardPagingFactory : public IPagingFactory {
+ public:
+  explicit StandardPagingFactory();
+  ~StandardPagingFactory() override;
+
+  [[nodiscard]] std::unique_ptr<IPaging> create(const Data& data,
+                                                IApi* api) override;
+};
+
+/* ------------------------------ GenericPaging ----------------------------- */
 
 template <typename DataType>
-class GenericPaging : public Paging {
+class GenericPaging : public IPaging {
  public:
-  explicit GenericPaging(IApi* api, DataSerializer* serializer,
-                         std::unique_ptr<IPagingData> paging_data);
+  explicit GenericPaging(std::unique_ptr<IPaging> paging,
+                         DataSerializer* serializer);
   ~GenericPaging() override;
+
+  [[nodiscard]] bool valid() const override;
+
+  [[nodiscard]] qint64 total() const override;
+
+  [[nodiscard]] bool hasNext() const override;
+  [[nodiscard]] bool hasPrev() const override;
+
+  [[nodiscard]] QUrl nextUrl() const override;
+  [[nodiscard]] QUrl prevUrl() const override;
+
+  [[nodiscard]] IReply* rawNext() const override;
+  [[nodiscard]] IReply* rawPrev() const override;
+
+  [[nodiscard]] const Data& rawItems() const override;
 
   template <typename ErrorType>
   GenericReply<DataType, ErrorType>* next() const;
@@ -134,22 +129,68 @@ class GenericPaging : public Paging {
   [[nodiscard]] const QList<DataType>& items() const;
 
  private:
+  std::unique_ptr<IPaging> m_paging;
   DataSerializer* m_serializer;
   QList<DataType> m_items;
 };
 
 template <typename DataType>
-GenericPaging<DataType>::GenericPaging(IApi* api, DataSerializer* serializer,
-                                       std::unique_ptr<IPagingData> paging_data)
-    : Paging(api, std::move(paging_data)), m_serializer(serializer) {}
+GenericPaging<DataType>::GenericPaging(std::unique_ptr<IPaging> paging,
+                                       DataSerializer* serializer)
+    : m_paging(std::move(m_paging)), m_serializer(serializer) {}
 
 template <typename DataType>
 GenericPaging<DataType>::~GenericPaging() = default;
 
 template <typename DataType>
+bool GenericPaging<DataType>::valid() const {
+  return m_paging->valid();
+}
+
+template <typename DataType>
+qint64 GenericPaging<DataType>::total() const {
+  return m_paging->total();
+}
+
+template <typename DataType>
+bool GenericPaging<DataType>::hasNext() const {
+  return m_paging->hasNext();
+}
+
+template <typename DataType>
+bool GenericPaging<DataType>::hasPrev() const {
+  return m_paging->hasPrev();
+}
+
+template <typename DataType>
+QUrl GenericPaging<DataType>::nextUrl() const {
+  return m_paging->nextUrl();
+}
+
+template <typename DataType>
+QUrl GenericPaging<DataType>::prevUrl() const {
+  return m_paging->prevUrl();
+}
+
+template <typename DataType>
+IReply* GenericPaging<DataType>::rawNext() const {
+  return m_paging->rawNext();
+}
+
+template <typename DataType>
+IReply* GenericPaging<DataType>::rawPrev() const {
+  return m_paging->rawPrev();
+}
+
+template <typename DataType>
+const Data& GenericPaging<DataType>::rawItems() const {
+  return m_paging->rawItems();
+}
+
+template <typename DataType>
 const QList<DataType>& GenericPaging<DataType>::items() const {
   if (!m_items.has_value()) {
-    m_items = m_serializer->deserialize<QList<DataType>>(Paging::items());
+    m_items = m_serializer->deserialize<QList<DataType>>(m_paging->rawItems());
   }
 
   assert(m_items.has_value());
@@ -159,14 +200,14 @@ const QList<DataType>& GenericPaging<DataType>::items() const {
 template <typename DataType>
 template <typename ErrorType>
 GenericReply<DataType, ErrorType>* GenericPaging<DataType>::next() const {
-  if (hasNext()) new GenericReply<DataType, ErrorType>(Paging::next());
+  if (hasNext()) new GenericReply<DataType, ErrorType>(m_paging->rawNext());
   return nullptr;
 }
 
 template <typename DataType>
 template <typename ErrorType>
 GenericReply<DataType, ErrorType>* GenericPaging<DataType>::prev() const {
-  if (hasPrev()) new GenericReply<DataType, ErrorType>(Paging::next());
+  if (hasPrev()) new GenericReply<DataType, ErrorType>(m_paging->rawPrev());
   return nullptr;
 }
 

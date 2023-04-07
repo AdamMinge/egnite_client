@@ -102,9 +102,9 @@ IReplyDecorator* Client::getReplyDecorator() const {
   return d->getReplyDecorator();
 }
 
-IPagingDataFactory* Client::getPagingDataFactory() const {
+IPagingFactory* Client::getPagingFactory() const {
   Q_D(const detail::Client);
-  return d->getPagingDataFactory();
+  return d->getPagingFactory();
 }
 
 /* ------------------------------ ClientPrivate ----------------------------- */
@@ -120,7 +120,7 @@ ClientPrivate::ClientPrivate(const QUrl& url, const QVersionNumber& version,
       m_manager(new QNetworkAccessManager),
       m_data_serializer(new DataSerializer),
       m_reply_decorator(new ReplyDecorator),
-      m_paging_data_factory(new StandardPagingDataFactory) {}
+      m_paging_factory(new StandardPagingFactory) {}
 
 void ClientPrivate::setBaseUrl(const QUrl& url) { m_base_url = url; }
 
@@ -172,8 +172,8 @@ IReplyDecorator* ClientPrivate::getReplyDecorator() const {
   return m_reply_decorator.get();
 }
 
-IPagingDataFactory* ClientPrivate::getPagingDataFactory() const {
-  return m_paging_data_factory.get();
+IPagingFactory* ClientPrivate::getPagingFactory() const {
+  return m_paging_factory.get();
 }
 
 }  // namespace detail

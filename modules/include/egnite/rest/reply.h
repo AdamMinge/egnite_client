@@ -25,10 +25,10 @@ class WrappedReplyPrivate;
 
 class IApi;
 class IClient;
-class DataSerializer;
 
 template <typename DataType>
 class GenericPaging;
+class DataSerializer;
 
 /* ----------------------------------- IReply ------------------------------- */
 
@@ -286,8 +286,7 @@ template <typename DataType, typename ErrorType>
 GenericReply<DataType, ErrorType>::GenericReply(IReply* reply, QObject* parent)
     : GenericReplyBase<DataType, ErrorType, GenericReply>(reply, parent) {}
 
-/* ----------------- GenericReply<GenericPaging<DataType>, ErrorType>
- * -------------- */
+/* -------------- GenericReply<GenericPaging<DataType>, ErrorType> ---------- */
 
 template <typename DataType, typename ErrorType>
 class GenericReply<GenericPaging<DataType>, ErrorType>
@@ -320,10 +319,10 @@ GenericReply<GenericPaging<DataType>, ErrorType>::onSucceeded(Handler&& handler,
                                                 const Data& data) {
         auto api = this->getApi();
         auto serializer = this->getDataSerializer();
-        auto paging_data = api->getPagingDataFactory().create(data);
+        auto paging_data = api->getPagingFactory().create(data, api);
 
         auto paging =
-            GenericPaging<DataType>(api, serializer, std::move(paging_data));
+            GenericPaging<DataType>(std::move(paging_data), serializer);
 
         xFn(http_code, paging);
       },
