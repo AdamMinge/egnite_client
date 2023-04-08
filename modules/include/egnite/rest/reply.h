@@ -318,11 +318,8 @@ GenericReply<GenericPaging<DataType>, ErrorType>::onSucceeded(Handler&& handler,
                std::forward<Handler>(handler))](int http_code,
                                                 const Data& data) {
         auto api = this->getApi();
-        auto serializer = this->getDataSerializer();
         auto paging_data = api->getPagingFactory().create(data, api);
-
-        auto paging =
-            GenericPaging<DataType>(std::move(paging_data), serializer);
+        auto paging = GenericPaging<DataType>(std::move(paging_data));
 
         xFn(http_code, paging);
       },

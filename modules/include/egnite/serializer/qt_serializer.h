@@ -120,7 +120,8 @@ bool trySerializeVariantGadget(Archive& ar, const QVariant& variant) {
   if (!meta_type.flags().testFlag(QMetaType::IsGadget) || !meta_object)
     return false;
 
-  for (auto index = 0; index < meta_object->propertyCount(); ++index) {
+  for (auto index = meta_object->propertyOffset();
+       index < meta_object->propertyCount(); ++index) {
     auto meta_property = meta_object->property(index);
     auto property = meta_property.readOnGadget(variant.data());
 
@@ -137,7 +138,8 @@ bool tryDeserializeVariantGadget(Archive& ar, QVariant& variant) {
   if (!meta_type.flags().testFlag(QMetaType::IsGadget) || !meta_object)
     return false;
 
-  for (auto index = 0; index < meta_object->propertyCount(); ++index) {
+  for (auto index = meta_object->propertyOffset();
+       index < meta_object->propertyCount(); ++index) {
     auto meta_property = meta_object->property(index);
     auto property = QVariant(meta_property.metaType());
 

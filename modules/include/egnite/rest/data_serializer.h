@@ -35,6 +35,7 @@ class EGNITE_REST_API DataSerializer : public QObject {
 
   template <typename Object>
   Object deserialize(const Data& data) const;
+  QVariant deserialize(const Data& data, int type_id) const;
 };
 
 template <typename Object>

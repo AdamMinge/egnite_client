@@ -32,7 +32,7 @@ class IPaging {
   explicit IPaging();
   virtual ~IPaging();
 
-  [[nodiscard]] virtual bool valid() const = 0;
+  [[nodiscard]] virtual bool isValid() const = 0;
 
   [[nodiscard]] virtual qint64 total() const = 0;
 
@@ -46,6 +46,9 @@ class IPaging {
   [[nodiscard]] virtual IReply* rawPrev() const = 0;
 
   [[nodiscard]] virtual const Data& rawItems() const = 0;
+
+  [[nodiscard]] virtual IApi* getApi() const = 0;
+  [[nodiscard]] virtual DataSerializer* getDataSerializer() const = 0;
 };
 
 /* ------------------------------ StandardPaging ---------------------------- */
@@ -55,7 +58,7 @@ class StandardPaging : public IPaging {
   explicit StandardPaging(const Data& data, IApi* api);
   ~StandardPaging() override;
 
-  [[nodiscard]] bool valid() const override;
+  [[nodiscard]] bool isValid() const override;
 
   [[nodiscard]] qint64 total() const override;
 
@@ -69,6 +72,9 @@ class StandardPaging : public IPaging {
   [[nodiscard]] IReply* rawPrev() const override;
 
   [[nodiscard]] const Data& rawItems() const override;
+
+  [[nodiscard]] IApi* getApi() const override;
+  [[nodiscard]] DataSerializer* getDataSerializer() const override;
 
  private:
   std::unique_ptr<detail::StandardPagingPrivate> m_impl;
@@ -79,11 +85,10 @@ class StandardPaging : public IPaging {
 template <typename DataType>
 class GenericPaging : public IPaging {
  public:
-  explicit GenericPaging(std::unique_ptr<IPaging> paging,
-                         DataSerializer* serializer);
+  explicit GenericPaging(std::unique_ptr<IPaging> paging);
   ~GenericPaging() override;
 
-  [[nodiscard]] bool valid() const override;
+  [[nodiscard]] bool isValid() const override;
 
   [[nodiscard]] qint64 total() const override;
 
@@ -97,6 +102,9 @@ class GenericPaging : public IPaging {
   [[nodiscard]] IReply* rawPrev() const override;
 
   [[nodiscard]] const Data& rawItems() const override;
+
+  [[nodiscard]] IApi* getApi() const override;
+  [[nodiscard]] DataSerializer* getDataSerializer() const override;
 
   template <typename ErrorType>
   GenericReply<DataType, ErrorType>* next() const;
@@ -108,21 +116,19 @@ class GenericPaging : public IPaging {
 
  private:
   std::unique_ptr<IPaging> m_paging;
-  DataSerializer* m_serializer;
   QList<DataType> m_items;
 };
 
 template <typename DataType>
-GenericPaging<DataType>::GenericPaging(std::unique_ptr<IPaging> paging,
-                                       DataSerializer* serializer)
-    : m_paging(std::move(m_paging)), m_serializer(serializer) {}
+GenericPaging<DataType>::GenericPaging(std::unique_ptr<IPaging> paging)
+    : m_paging(std::move(m_paging)) {}
 
 template <typename DataType>
 GenericPaging<DataType>::~GenericPaging() = default;
 
 template <typename DataType>
-bool GenericPaging<DataType>::valid() const {
-  return m_paging->valid();
+bool GenericPaging<DataType>::isValid() const {
+  return m_paging->isValid();
 }
 
 template <typename DataType>
@@ -166,9 +172,20 @@ const Data& GenericPaging<DataType>::rawItems() const {
 }
 
 template <typename DataType>
+IApi* GenericPaging<DataType>::getApi() const {
+  return m_paging->getApi();
+}
+
+template <typename DataType>
+DataSerializer* GenericPaging<DataType>::getDataSerializer() const {
+  return m_paging->getDataSerializer();
+}
+
+template <typename DataType>
 const QList<DataType>& GenericPaging<DataType>::items() const {
   if (!m_items.has_value()) {
-    m_items = m_serializer->deserialize<QList<DataType>>(m_paging->rawItems());
+    m_items = getDataSerializer()->template deserialize<QList<DataType>>(
+        m_paging->rawItems());
   }
 
   assert(m_items.has_value());
@@ -217,10 +234,15 @@ class EGNITE_REST_API PagingModel : public QAbstractTableModel {
   Q_OBJECT
 
  public:
-  template <typename DataType>
-  explicit PagingModel(QObject* parent = nullptr);
+  static constexpr int ModelDataRole = Qt::UserRole;
 
-  explicit PagingModel(QObject* parent = nullptr);
+ public:
+  template <typename DataType>
+  explicit PagingModel(const GenericPaging<DataType>& paging,
+                       QObject* parent = nullptr);
+  explicit PagingModel(const IPaging& paging,
+                       int type_id = QMetaType::UnknownType,
+                       QObject* parent = nullptr);
   ~PagingModel() override;
 
   QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal,
@@ -236,7 +258,6 @@ class EGNITE_REST_API PagingModel : public QAbstractTableModel {
                 int role = Qt::DisplayRole) const override;
 
   Qt::ItemFlags flags(const QModelIndex& index) const override;
-  QHash<int, QByteArray> roleNames() const override;
 
  protected:
   explicit PagingModel(detail::PagingModelPrivate& impl,
@@ -245,6 +266,10 @@ class EGNITE_REST_API PagingModel : public QAbstractTableModel {
  private:
   Q_DECLARE_PRIVATE(detail::PagingModel);
 };
+
+template <typename DataType>
+PagingModel::PagingModel(const GenericPaging<DataType>& paging, QObject* parent)
+    : PagingModel(paging, qMetaTypeId<DataType>(), parent) {}
 
 }  // namespace egnite::rest
 
