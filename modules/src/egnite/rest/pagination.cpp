@@ -90,8 +90,11 @@ std::unique_ptr<IPaging> StandardPagingFactory::create(const Data& data,
 
 /* ------------------------------- PagingModel ------------------------------ */
 
-PagingModel::PagingModel(const IPaging& paging, int type_id, QObject* parent)
+PagingModel::PagingModel(IPaging* paging, int type_id, QObject* parent)
     : PagingModel(*new detail::PagingModelPrivate(paging, type_id)) {}
+
+PagingModel::PagingModel(IReply* reply, int type_id, QObject* parent)
+    : PagingModel(*new detail::PagingModelPrivate(reply, type_id)) {}
 
 PagingModel::PagingModel(detail::PagingModelPrivate& impl, QObject* parent)
     : QAbstractTableModel(impl, parent) {}
@@ -237,11 +240,19 @@ DataSerializer* StandardPagingPrivate::getDataSerializer() const {
 
 /* ----------------------------- PagingModelPrivate ------------------------- */
 
-PagingModelPrivate::PagingModelPrivate(const IPaging& paging,
+PagingModelPrivate::PagingModelPrivate(IPaging* paging,
                                        int type_id = QMetaType::UnknownType)
-    : m_api(paging.getApi()), m_next_url(paging.nextUrl()), m_type_id(type_id) {
+    : m_api(paging->getApi()),
+      m_next_url(paging->nextUrl()),
+      m_type_id(type_id) {
   initColumns();
-  processPaging(paging);
+  processPaging(*paging);
+}
+
+PagingModelPrivate::PagingModelPrivate(IReply* reply, int type_id)
+    : m_api(reply->getApi()), m_next_url(QUrl{}), m_type_id(type_id) {
+  initColumns();
+  reply->onSucceeded([this](int, const Data& data) { processReply(data); });
 }
 
 PagingModelPrivate::~PagingModelPrivate() = default;

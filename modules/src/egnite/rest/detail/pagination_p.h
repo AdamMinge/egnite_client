@@ -51,7 +51,9 @@ class PagingModelPrivate : public QAbstractItemModelPrivate {
   Q_DECLARE_PUBLIC(PagingModel)
 
  public:
-  explicit PagingModelPrivate(const IPaging& paging, int type_id);
+  explicit PagingModelPrivate(IPaging* paging, int type_id);
+  explicit PagingModelPrivate(IReply* reply, int type_id);
+
   ~PagingModelPrivate();
 
   [[nodiscard]] int getTypeId() const;

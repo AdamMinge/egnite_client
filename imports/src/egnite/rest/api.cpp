@@ -103,6 +103,13 @@ void QmlApi::revaluateApi() {
   }
 }
 
+bool QmlApi::isEvaluated() const {
+  if (m_api) return true;
+
+  qmlWarning(this) << "components wasn't evaluate correctly or not at all";
+  return false;
+}
+
 QmlReply* QmlApi::createQmlReply(egnite::rest::IReply* reply) const {
   auto qml_reply =
       new QmlReply(QQmlEngine::contextForObject(this)->engine(), reply);
@@ -113,10 +120,7 @@ QmlReply* QmlApi::createQmlReply(egnite::rest::IReply* reply) const {
 QmlReply* QmlApi::callImpl(const QByteArray& verb, const QJSValue& path,
                            const QJSValue& parameters, const QJSValue& headers,
                            const QJSValue& data) const {
-  if (!m_api) {
-    qmlWarning(this) << "components wasn't evaluate correctly or not at all";
-    return nullptr;
-  }
+  if (!isEvaluated()) return nullptr;
 
   const auto opt_path = getPath(path);
   const auto opt_parameters = getParameters(parameters);

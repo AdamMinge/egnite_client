@@ -107,10 +107,10 @@ class GenericPaging : public IPaging {
   [[nodiscard]] DataSerializer* getDataSerializer() const override;
 
   template <typename ErrorType>
-  GenericReply<DataType, ErrorType>* next() const;
+  [[nodiscard]] GenericReply<DataType, ErrorType>* next() const;
 
   template <typename ErrorType>
-  GenericReply<DataType, ErrorType>* prev() const;
+  [[nodiscard]] GenericReply<DataType, ErrorType>* prev() const;
 
   [[nodiscard]] const QList<DataType>& items() const;
 
@@ -238,26 +238,35 @@ class EGNITE_REST_API PagingModel : public QAbstractTableModel {
 
  public:
   template <typename DataType>
-  explicit PagingModel(const GenericPaging<DataType>& paging,
+  explicit PagingModel(GenericPaging<DataType>* paging,
                        QObject* parent = nullptr);
-  explicit PagingModel(const IPaging& paging,
-                       int type_id = QMetaType::UnknownType,
+  explicit PagingModel(IPaging* paging, int type_id = QMetaType::UnknownType,
                        QObject* parent = nullptr);
+
+  template <typename DataType, typename ErrorType>
+  explicit PagingModel(GenericReply<DataType, ErrorType>* reply,
+                       QObject* parent = nullptr);
+  explicit PagingModel(IReply* reply, int type_id = QMetaType::UnknownType,
+                       QObject* parent = nullptr);
+
   ~PagingModel() override;
 
-  QVariant headerData(int section, Qt::Orientation orientation = Qt::Horizontal,
-                      int role = Qt::DisplayRole) const override;
+  [[nodiscard]] QVariant headerData(
+      int section, Qt::Orientation orientation = Qt::Horizontal,
+      int role = Qt::DisplayRole) const override;
 
-  int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-  int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+  [[nodiscard]] int rowCount(
+      const QModelIndex& parent = QModelIndex()) const override;
+  [[nodiscard]] int columnCount(
+      const QModelIndex& parent = QModelIndex()) const override;
 
-  bool canFetchMore(const QModelIndex& parent) const override;
+  [[nodiscard]] bool canFetchMore(const QModelIndex& parent) const override;
   void fetchMore(const QModelIndex& parent) override;
 
-  QVariant data(const QModelIndex& index,
-                int role = Qt::DisplayRole) const override;
+  [[nodiscard]] QVariant data(const QModelIndex& index,
+                              int role = Qt::DisplayRole) const override;
 
-  Qt::ItemFlags flags(const QModelIndex& index) const override;
+  [[nodiscard]] Qt::ItemFlags flags(const QModelIndex& index) const override;
 
  protected:
   explicit PagingModel(detail::PagingModelPrivate& impl,
@@ -268,8 +277,13 @@ class EGNITE_REST_API PagingModel : public QAbstractTableModel {
 };
 
 template <typename DataType>
-PagingModel::PagingModel(const GenericPaging<DataType>& paging, QObject* parent)
+PagingModel::PagingModel(GenericPaging<DataType>* paging, QObject* parent)
     : PagingModel(paging, qMetaTypeId<DataType>(), parent) {}
+
+template <typename DataType, typename ErrorType>
+PagingModel::PagingModel(GenericReply<DataType, ErrorType>* reply,
+                         QObject* parent)
+    : PagingModel(reply, qMetaTypeId<DataType>(), parent) {}
 
 }  // namespace egnite::rest
 

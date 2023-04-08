@@ -74,6 +74,8 @@ class QmlApi : public QObject, public QQmlParserStatus {
 
  protected:
   void revaluateApi();
+  [[nodiscard]] bool isEvaluated() const;
+
   QmlReply* createQmlReply(egnite::rest::IReply* reply) const;
   QmlReply* callImpl(const QByteArray& verb, const QJSValue& path,
                      const QJSValue& parameters, const QJSValue& headers,
