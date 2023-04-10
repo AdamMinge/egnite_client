@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Api name="PluginsApi">
+	<Includes>
+	</Includes>
+	<Headers>
+	</Headers>
+	<Parameters>
+	</Parameters>
+	<Path>
+		<FixedSegment value="plugins"/>
+	</Path>
+	<Methods>
+        <Method name="getPlugins" verb="GET">
+			<Path>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+		<Method name="createPlugin" verb="POST">
+			<Path>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+        <Method name="getPlugin" verb="GET">
+			<Path>
+                <ParamSegment name="id" type="QUuid"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+        <Method name="setPlugin" verb="PUT">
+			<Path>
+                <ParamSegment name="id" type="QUuid"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+        <Method name="updatePlugin" verb="PATCH">
+			<Path>
+                <ParamSegment name="id" type="QUuid"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+        <Method name="removePlugin" verb="DELETE">
+			<Path>
+                <ParamSegment name="id" type="QUuid"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+	</Methods>
+</Api>
+

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Api name="RatingsApi">
+	<Includes>
+	</Includes>
+	<Headers>
+	</Headers>
+	<Parameters>
+	</Parameters>
+	<Path>
+		<FixedSegment value="plugins"/>
+        <ParamSegment name="plugin_id" type="QUuid"/>
+        <FixedSegment value="ratings"/>
+	</Path>
+	<Methods>
+        <Method name="getRatings" verb="GET">
+			<Path>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+		<Method name="createRating" verb="POST">
+			<Path>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+        <Method name="getRating" verb="GET">
+			<Path>
+                <ParamSegment name="id" type="QUuid"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+        <Method name="setRating" verb="PUT">
+			<Path>
+                <ParamSegment name="id" type="QUuid"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+        <Method name="updateRating" verb="PATCH">
+			<Path>
+                <ParamSegment name="id" type="QUuid"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+        <Method name="removeRating" verb="DELETE">
+			<Path>
+                <ParamSegment name="id" type="QUuid"/>
+			</Path>
+			<Headers>
+			</Headers>
+			<Parameters>
+			</Parameters>
+			<Arguments>
+			</Arguments>
+		</Method>
+	</Methods>
+</Api>
+

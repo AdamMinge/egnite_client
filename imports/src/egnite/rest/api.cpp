@@ -204,3 +204,14 @@ std::optional<egnite::rest::Headers> QmlApi::getHeaders(
   qmlWarning(this) << "unsupported parameter, it must be headers object";
   return std::nullopt;
 }
+
+template <typename Type>
+QString QmlApi::QJSValueToPath(const QJSValue& path) {
+  return QString("%1").arg(path.toVariant().value<Type>());
+}
+
+template <>
+QString QmlApi::QJSValueToPath<QUuid>(const QJSValue& path) {
+  return QString("%1").arg(
+      path.toVariant().value<QUuid>().toString(QUuid::WithoutBraces));
+}

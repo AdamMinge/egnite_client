@@ -24,6 +24,10 @@ AnimatedHideableItem {
             id: home_page
         }
 
+        PluginsPage {
+            id: plugins_page
+        }
+
         NotificationsPage {
             id: notifications_page
         }
@@ -53,6 +57,12 @@ AnimatedHideableItem {
                     name: "Home"
                     icon: "\uef47"
                     handler: function(){ pages_view.currentItem = home_page }
+                    checkable: true
+                }
+                ListElement { 
+                    name: "Plugins"
+                    icon: "\uefc7"
+                    handler: function(){ pages_view.currentItem = plugins_page }
                     checkable: true
                 }
                 ListElement { 

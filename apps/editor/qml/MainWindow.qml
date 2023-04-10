@@ -54,6 +54,16 @@ ApplicationWindow  {
         client: egnite_client
     }
 
+    PluginsApi {
+        id: plugins_api
+        client: egnite_client
+    }
+
+    RatingsApi {
+        id: ratings_api
+        client: egnite_client
+    }
+
     AnimatedPagesView {
         id: pages_view
         anchors.fill: parent

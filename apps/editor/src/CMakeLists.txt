@@ -27,6 +27,7 @@ set(qmls
     ${qmls_root}/Pages/home/HomePage.qml
     ${qmls_root}/Pages/notifications/NotificationsPage.qml
     ${qmls_root}/Pages/profile/ProfilePage.qml
+    ${qmls_root}/Pages/plugins/PluginsPage.qml
     ${qmls_root}/Pages/settings/SettingsPage.qml)
 
 set(scripts)

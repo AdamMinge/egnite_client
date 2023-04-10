@@ -307,16 +307,16 @@ class QmlApiGenerator(QmlSchemaGenerator):
                                     variable: str) -> writer.CodeWriter:
         def segment_to_value(segment):
              if isinstance(segment, NameTypeSchema): 
-                return f"{segment.name}.toVariant().value<{segment.type}>()"
+                return f"QJSValueToPath<{segment.type}>({segment.name})"
              elif isinstance(segment, ValueSchema):
                 return f'"{segment.value}"'
 
         wr = writer.CodeWriter()
         wr.add_line(f"QStringList {variable};")
         for api_segment in self.api_schema.path.segments:
-            wr.add_line(f'{variable} << QString("%1").arg({segment_to_value(api_segment)});')
+            wr.add_line(f'{variable} << {segment_to_value(api_segment)};')
         for method_segment in method.path.segments:
-            wr.add_line(f'{variable} << QString("%1").arg({segment_to_value(method_segment)});')
+            wr.add_line(f'{variable} << {segment_to_value(method_segment)};')
         return wr
  
     def _reply_method_parameters_variable(self, 

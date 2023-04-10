@@ -76,18 +76,26 @@ class QmlApi : public QObject, public QQmlParserStatus {
   void revaluateApi();
   [[nodiscard]] bool isEvaluated() const;
 
-  QmlReply* createQmlReply(egnite::rest::IReply* reply) const;
-  QmlReply* callImpl(const QByteArray& verb, const QJSValue& path,
-                     const QJSValue& parameters, const QJSValue& headers,
-                     const QJSValue& data = {}) const;
+  [[nodiscard]] QmlReply* createQmlReply(egnite::rest::IReply* reply) const;
+  [[nodiscard]] QmlReply* callImpl(const QByteArray& verb, const QJSValue& path,
+                                   const QJSValue& parameters,
+                                   const QJSValue& headers,
+                                   const QJSValue& data = {}) const;
 
   void setGlobalHeaders(const egnite::rest::Headers& headers);
   void setGlobalParameters(const QUrlQuery& parameters);
 
-  std::optional<QString> getPath(const QJSValue& object) const;
-  std::optional<egnite::rest::Data> getBody(const QJSValue& object) const;
-  std::optional<QUrlQuery> getParameters(const QJSValue& object) const;
-  std::optional<egnite::rest::Headers> getHeaders(const QJSValue& object) const;
+  [[nodiscard]] std::optional<QString> getPath(const QJSValue& object) const;
+  [[nodiscard]] std::optional<egnite::rest::Data> getBody(
+      const QJSValue& object) const;
+  [[nodiscard]] std::optional<QUrlQuery> getParameters(
+      const QJSValue& object) const;
+  [[nodiscard]] std::optional<egnite::rest::Headers> getHeaders(
+      const QJSValue& object) const;
+
+ protected:
+  template <typename Type>
+  [[nodiscard]] QString QJSValueToPath(const QJSValue& path);
 
  protected:
   struct RevaluateData {
