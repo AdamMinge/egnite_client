@@ -17,7 +17,7 @@ if(interface MATCHES qml)
       ${resources_root}/schemas/qml/clients/egnite_client.xml
       ${resources_root}/schemas/qml/apis/registration_api.xml
       ${resources_root}/schemas/qml/apis/plugins_api.xml
-      ${resources_root}/schemas/qml/apis/ratings_api.xml)
+      ${resources_root}/schemas/qml/apis/plugins_ratings_api.xml)
 else()
   set(schemas
       ${resources_root}/schemas/qt/clients/egnite_client.xml

@@ -69,8 +69,7 @@ egnite_add_qml_executable(
   Qt::Gui
   Qt::Qml
   Qt::QuickControls2
-  egnite::egnite-cmd
-  egnite-flow-qml)
+  egnite::egnite-cmd)
 
 target_include_directories(
   editor

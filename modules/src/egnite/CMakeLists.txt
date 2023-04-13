@@ -13,6 +13,7 @@ configure_file(${include_root}/config.h.in ${include_root}/config.h)
 add_subdirectory(core)
 add_subdirectory(serializer)
 add_subdirectory(cmd)
+add_subdirectory(flow)
 add_subdirectory(rest)
 add_subdirectory(auth)
 # ----------------------------------------------------------------------- #

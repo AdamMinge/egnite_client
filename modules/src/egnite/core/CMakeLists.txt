@@ -11,9 +11,10 @@ set(include_root ${EGNITE_SOURCE_DIR}/modules/include/egnite/core)
 # -------------------------- Set files variable ------------------------- #
 # ----------------------------------------------------------------------- #
 set(sources
-    ${source_root}/plugins/plugin_manager.cpp ${source_root}/plugins/plugin.cpp
+    ${source_root}/plugins/plugin_manager.cpp
+    ${source_root}/plugins/plugin_interface.cpp
     ${source_root}/plugins/detail/plugin_manager_p.h
-    ${source_root}/plugins/detail/plugin_p.h)
+    ${source_root}/plugins/detail/plugin_interface_p.h)
 
 set(includes
     ${include_root}/export.h
@@ -22,7 +23,8 @@ set(includes
     ${include_root}/macros/map.h
     ${include_root}/macros/binder.h
     ${include_root}/plugins/plugin_manager.h
-    ${include_root}/plugins/plugin.h)
+    ${include_root}/plugins/plugin_interface.h
+    ${include_root}/plugins/plugin_listener.h)
 # ----------------------------------------------------------------------- #
 # ---------------------- Qt libraries configuration --------------------- #
 # ----------------------------------------------------------------------- #

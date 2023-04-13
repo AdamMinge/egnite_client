@@ -59,8 +59,8 @@ ApplicationWindow  {
         client: egnite_client
     }
 
-    RatingsApi {
-        id: ratings_api
+    PluginsRatingsApi {
+        id: plugins_ratings_api
         client: egnite_client
     }
 

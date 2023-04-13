@@ -7,6 +7,5 @@ cmake_minimum_required(VERSION 3.11)
 # ----------------------------------------------------------------------- #
 add_subdirectory(api/src)
 add_subdirectory(controls/src)
-add_subdirectory(flow/src)
 add_subdirectory(editor/src)
 # ----------------------------------------------------------------------- #
