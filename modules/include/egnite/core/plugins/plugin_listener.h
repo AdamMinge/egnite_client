@@ -17,8 +17,8 @@ class EGNITE_CORE_API PluginListener {
   virtual ~PluginListener();
 
  protected:
-  virtual void addedObject(OBJECT *object);
-  virtual void removedObject(OBJECT *object);
+  virtual void onObjectAdded(OBJECT *object);
+  virtual void onObjectRemoved(OBJECT *object);
 
   [[nodiscard]] QList<OBJECT *> getObjects() const;
 
@@ -33,14 +33,14 @@ PluginListener<OBJECT>::PluginListener() {
       &PluginManager::getInstance(), &PluginManager::objectAdded,
       [this](auto current_object) {
         if (auto object = qobject_cast<OBJECT *>(current_object); object)
-          this->addedObject(object);
+          this->onObjectAdded(object);
       });
 
   removed_object_conn = QObject::connect(
       &PluginManager::getInstance(), &PluginManager::objectRemoved,
       [this](auto current_object) {
         if (auto object = qobject_cast<OBJECT *>(current_object); object)
-          this->removedObject(object);
+          this->onObjectRemoved(object);
       });
 }
 
@@ -56,10 +56,10 @@ QList<OBJECT *> PluginListener<OBJECT>::getObjects() const {
 }
 
 template <typename OBJECT>
-void PluginListener<OBJECT>::addedObject(OBJECT *object) {}
+void PluginListener<OBJECT>::onObjectAdded(OBJECT *object) {}
 
 template <typename OBJECT>
-void PluginListener<OBJECT>::removedObject(OBJECT *object) {}
+void PluginListener<OBJECT>::onObjectRemoved(OBJECT *object) {}
 
 }  // namespace egnite::core::plugins
 
